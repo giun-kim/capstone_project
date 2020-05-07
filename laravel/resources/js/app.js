@@ -14,7 +14,11 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import Parent from './components/Parent';
 import Control_car from './components/Control_car';
 import Statistics from './components/Statistics';
-import Manage from './components/Manage';
+import Manage from './components/Manage/Manage';
+import Manage_station from './components/Manage/Manage_station';
+import Manage_path from './components/Manage/Manage_path';
+import Manage_checkpoint from './components/Manage/Manage_checkpoint';
+import Manage_rc from './components/Manage/Manage_rc';
 
 Vue.use(BootstrapVue);
 
@@ -35,6 +39,18 @@ const router = new VueRouter({
             path : '/manage',
             name : 'Manage',
             component : Manage
+        },
+        {
+            path : '/manage',
+            name : 'Manage',
+            component : Manage,
+            children : [
+                { path : 'manage_station', name : 'Manage_station', component : Manage_station },
+                { path : 'manage_path', name : 'Manage_path', component : Manage_path },
+                { path : 'manage_checkpoint', name : 'Manage_checkpoint', component : Manage_checkpoint },
+                { path : 'manage_rc', name : 'Manage_rc', component : Manage_rc },
+
+            ]
         }
     ]
 });
