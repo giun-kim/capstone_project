@@ -2125,7 +2125,7 @@ __webpack_require__.r(__webpack_exports__);
     };
     this.map = new kakao.maps.Map(this.container, this.mapOptions);
     var stationMarker = new kakao.maps.MarkerImage('/image/station.png', new kakao.maps.Size(20, 25));
-    Axios.get('http://1006900a.ngrok.io/api/dlvy/control') //첫 페이지 로딩
+    Axios.get('http://7bf68bef.ngrok.io/api/dlvy/control') //첫 페이지 로딩
     .then(function (response) {
       _this.proceeding_rc = response.data.proceeding_rc;
       _this.waiting_rc = response.data.waiting_rc;
@@ -2161,7 +2161,15 @@ __webpack_require__.r(__webpack_exports__);
           _this.rc_name = '';
           _this.rc_status = '';
           _this.rc_error_info = '';
-          Axios.get('http://1006900a.ngrok.io/api/dlvy/control/show/' + marker.getTitle()).then(function (response) {
+          _this.start_point = '';
+          _this.end_point = '';
+          _this.sender_name = '';
+          _this.sender_phone = '';
+          _this.receiver_name = '';
+          _this.receiver_phone = '';
+          _this.start_time = '';
+          _this.end_time = '';
+          Axios.get('http://7bf68bef.ngrok.io/api/dlvy/control/show/' + marker.getTitle()).then(function (response) {
             console.log(response);
 
             if (response.data.car_status == "운행 대기") {
