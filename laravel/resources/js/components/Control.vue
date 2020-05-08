@@ -101,24 +101,24 @@
             header-tag="header"
             style="max-width: 10rem;"
             class="mb-2">
-            <b-text>
+            <b-card-text>
               <small>출발 정류장 : {{start_point}}</small><br>
               <small>이름 : {{sender_name}}</small><br>
               <small>전화번호 : {{sender_phone}}</small>
               <small>출발 시간 : {{start_time}}</small>
-            </b-text>
+            </b-card-text>
           </b-card>
           <b-card
             header="header"
             header-tag="header"
             style="max-width: 10rem;"
             class="mb-2">
-            <b-text>
+            <b-card-text>
               <small>도착 정류장 : {{end_point}}</small><br>
               <small>이름 : {{receiver_name}}</small><br>
               <small>전화번호 : {{receiver_phone}}</small>
               <small>예상 도착 시간 : {{end_time}}</small>
-            </b-text>
+            </b-card-text>
           </b-card>
         </div>
       </div>
