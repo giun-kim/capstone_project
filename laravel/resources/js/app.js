@@ -12,7 +12,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 import Parent from './components/Parent';
-import Control_car from './components/Control_car';
+import Control from './components/Control';
 import Statistics from './components/Statistics';
 import Manage from './components/Manage';
 
@@ -23,8 +23,8 @@ const router = new VueRouter({
     routes : [
         {
             path : '/',
-            name : 'Control_car',
-            component : Control_car
+            name : 'Control',
+            component : Control
         },
         {
             path : '/statistics',

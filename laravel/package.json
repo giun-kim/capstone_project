@@ -24,6 +24,7 @@
         "bootstrap-vue": "^2.13.1",
         "vue": "^2.6.11",
         "vue-axios": "^2.1.5",
+        "vue-doughnut-chart": "^0.1.0",
         "vue-router": "^3.1.6"
     }
 }
