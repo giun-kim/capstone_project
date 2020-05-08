@@ -2023,6 +2023,20 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {
@@ -2060,8 +2074,10 @@ __webpack_require__.r(__webpack_exports__);
       //원그래프에 나올 퍼센트(완료율 / 전체 콜 수)
       entire_waiting: 0,
       //전체 대기 수
-      present_waiting: 0,
-      //현재 대기 중 건 수
+      complete_waiting: 0,
+      //대기 완료 건 수
+      now_waiting: 0,
+      //현재 대기 중 건수
       canceled_waiting: 0,
       //대기 취소 건 수
       cancaled_waiting_rate: 0,
@@ -2072,12 +2088,28 @@ __webpack_require__.r(__webpack_exports__);
       //실시간 평균 대기 시간
       avg_waiting_time_month_ago: 0,
       //저번달 하루 평균 대기 시간
+      rc_list: [],
+      //지도에 나올 RC카 리스트
+      station_list: [],
+      //지도에 나올 정류장 리스트
       rc_name: '',
       //운행 정보에 나올 RC 이름
       rc_status: '',
       //운행 정보에 나올 RC 상태
-      rc_error_info: '' //운행 정보에 나올 오류 내역
-
+      rc_error_info: '',
+      //운행 정보에 나올 오류 내역
+      start_point: '',
+      start_point_lat: '',
+      start_point_lon: '',
+      sender_name: '',
+      sender_phone: '',
+      start_time: '',
+      end_point: '',
+      end_point_lat: '',
+      end_point_lon: '',
+      receiver_name: '',
+      receiver_phone: '',
+      end_time: ''
     };
   },
   mounted: function mounted() {
@@ -2092,20 +2124,9 @@ __webpack_require__.r(__webpack_exports__);
 
     };
     this.map = new kakao.maps.Map(this.container, this.mapOptions);
-    this.marker = new kakao.maps.Marker({
-      // 디비에서 현재 등록되어 있는 RC카, 정류장 가져와 표시
-      position: new kakao.maps.LatLng(35.8962, 128.6220),
-      // 마커의 좌표35.895243, 128.623593
-      map: this.map // 마커를 표시할 지도 객체
-
-    });
-    this.marker.setMap(this.map); //임의로 한거임. 나중에 aixos 안에 구현.
-
-    this.rank_bldg = ['본관', '청문관', '도서관']; // this.items[0].rc_name = 'RC1';       //디비에서 받아오는 값으로 해야됨.
-    // this.items[0].rc_status = '배달 중';
-    // this.items[0].error_rc = '';
-
-    Axios.get('http://1006900a.ngrok.io/api/dlvy/control').then(function (response) {
+    var stationMarker = new kakao.maps.MarkerImage('/image/station.png', new kakao.maps.Size(20, 25));
+    Axios.get('http://1006900a.ngrok.io/api/dlvy/control') //첫 페이지 로딩
+    .then(function (response) {
       _this.proceeding_rc = response.data.proceeding_rc;
       _this.waiting_rc = response.data.waiting_rc;
       _this.error_rc = response.data.error_rc;
@@ -2114,11 +2135,83 @@ __webpack_require__.r(__webpack_exports__);
       _this.entire_call = response.data.entire_call;
       _this.complete_call = response.data.complete_call;
       _this.persent = Math.floor(_this.complete_call / _this.entire_call * 100);
-      _this.entire_waiting = response.data.entire_waiting + response.data.canceled_waiting;
+      _this.call_avg_month_ago = Math.floor(response.data.call_avg_month_ago);
+      _this.rank_bldg = response.data.build_rank;
+      _this.complete_waiting = response.data.complete_waiting;
+      _this.now_waiting = response.data.now_waiting;
       _this.canceled_waiting = response.data.canceled_waiting;
+      _this.entire_waiting = _this.complete_waiting + _this.now_waiting + _this.canceled_waiting;
       _this.cancaled_waiting_rate = Math.floor(_this.canceled_waiting / _this.entire_waiting * 100);
       _this.avg_waiting_time = Math.floor(response.data.avg_waiting_time);
+      _this.avg_waiting_time_month_ago = Math.floor(response.data.avg_waiting_time_month_ago);
       console.log(response.data);
+      _this.rc_list = response.data.map_car_status;
+      _this.station_list = response.data.station_info;
+
+      var _loop = function _loop() {
+        //마커 등록 and 마커에 이벤트 달기
+        var marker = new kakao.maps.Marker({
+          map: _this.map,
+          // 마커를 표시할 지도
+          position: new kakao.maps.LatLng(_this.rc_list[i].car_lat, _this.rc_list[i].car_lon),
+          // 마커의 위치
+          title: _this.rc_list[i].car_num
+        });
+        kakao.maps.event.addListener(marker, 'click', function () {
+          _this.rc_name = '';
+          _this.rc_status = '';
+          _this.rc_error_info = '';
+          Axios.get('http://1006900a.ngrok.io/api/dlvy/control/show/' + marker.getTitle()).then(function (response) {
+            console.log(response);
+
+            if (response.data.car_status == "운행 대기") {
+              _this.rc_name = response.data.car_name;
+              _this.rc_status = response.data.car_status;
+            } else if (response.data.car_status == "오류") {
+              _this.rc_name = response.data.car_name;
+              _this.rc_status = response.data.car_status;
+              _this.rc_error_info = response.data.car_error;
+            } else {
+              _this.rc_name = response.data.car.car_name;
+              _this.rc_status = response.data.car.car_status;
+              _this.sender_name = response.data.sender_info.user_name;
+              _this.sender_phone = response.data.sender_info.user_phone;
+              _this.receiver_name = response.data.receiver_info.user_name;
+              _this.receiver_phone = response.data.receiver_info.user_phone;
+              _this.start_point = response.data.dlvy_start_point.station_name;
+              _this.start_point_lat = response.data.dlvy_start_point.station_lat;
+              _this.start_point_lon = response.data.dlvy_start_point.station_lon;
+              _this.end_point = response.data.dlvy_end_point.station_name;
+              _this.end_point_lat = response.data.dlvy_end_point.station_lat;
+              _this.end_point_lon = response.data.dlvy_end_point.station_lon;
+
+              if (_this.rc_status == "호출중") {
+                _this.start_time = response.data.dlvy_status.dlvy_call_start; //RC카 위치와 출발지와의 거리 계산 하여 예상 소요 시간 구하기
+              } else if (_this.rc_status == "배달중") {
+                _this.start_time = response.data.dlvy_status.dlvy_start; //RC카 위치와 도착지와의 거리 계산 하여 예상 소요 시간 구하기
+              }
+            }
+          })["catch"](function (err) {
+            console.log(err);
+          });
+        });
+      };
+
+      for (var i = 0; i < _this.rc_list.length; i++) {
+        _loop();
+      }
+
+      for (var i = 0; i < _this.station_list.length; i++) {
+        //정류장 등록
+        var marker = new kakao.maps.Marker({
+          map: _this.map,
+          // 마커를 표시할 지도
+          position: new kakao.maps.LatLng(_this.station_list[i].station_lat, _this.station_list[i].station_lon),
+          // 마커의 위치
+          title: _this.station_list[i].station_name,
+          image: stationMarker
+        });
+      }
     })["catch"](function (error) {
       console.log(error);
     });
@@ -65081,7 +65174,7 @@ var render = function() {
           _c("br"),
           _vm._v(" "),
           _c("strong", [_vm._v("현재 대기 중")]),
-          _c("span", [_vm._v(_vm._s(_vm.present_waiting) + " 건")]),
+          _c("span", [_vm._v(_vm._s(_vm.now_waiting) + " 건")]),
           _c("br"),
           _vm._v(" "),
           _c("strong", [_vm._v("대기 취소 건 수")]),
@@ -65159,17 +65252,61 @@ var render = function() {
           "div",
           { attrs: { id: "test" } },
           [
-            _c("b-card", {
-              staticClass: "mb-2",
-              staticStyle: { "max-width": "10rem" },
-              attrs: { header: "header", "header-tag": "header" }
-            }),
+            _c(
+              "b-card",
+              {
+                staticClass: "mb-2",
+                staticStyle: { "max-width": "10rem" },
+                attrs: { header: "header", "header-tag": "header" }
+              },
+              [
+                _c("b-text", [
+                  _c("small", [
+                    _vm._v("출발 정류장 : " + _vm._s(_vm.start_point))
+                  ]),
+                  _c("br"),
+                  _vm._v(" "),
+                  _c("small", [_vm._v("이름 : " + _vm._s(_vm.sender_name))]),
+                  _c("br"),
+                  _vm._v(" "),
+                  _c("small", [
+                    _vm._v("전화번호 : " + _vm._s(_vm.sender_phone))
+                  ]),
+                  _vm._v(" "),
+                  _c("small", [_vm._v("출발 시간 : " + _vm._s(_vm.start_time))])
+                ])
+              ],
+              1
+            ),
             _vm._v(" "),
-            _c("b-card", {
-              staticClass: "mb-2",
-              staticStyle: { "max-width": "10rem" },
-              attrs: { header: "header", "header-tag": "header" }
-            })
+            _c(
+              "b-card",
+              {
+                staticClass: "mb-2",
+                staticStyle: { "max-width": "10rem" },
+                attrs: { header: "header", "header-tag": "header" }
+              },
+              [
+                _c("b-text", [
+                  _c("small", [
+                    _vm._v("도착 정류장 : " + _vm._s(_vm.end_point))
+                  ]),
+                  _c("br"),
+                  _vm._v(" "),
+                  _c("small", [_vm._v("이름 : " + _vm._s(_vm.receiver_name))]),
+                  _c("br"),
+                  _vm._v(" "),
+                  _c("small", [
+                    _vm._v("전화번호 : " + _vm._s(_vm.receiver_phone))
+                  ]),
+                  _vm._v(" "),
+                  _c("small", [
+                    _vm._v("예상 도착 시간 : " + _vm._s(_vm.end_time))
+                  ])
+                ])
+              ],
+              1
+            )
           ],
           1
         )
