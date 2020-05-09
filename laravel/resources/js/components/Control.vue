@@ -161,18 +161,18 @@ export default {
         rc_name : '',                   //운행 정보에 나올 RC 이름
         rc_status : '',                 //운행 정보에 나올 RC 상태
         rc_error_info : '',              //운행 정보에 나올 오류 내역
-        start_point : '',
-        start_point_lat : '',
-        start_point_lon : '',
-        sender_name : '',
-        sender_phone : '',
-        start_time : '',
-        end_point : '',
-        end_point_lat : '',
-        end_point_lon : '',
-        receiver_name : '',
-        receiver_phone : '',
-        end_time : ''
+        start_point : '',               //출발지 이름
+        start_point_lat : '',           //출발지 위도
+        start_point_lon : '',           //출발지 경도
+        sender_name : '',               //sender 이름
+        sender_phone : '',              //sender 전화번호
+        start_time : '',                //출발 시간
+        end_point : '',                 //목적지 이름
+        end_point_lat : '',             //목적지 위도
+        end_point_lon : '',             //목적지 경도
+        receiver_name : '',             //receiver 이름
+        receiver_phone : '',            //receiver 전화번호
+        end_time : ''                   //예상완료시간
     }
   },
   mounted(){
