@@ -1,17 +1,14 @@
 export default [
     {
-        rc_id : 1,
-        rc_name : 'rc_1',
-        rc_number : 1234
+        car_num : 1234,
+        car_name : 'rc_1'
     },
     {
-        rc_id : 1,
-        rc_name : 'rc_1',
-        rc_number : 5678
+        car_num : 5678,
+        car_name : 'rc_2'
     },
     {
-        rc_id : 1,
-        rc_name : 'rc_1',
-        rc_number : 9012
-    }
+        car_num : 9012,
+        car_name : 'rc_3'
+    },
 ]

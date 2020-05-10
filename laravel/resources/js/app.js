@@ -12,13 +12,17 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 import Parent from './components/Parent';
-import Control_car from './components/Control_car';
+import Control from './components/Control';
 import Statistics from './components/Statistics';
-import Manage from './components/Manage/Manage';
-import Manage_station from './components/Manage/Manage_station';
-import Manage_path from './components/Manage/Manage_path';
-import Manage_checkpoint from './components/Manage/Manage_checkpoint';
-import Manage_rc from './components/Manage/Manage_rc';
+import store from './store';
+import Manage from "./components/Manage/Manage";
+import Manage_station_create from "./components/Manage/Manage_station_create";
+import Manage_station_update from "./components/Manage/Manage_station_update";
+import Manage_path_create from "./components/Manage/Manage_path_create";
+import Manage_path_update from "./components/Manage/Manage_path_update";
+import Manage_check_create from "./components/Manage/Manage_check_create";
+import Manage_check_update from "./components/Manage/Manage_check_update";
+import Manage_rc from "./components/Manage/Manage_rc";
 
 Vue.use(BootstrapVue);
 
@@ -27,8 +31,8 @@ const router = new VueRouter({
     routes : [
         {
             path : '/',
-            name : 'Control_car',
-            component : Control_car
+            name : 'Control',
+            component : Control
         },
         {
             path : '/statistics',
@@ -36,28 +40,50 @@ const router = new VueRouter({
             component : Statistics
         },
         {
-            path : '/manage',
-            name : 'Manage',
-            component : Manage
-        },
-        {
-            path : '/manage',
-            name : 'Manage',
-            component : Manage,
-            children : [
-                { path : 'manage_station', name : 'Manage_station', component : Manage_station },
-                { path : 'manage_path', name : 'Manage_path', component : Manage_path },
-                { path : 'manage_checkpoint', name : 'Manage_checkpoint', component : Manage_checkpoint },
-                { path : 'manage_rc', name : 'Manage_rc', component : Manage_rc },
-
-            ]
-        }
+            path: "/manage",
+            name: "Manage",
+            component: Manage,
+            children: [
+              {
+                path: "manage_station_create",
+                name: "Manage_station_create",
+                component: Manage_station_create,
+              },
+              {
+                path: "manage_station_update",
+                name: "Manage_station_update",
+                component: Manage_station_update,
+              },
+              {
+                path: "manage_path_create",
+                name: "Manage_path_create",
+                component: Manage_path_create,
+              },
+              {
+                path: "manage_path_update",
+                name: "Manage_path_update",
+                component: Manage_path_update,
+              },
+              {
+                path: "manage_check_create",
+                name: "Manage_check_create",
+                component: Manage_check_create,
+              },
+              {
+                path: "manage_check_update",
+                name: "Manage_check_update",
+                component: Manage_check_update,
+              },
+              { path: "manage_rc", name: "Manage_rc", component: Manage_rc },
+            ],
+          },
     ]
 });
 
 const app = new Vue({
     el : '#app',
     router,
+    store,
     render : (h) => h(Parent)
 });
 
