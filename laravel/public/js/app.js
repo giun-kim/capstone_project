@@ -2503,6 +2503,8 @@ __webpack_require__.r(__webpack_exports__);
         stn_name: '',
         latlng: ''
       });
+    } else if (_data_station__WEBPACK_IMPORTED_MODULE_0__["default"][this.length - 1].stn_name == '' && this.id == 0) {
+      _data_station__WEBPACK_IMPORTED_MODULE_0__["default"].splice(this.length - 1, 1);
     }
 
     window.kakao && window.kakao.maps ? this.initMap() : this.addScript();
@@ -2562,12 +2564,25 @@ __webpack_require__.r(__webpack_exports__);
             contact.stn_id = i;
           });
           kakao.maps.event.addListener(map, 'click', function (mouseEvent) {
-            // 클릭한 위도, 경도 정보를 가져옵니다 
-            var latlng = mouseEvent.latLng; // 마커 위치를 클릭한 위치로 옮깁니다
+            // 문제점 맵 선택
+            var a = 1;
 
-            markers[i].setPosition(latlng);
-            contact.lat = latlng.getLat();
-            contact.lng = latlng.getLng();
+            if (contact.stage == 2) {
+              var latlng = mouseEvent.latLng;
+
+              if (a == 1) {
+                contact.lat = latlng.getLat();
+                contact.lng = latlng.getLng();
+                a += 1;
+              }
+            } else if (contact.stage == 3) {
+              // 클릭한 위도, 경도 정보를 가져옵니다 
+              var _latlng = mouseEvent.latLng; // 마커 위치를 클릭한 위치로 옮깁니다
+
+              markers[i].setPosition(_latlng);
+              contact.lat = _latlng.getLat();
+              contact.lng = _latlng.getLng();
+            }
           });
         }
       };
@@ -2597,6 +2612,7 @@ __webpack_require__.r(__webpack_exports__);
       if (this.stage == 1 && this.id == 1) this.stage += 1;
     },
     onSubmit: function onSubmit() {
+      // 등록
       _data_station__WEBPACK_IMPORTED_MODULE_0__["default"][this.data.length - 1].stn_id = this.data.length;
       _data_station__WEBPACK_IMPORTED_MODULE_0__["default"][this.data.length - 1].stn_name = this.stn_name;
       _data_station__WEBPACK_IMPORTED_MODULE_0__["default"][this.data.length - 1].latlng = new kakao.maps.LatLng(this.lat, this.lng);
@@ -2605,14 +2621,23 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     stn_delete: function stn_delete() {
+      // 삭제
       _data_station__WEBPACK_IMPORTED_MODULE_0__["default"].splice(_data_station__WEBPACK_IMPORTED_MODULE_0__["default"][this.stn_id - 1], 1);
     },
     stn_update: function stn_update() {
-      _data_station__WEBPACK_IMPORTED_MODULE_0__["default"][this.stn_id].stn_name = this.stn_name;
-      _data_station__WEBPACK_IMPORTED_MODULE_0__["default"][this.stn_id].latlng = new kakao.maps.LatLng(this.lat, this.lng);
-      this.$router.push({
-        name: 'Manage'
-      });
+      // 수정
+      if (this.stage == 2) {
+        this.stage += 1;
+      } else if (this.stage == 3) {
+        this.stage += 1;
+      } else if (this.stage == 4) {
+        var a = 1;
+        _data_station__WEBPACK_IMPORTED_MODULE_0__["default"][this.stn_id].stn_name = this.stn_name;
+        _data_station__WEBPACK_IMPORTED_MODULE_0__["default"][this.stn_id].latlng = new kakao.maps.LatLng(this.lat, this.lng);
+        this.$router.push({
+          name: 'Manage'
+        });
+      }
     }
   },
   watch: {
@@ -66192,7 +66217,7 @@ var render = function() {
               "\n        " +
               _vm._s(_vm.markers) +
               "\n        " +
-              _vm._s(_vm.stn_id) +
+              _vm._s(_vm.stage) +
               "\n        "
           ),
           _c(
@@ -66276,7 +66301,7 @@ var render = function() {
                             ])
                           : _vm._e(),
                         _vm._v(" "),
-                        _vm.stage == 2
+                        _vm.stage == 2 || _vm.stage == 3
                           ? _c(
                               "div",
                               [

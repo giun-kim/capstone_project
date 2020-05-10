@@ -5,11 +5,11 @@
             {{ data }}
             {{ data[stn_id] ? data[stn_id] : '' }}
             {{ markers }}
-            {{ stn_id }}
+            {{ stage }}
             <b-row>
                 <b-col>
                     <b-row v-if="id == 1"> <!-- 등록 -->
-                        <p v-if="stage == 1">지도에서 원하는 위치를 클릭해 주세요.</p>
+                        <p v-if="stage == 1">지도에서 원하는 위치를 클릭해 주세요.</p> 
                         <div v-if="stage == 2">
                             <b-form @submit="onSubmit">
                                 <p>정류장 이름</p>
@@ -25,7 +25,7 @@
                     </b-row>
                     <b-row v-if="id == 0"> <!-- 수정 -->
                         <p v-if="stage == 1">지도에서 수정/삭제할 RC카를 클릭해 주세요.</p>
-                        <div v-if="stage == 2">
+                        <div v-if="stage == 2 || stage == 3">
                             <b-form>
                                 <p>정류장 이름</p>
                                 <b-form-input v-model="stn_name" :placeholder="stn_name" ></b-form-input>
@@ -58,6 +58,8 @@ import data from './data/station'
                     stn_name : '',
                     latlng : ''
                 })
+            } else if(data[this.length-1].stn_name == '' && this.id == 0) {
+                data.splice(this.length-1, 1)
             }
             
             window.kakao && window.kakao.maps ? this.initMap() : this.addScript();
@@ -113,20 +115,29 @@ import data from './data/station'
                             contact.stn_id = i                    
                         })
 
-                        kakao.maps.event.addListener(map, 'click', function(mouseEvent) { 
+                        kakao.maps.event.addListener(map, 'click', function(mouseEvent) { // 문제점 맵 선택
+                            var a = 1
+                            if(contact.stage == 2) {
+                                let latlng = mouseEvent.latLng
+                                if(a == 1) {
+                                    contact.lat = latlng.getLat()
+                                    contact.lng = latlng.getLng()
+                                    a +=1
+                                }
+                            } else if (contact.stage == 3) {
+                                // 클릭한 위도, 경도 정보를 가져옵니다 
+                                let latlng = mouseEvent.latLng
+                    
+                                // 마커 위치를 클릭한 위치로 옮깁니다
+                                markers[i].setPosition(latlng)
 
-                            // 클릭한 위도, 경도 정보를 가져옵니다 
-                            let latlng = mouseEvent.latLng
-                
-                            // 마커 위치를 클릭한 위치로 옮깁니다
-                            markers[i].setPosition(latlng)
-
-                            contact.lat = latlng.getLat()
-                            contact.lng = latlng.getLng()
+                                contact.lat = latlng.getLat()
+                                contact.lng = latlng.getLng()
+                            }
                         })
                     }
                 }
-
+            
                 // 마커 표시
                 marker.setMap(map)
                 if(this.id == 1) {
@@ -146,19 +157,27 @@ import data from './data/station'
                 if(this.stage == 1 && this.id == 1)
                     this.stage +=1
             },
-            onSubmit() {
+            onSubmit() { // 등록
                 data[this.data.length-1].stn_id = this.data.length
                 data[this.data.length-1].stn_name = this.stn_name
                 data[this.data.length-1].latlng = new kakao.maps.LatLng(this.lat, this.lng)
                 this.$router.push({name:'Manage'})
             },
-            stn_delete() {
+            stn_delete() { // 삭제
                 data.splice(data[this.stn_id-1], 1)
             },
-            stn_update() {
-                data[this.stn_id].stn_name = this.stn_name
-                data[this.stn_id].latlng = new kakao.maps.LatLng(this.lat, this.lng)
-                this.$router.push({name:'Manage'})
+            stn_update() { // 수정
+                if(this.stage == 2) {
+                    this.stage += 1
+                } else if(this.stage == 3) {
+                    this.stage += 1
+                }
+                else if(this.stage == 4) {
+                    var a = 1
+                    data[this.stn_id].stn_name = this.stn_name
+                    data[this.stn_id].latlng = new kakao.maps.LatLng(this.lat, this.lng)
+                    this.$router.push({name:'Manage'})
+                }
             }
         },
         watch : {
