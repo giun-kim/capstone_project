@@ -3137,7 +3137,19 @@ __webpack_require__.r(__webpack_exports__);
 // import data from "./data/station";
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
+<<<<<<< HEAD
     var _this = this;
+=======
+    if (_data_station__WEBPACK_IMPORTED_MODULE_0__["default"][this.length - 1].stn_name != '' && this.id == 1) {
+      this.data.push({
+        stn_id: '',
+        stn_name: '',
+        latlng: ''
+      });
+    } else if (_data_station__WEBPACK_IMPORTED_MODULE_0__["default"][this.length - 1].stn_name == '' && this.id == 0) {
+      _data_station__WEBPACK_IMPORTED_MODULE_0__["default"].splice(this.length - 1, 1);
+    }
+>>>>>>> 779918903393760f8ad83f1e844b077b778c2105
 
     Axios.get('/api/manage').then(function (res) {
       _this.data = res.data.station;
@@ -3209,11 +3221,45 @@ __webpack_require__.r(__webpack_exports__);
             // 마커를 표시할 위치
             title: _this2.data[i].station_name // 마커의 타이틀, 마커에 마우스를 올리면 타이틀이 표시됩니다.
 
+<<<<<<< HEAD
           }); // 인포 윈도우 생성
 
           infowindow = new kakao.maps.InfoWindow({
             content: "<div style='text-align:center; margin-left:5px; color:#18a2b8'>" + _this2.data[i].station_name + "</div>"
           }); // 마우스 오버 이벤트
+=======
+          });
+          markers.push(marker);
+          console.log(markers[0]);
+          kakao.maps.event.addListener(markers[i], 'click', function () {
+            // 클릭한 위도, 경도 정보를 가져옵니다 
+            contact.stage = 2;
+            contact.stn_id = i;
+          });
+          kakao.maps.event.addListener(map, 'click', function (mouseEvent) {
+            // 문제점 맵 선택
+            var a = 1;
+
+            if (contact.stage == 2) {
+              var latlng = mouseEvent.latLng;
+
+              if (a == 1) {
+                contact.lat = latlng.getLat();
+                contact.lng = latlng.getLng();
+                a += 1;
+              }
+            } else if (contact.stage == 3) {
+              // 클릭한 위도, 경도 정보를 가져옵니다 
+              var _latlng = mouseEvent.latLng; // 마커 위치를 클릭한 위치로 옮깁니다
+
+              markers[i].setPosition(_latlng);
+              contact.lat = _latlng.getLat();
+              contact.lng = _latlng.getLng();
+            }
+          });
+        }
+      };
+>>>>>>> 779918903393760f8ad83f1e844b077b778c2105
 
           kakao.maps.event.addListener(marker, "mouseover", _this2.makeOverListener(map, marker, infowindow));
           kakao.maps.event.addListener(marker, "mouseout", _this2.makeOutListener(infowindow));
@@ -3253,6 +3299,7 @@ __webpack_require__.r(__webpack_exports__);
         }
       }
     },
+<<<<<<< HEAD
     stn_delete: function stn_delete() {
       var _this3 = this;
 
@@ -3282,6 +3329,47 @@ __webpack_require__.r(__webpack_exports__);
       })["catch"](function (err) {
         console.log(err);
       });
+=======
+    map_click: function map_click() {
+      if (this.stage == 1 && this.id == 1) this.stage += 1;
+    },
+    onSubmit: function onSubmit() {
+      // 등록
+      _data_station__WEBPACK_IMPORTED_MODULE_0__["default"][this.data.length - 1].stn_id = this.data.length;
+      _data_station__WEBPACK_IMPORTED_MODULE_0__["default"][this.data.length - 1].stn_name = this.stn_name;
+      _data_station__WEBPACK_IMPORTED_MODULE_0__["default"][this.data.length - 1].latlng = new kakao.maps.LatLng(this.lat, this.lng);
+      this.$router.push({
+        name: 'Manage'
+      });
+    },
+    stn_delete: function stn_delete() {
+      // 삭제
+      _data_station__WEBPACK_IMPORTED_MODULE_0__["default"].splice(_data_station__WEBPACK_IMPORTED_MODULE_0__["default"][this.stn_id - 1], 1);
+    },
+    stn_update: function stn_update() {
+      // 수정
+      if (this.stage == 2) {
+        this.stage += 1;
+      } else if (this.stage == 3) {
+        this.stage += 1;
+      } else if (this.stage == 4) {
+        var a = 1;
+        _data_station__WEBPACK_IMPORTED_MODULE_0__["default"][this.stn_id].stn_name = this.stn_name;
+        _data_station__WEBPACK_IMPORTED_MODULE_0__["default"][this.stn_id].latlng = new kakao.maps.LatLng(this.lat, this.lng);
+        this.$router.push({
+          name: 'Manage'
+        });
+      }
+    }
+  },
+  watch: {
+    id: function id(_id) {
+      if (_id == 0 || _id == 1) {
+        window.kakao && window.kakao.maps ? this.initMap() : this.addScript();
+        this.stage = 1;
+        this.stn_name = '';
+      }
+>>>>>>> 779918903393760f8ad83f1e844b077b778c2105
     },
     cancel: function cancel() {
       var _this5 = this;
@@ -67094,12 +67182,181 @@ var render = function() {
       _c(
         "b-container",
         [
+<<<<<<< HEAD
           _c(
             "b-row",
             [
               _c("b-col", { attrs: { cols: "3" } }, [
                 _vm._v("\n                path 수정하기\n            ")
               ]),
+=======
+          _vm._v(
+            "\n        id : " +
+              _vm._s(_vm.id) +
+              "\n        " +
+              _vm._s(_vm.data) +
+              "\n        " +
+              _vm._s(_vm.data[_vm.stn_id] ? _vm.data[_vm.stn_id] : "") +
+              "\n        " +
+              _vm._s(_vm.markers) +
+              "\n        " +
+              _vm._s(_vm.stage) +
+              "\n        "
+          ),
+          _c(
+            "b-row",
+            [
+              _c(
+                "b-col",
+                [
+                  _vm.id == 1
+                    ? _c("b-row", [
+                        _vm.stage == 1
+                          ? _c("p", [
+                              _vm._v("지도에서 원하는 위치를 클릭해 주세요.")
+                            ])
+                          : _vm._e(),
+                        _vm._v(" "),
+                        _vm.stage == 2
+                          ? _c(
+                              "div",
+                              [
+                                _c(
+                                  "b-form",
+                                  { on: { submit: _vm.onSubmit } },
+                                  [
+                                    _c("p", [_vm._v("정류장 이름")]),
+                                    _vm._v(" "),
+                                    _c("b-form-input", {
+                                      attrs: {
+                                        placeholder: "정류장을 입력해 주세요."
+                                      },
+                                      model: {
+                                        value: _vm.stn_name,
+                                        callback: function($$v) {
+                                          _vm.stn_name = $$v
+                                        },
+                                        expression: "stn_name"
+                                      }
+                                    }),
+                                    _vm._v(" "),
+                                    _c("p", [_vm._v("위도")]),
+                                    _vm._v(" "),
+                                    _c("p", [_vm._v(_vm._s(_vm.lat))]),
+                                    _vm._v(" "),
+                                    _c("p", [_vm._v("경도")]),
+                                    _vm._v(" "),
+                                    _c("p", [_vm._v(_vm._s(_vm.lng))]),
+                                    _vm._v(" "),
+                                    _c(
+                                      "b-button",
+                                      {
+                                        attrs: {
+                                          type: "submit",
+                                          variant: "primary"
+                                        }
+                                      },
+                                      [_vm._v("등록하기")]
+                                    ),
+                                    _vm._v(" "),
+                                    _c(
+                                      "b-button",
+                                      { attrs: { type: "button" } },
+                                      [_vm._v("취소")]
+                                    )
+                                  ],
+                                  1
+                                )
+                              ],
+                              1
+                            )
+                          : _vm._e()
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.id == 0
+                    ? _c("b-row", [
+                        _vm.stage == 1
+                          ? _c("p", [
+                              _vm._v(
+                                "지도에서 수정/삭제할 RC카를 클릭해 주세요."
+                              )
+                            ])
+                          : _vm._e(),
+                        _vm._v(" "),
+                        _vm.stage == 2 || _vm.stage == 3
+                          ? _c(
+                              "div",
+                              [
+                                _c(
+                                  "b-form",
+                                  [
+                                    _c("p", [_vm._v("정류장 이름")]),
+                                    _vm._v(" "),
+                                    _c("b-form-input", {
+                                      attrs: { placeholder: _vm.stn_name },
+                                      model: {
+                                        value: _vm.stn_name,
+                                        callback: function($$v) {
+                                          _vm.stn_name = $$v
+                                        },
+                                        expression: "stn_name"
+                                      }
+                                    }),
+                                    _vm._v(" "),
+                                    _c("p", [_vm._v("위도")]),
+                                    _vm._v(" "),
+                                    _c("p", { attrs: { id: "lat" } }, [
+                                      _vm._v(_vm._s(_vm.lat))
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("p", [_vm._v("경도")]),
+                                    _vm._v(" "),
+                                    _c("p", { attrs: { id: "lng" } }, [
+                                      _vm._v(_vm._s(_vm.lng))
+                                    ]),
+                                    _vm._v(" "),
+                                    _c(
+                                      "b-button",
+                                      {
+                                        attrs: {
+                                          type: "submit",
+                                          variant: "primary"
+                                        },
+                                        on: {
+                                          click: function($event) {
+                                            return _vm.stn_update()
+                                          }
+                                        }
+                                      },
+                                      [_vm._v("수정하기")]
+                                    ),
+                                    _vm._v(" "),
+                                    _c(
+                                      "b-button",
+                                      {
+                                        attrs: { type: "button" },
+                                        on: {
+                                          click: function($event) {
+                                            return _vm.stn_delete()
+                                          }
+                                        }
+                                      },
+                                      [_vm._v("삭제하기")]
+                                    )
+                                  ],
+                                  1
+                                )
+                              ],
+                              1
+                            )
+                          : _vm._e()
+                      ])
+                    : _vm._e()
+                ],
+                1
+              ),
+>>>>>>> 779918903393760f8ad83f1e844b077b778c2105
               _vm._v(" "),
               _c("b-col", { attrs: { cols: "7" } }, [
                 _c("div", { attrs: { id: "map" } })
