@@ -32,7 +32,7 @@
 <script>
 export default {
   mounted() {
-    Axios.get('/api/manage')
+    Axios.get('/api/dlvy/management/station')
     .then((res) => {
       this.data = res.data.station
       if (this.data[this.data.length - 1].station_name != "") {
@@ -124,17 +124,13 @@ export default {
     },
     stn_create() {
       console.log(this.station_name)
-      Axios.post('/api/manage', {
+      Axios.post('/api/dlvy/management/station', {
         id : 1,
         station_name : this.station_name,
         station_lat : this.lat,
         station_lon : this.lon
       })
-      .then(res => {
-        this.data = res.data.station
-        this.initialize();
-        this.initMap();
-      })
+      .then(res => {})
       .catch(err => {
         console.log(err)
       })
@@ -161,15 +157,8 @@ export default {
     },
   },
   cancel() {
-      Axios.post("/api/manage", {
+      Axios.post("/api/dlvy/management/station", {
         id : 3
-      })
-      .then(res => {
-        this.initialize();
-        this.initMap();
-      })
-      .catch(err => {
-        console.log(err)
       })
     },
 };

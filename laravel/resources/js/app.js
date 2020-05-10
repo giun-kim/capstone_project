@@ -19,8 +19,8 @@ import Manage_station_create from "./components/Manage/Manage_station_create";
 import Manage_station_update from "./components/Manage/Manage_station_update";
 import Manage_path_create from "./components/Manage/Manage_path_create";
 import Manage_path_update from "./components/Manage/Manage_path_update";
-import Manage_check_create from "./components/Manage/Manage_check_create";
-import Manage_check_update from "./components/Manage/Manage_check_update";
+import Manage_checkpoint_create from "./components/Manage/Manage_checkpoint_create";
+import Manage_checkpoint_update from "./components/Manage/Manage_checkpoint_update";
 import Manage_rc from "./components/Manage/Manage_rc";
 
 Vue.use(BootstrapVue);
@@ -64,14 +64,14 @@ const router = new VueRouter({
                 component: Manage_path_update,
               },
               {
-                path: "manage_check_create",
-                name: "Manage_check_create",
-                component: Manage_check_create,
+                path: "manage_checkpoint_create",
+                name: "Manage_checkpoint_create",
+                component: Manage_checkpoint_create,
               },
               {
-                path: "manage_check_update",
-                name: "Manage_check_update",
-                component: Manage_check_update,
+                path: "manage_checkpoint_update",
+                name: "Manage_checkpoint_update",
+                component: Manage_checkpoint_update,
               },
               { path: "manage_rc", name: "Manage_rc", component: Manage_rc },
             ],

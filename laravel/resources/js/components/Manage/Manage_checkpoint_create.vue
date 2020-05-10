@@ -14,10 +14,8 @@
             </div>
           </div>
           <b-button-group>
-            <b-button type="submit" variant="primary" @click="stn_create()"
-              >등록하기</b-button
-            >
-            <b-button type="submit" @click="cancel">취소하기</b-button>
+            <b-button type="submit" variant="primary" @click="chk_create()">등록하기</b-button>
+            <b-button type="submit" @click="cancel()">취소하기</b-button>
           </b-button-group>
         </b-form>
       </div>
@@ -28,16 +26,17 @@
 <script>
 export default {
   mounted() {
-    Axios.get('/api/manage')
+    Axios.get('/api/dlvy/management/checkpoint')
     .then((res) => {
-      this.data = res.data.station
-      if (this.data[this.data.length - 1].station_name != "") {
+      console.log(res.data.checkpoint)
+      this.data = res.data.checkpoint
+      if (this.data[this.data.length - 1].checkpoint_id != "") {
       this.data.push({
-        station_name: "",
-        station_lat: "",
-        station_lon: ""
+        checkpoint_id: "",
+        checkpoint_lat: "",
+        checkpoint_lon: ""
       });
-      } else if (this.data[this.data.length - 1].station_name == "") {
+      } else if (this.data[this.data.length - 1].checkpoint_id == "") {
         this.data.splice(this.data.length - 1, 1);
       }
       this.initMap();
@@ -47,14 +46,19 @@ export default {
     return {
       map_stage: 1, // 맵 한번만 생성
       stage: 1, // 단계별 보여지는 화면
-      station_name: "", // 정류장 이름
+      checkpoint_id: "", // 체크포인트 아이디
       lat: "", // 위도
       lon: "", // 경도
-      data: "", // 정류장 데이터
+      data: "", // 체크포인트 데이터
       map: "",
     };
   },
   methods: {
+    cancel() {
+      Axios.post("/api/dlvy/management/checkpoint", {
+        id : 3
+      })
+    },
     makeOverListener(map, marker, infowindow) {
       return function() {
         infowindow.open(map, marker);
@@ -84,13 +88,13 @@ export default {
         // 마커를 생성합니다
         var marker = new kakao.maps.Marker({
           map: this.map,
-          position: new kakao.maps.LatLng(this.data[i].station_lat, this.data[i].station_lon) ? new kakao.maps.LatLng(this.data[i].station_lat, this.data[i].station_lon) : "", // 마커를 표시할 위치
+          position: new kakao.maps.LatLng(this.data[i].checkpoint_lat, this.data[i].checkpoint_lon) ? new kakao.maps.LatLng(this.data[i].checkpoint_lat, this.data[i].checkpoint_lon) : "", // 마커를 표시할 위치
         });
         // 인포 윈도우 생성
         var infowindow = new kakao.maps.InfoWindow({
           content:
             "<div style='text-align:center; margin-left:5px; color:#18a2b8'>" +
-            (this.data[i].station_name ? this.data[i].station_name : "") +
+            "checkpoint id : " + (this.data[i].checkpoint_id ? this.data[i].checkpoint_id : "") +
             "</div>",
         });
         // 마우스 오버 이벤트
@@ -118,19 +122,16 @@ export default {
         this.lon = latlng.getLng();
       });
     },
-    stn_create() {
-      console.log(this.station_name)
-      Axios.post('/api/manage', {
+    chk_create() {
+      console.log(this.checkpoint_id)
+      console.log(this.lat)
+      Axios.post('/api/dlvy/management/checkpoint', {
         id : 1,
-        station_name : this.station_name,
-        station_lat : this.lat,
-        station_lon : this.lon
+        checkpoint_id : this.checkpoint_id,
+        checkpoint_lat : this.lat,
+        checkpoint_lon : this.lon
       })
-      .then(res => {
-        this.data = res.data.station
-        this.initialize();
-        this.initMap();
-      })
+      .then(res => {})
       .catch(err => {
         console.log(err)
       })
@@ -144,37 +145,24 @@ export default {
         (this.lat = ""), // 위도
         (this.lng = ""), // 경도
         (this.data = ""), // 정류장 데이터
-        (this.station_name = ""); // 정류장 이름
-      if (this.data[this.data.length - 1].station_name != "") {
+        (this.checkpoint_id = ""); // 정류장 이름
+      if (this.data[this.data.length - 1].checkpoint_id != "") {
         this.data.push({
-          station_name: "",
-          station_lat: "",
-          station_lon: ""
+          checkpoint_id: "",
+          checkpoint_lat: "",
+          checkpoint_lon: ""
         });
-      } else if (this.data[this.data.length - 1].station_name == "") {
+      } else if (this.data[this.data.length - 1].checkpoint_id == "") {
         this.data.splice(this.length - 1, 1);
       }
     },
   },
-  cancel() {
-      Axios.post("/api/manage", {
-        id : 3
-      })
-      .then(res => {
-        this.initialize();
-        this.initMap();
-      })
-      .catch(err => {
-        console.log(err)
-      })
-    },
+  
 };
 </script>
 
 <style scoped>
 #map {
-  /* width: 50rem; */
-  /* height: 40rem; */
   height: 600px;
 }
 

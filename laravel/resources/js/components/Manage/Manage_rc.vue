@@ -22,10 +22,12 @@
 </template>
 
 <script>
-import data from './data/rc'
   export default {
     mounted() {
-
+      Axios.get('/api/car')
+      .then(res => {
+        console.log(res.data.car)
+      })
     },
     data() {
       return {

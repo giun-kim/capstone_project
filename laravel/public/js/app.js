@@ -2510,12 +2510,12 @@ __webpack_require__.r(__webpack_exports__);
     return {};
   },
   methods: {
-    stn_create: function stn_create() {
+    station_create: function station_create() {
       this.$router.push({
         name: "Manage_station_create"
       })["catch"](function (err) {});
     },
-    stn_update: function stn_update() {
+    station_update: function station_update() {
       this.$router.push({
         name: "Manage_station_update"
       })["catch"](function (err) {});
@@ -2535,14 +2535,14 @@ __webpack_require__.r(__webpack_exports__);
         name: "Manage_rc"
       })["catch"](function (err) {});
     },
-    check_create: function check_create() {
+    checkpoint_create: function checkpoint_create() {
       this.$router.push({
-        name: "Manage_check_create"
+        name: "Manage_checkpoint_create"
       })["catch"](function (err) {});
     },
-    check_update: function check_update() {
+    checkpoint_update: function checkpoint_update() {
       this.$router.push({
-        name: "Manage_check_update"
+        name: "Manage_checkpoint_update"
       })["catch"](function (err) {});
     }
   }
@@ -2550,10 +2550,10 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_check_create.vue?vue&type=script&lang=js&":
-/*!*************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Manage/Manage_check_create.vue?vue&type=script&lang=js& ***!
-  \*************************************************************************************************************************************************************************************/
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=script&lang=js&":
+/*!******************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=script&lang=js& ***!
+  \******************************************************************************************************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -2584,22 +2584,21 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
     var _this = this;
 
-    Axios.get('/api/manage').then(function (res) {
-      _this.data = res.data.station;
+    Axios.get('/api/dlvy/management/checkpoint').then(function (res) {
+      console.log(res.data.checkpoint);
+      _this.data = res.data.checkpoint;
 
-      if (_this.data[_this.data.length - 1].station_name != "") {
+      if (_this.data[_this.data.length - 1].checkpoint_id != "") {
         _this.data.push({
-          station_name: "",
-          station_lat: "",
-          station_lon: ""
+          checkpoint_id: "",
+          checkpoint_lat: "",
+          checkpoint_lon: ""
         });
-      } else if (_this.data[_this.data.length - 1].station_name == "") {
+      } else if (_this.data[_this.data.length - 1].checkpoint_id == "") {
         _this.data.splice(_this.data.length - 1, 1);
       }
 
@@ -2612,18 +2611,23 @@ __webpack_require__.r(__webpack_exports__);
       // 맵 한번만 생성
       stage: 1,
       // 단계별 보여지는 화면
-      station_name: "",
-      // 정류장 이름
+      checkpoint_id: "",
+      // 체크포인트 아이디
       lat: "",
       // 위도
       lon: "",
       // 경도
       data: "",
-      // 정류장 데이터
+      // 체크포인트 데이터
       map: ""
     };
   },
   methods: {
+    cancel: function cancel() {
+      Axios.post("/api/dlvy/management/checkpoint", {
+        id: 3
+      });
+    },
     makeOverListener: function makeOverListener(map, marker, infowindow) {
       return function () {
         infowindow.open(map, marker);
@@ -2654,12 +2658,12 @@ __webpack_require__.r(__webpack_exports__);
         // 마커를 생성합니다
         var marker = new kakao.maps.Marker({
           map: this.map,
-          position: new kakao.maps.LatLng(this.data[i].station_lat, this.data[i].station_lon) ? new kakao.maps.LatLng(this.data[i].station_lat, this.data[i].station_lon) : "" // 마커를 표시할 위치
+          position: new kakao.maps.LatLng(this.data[i].checkpoint_lat, this.data[i].checkpoint_lon) ? new kakao.maps.LatLng(this.data[i].checkpoint_lat, this.data[i].checkpoint_lon) : "" // 마커를 표시할 위치
 
         }); // 인포 윈도우 생성
 
         var infowindow = new kakao.maps.InfoWindow({
-          content: "<div style='text-align:center; margin-left:5px; color:#18a2b8'>" + (this.data[i].station_name ? this.data[i].station_name : "") + "</div>"
+          content: "<div style='text-align:center; margin-left:5px; color:#18a2b8'>" + "checkpoint id : " + (this.data[i].checkpoint_id ? this.data[i].checkpoint_id : "") + "</div>"
         }); // 마우스 오버 이벤트
 
         kakao.maps.event.addListener(marker, "mouseover", this.makeOverListener(map, marker, infowindow));
@@ -2676,22 +2680,15 @@ __webpack_require__.r(__webpack_exports__);
         _this2.lon = latlng.getLng();
       });
     },
-    stn_create: function stn_create() {
-      var _this3 = this;
-
-      console.log(this.station_name);
-      Axios.post('/api/manage', {
+    chk_create: function chk_create() {
+      console.log(this.checkpoint_id);
+      console.log(this.lat);
+      Axios.post('/api/dlvy/management/checkpoint', {
         id: 1,
-        station_name: this.station_name,
-        station_lat: this.lat,
-        station_lon: this.lon
-      }).then(function (res) {
-        _this3.data = res.data.station;
-
-        _this3.initialize();
-
-        _this3.initMap();
-      })["catch"](function (err) {
+        checkpoint_id: this.checkpoint_id,
+        checkpoint_lat: this.lat,
+        checkpoint_lon: this.lon
+      }).then(function (res) {})["catch"](function (err) {
         console.log(err);
       });
     },
@@ -2704,40 +2701,27 @@ __webpack_require__.r(__webpack_exports__);
       this.lat = "", // 위도
       this.lng = "", // 경도
       this.data = "", // 정류장 데이터
-      this.station_name = ""; // 정류장 이름
+      this.checkpoint_id = ""; // 정류장 이름
 
-      if (this.data[this.data.length - 1].station_name != "") {
+      if (this.data[this.data.length - 1].checkpoint_id != "") {
         this.data.push({
-          station_name: "",
-          station_lat: "",
-          station_lon: ""
+          checkpoint_id: "",
+          checkpoint_lat: "",
+          checkpoint_lon: ""
         });
-      } else if (this.data[this.data.length - 1].station_name == "") {
+      } else if (this.data[this.data.length - 1].checkpoint_id == "") {
         this.data.splice(this.length - 1, 1);
       }
     }
-  },
-  cancel: function cancel() {
-    var _this4 = this;
-
-    Axios.post("/api/manage", {
-      id: 3
-    }).then(function (res) {
-      _this4.initialize();
-
-      _this4.initMap();
-    })["catch"](function (err) {
-      console.log(err);
-    });
   }
 });
 
 /***/ }),
 
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_check_update.vue?vue&type=script&lang=js&":
-/*!*************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Manage/Manage_check_update.vue?vue&type=script&lang=js& ***!
-  \*************************************************************************************************************************************************************************************/
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=script&lang=js&":
+/*!******************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=script&lang=js& ***!
+  \******************************************************************************************************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -2759,37 +2743,157 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
-    this.initMap();
+    var _this = this;
+
+    Axios.get('/api/dlvy/management/checkpoint').then(function (res) {
+      _this.data = res.data.checkpoint;
+
+      _this.initMap();
+    });
   },
   data: function data() {
     return {
-      map_x: 35.896309,
-      map_y: 128.621917
+      map_stage: 1,
+      // 맵 한번만 생성
+      stage: 1,
+      // 단계별 보여지는 화면
+      checkpoint_id: "",
+      // 체크포인트 아이디
+      lat: "",
+      // 위도
+      lon: "",
+      // 경도
+      data: "",
+      // 데이터
+      markers: [],
+      // 마커 표시
+      map: "",
+      // 맵 저장
+      click: 0
     };
   },
   methods: {
-    initMap: function initMap() {
-      var container = document.getElementById('map');
-      var options = {
-        center: new kakao.maps.LatLng(this.map_x, this.map_y),
-        level: 2
+    makeOverListener: function makeOverListener(map, marker, infowindow) {
+      return function () {
+        infowindow.open(map, marker);
       };
-      var map = new kakao.maps.Map(container, options);
-      this.map = map;
-      var marker = new kakao.maps.Marker({
-        position: ''
-      });
-      marker.setMap(map);
-      kakao.maps.event.addListener(map, 'click', function (mouseEvent) {
-        // 클릭한 위도, 경도 정보를 가져옵니다 
-        var latlng = mouseEvent.latLng; // 마커 위치를 클릭한 위치로 옮깁니다
+    },
+    // 인포윈도우를 닫는 클로저를 만드는 함수입니다
+    makeOutListener: function makeOutListener(infowindow) {
+      return function () {
+        infowindow.close();
+      };
+    },
+    initMap: function initMap() {
+      var _this2 = this;
 
-        marker.setPosition(latlng);
-        lat = latlng.getLat();
-        lng = latlng.getLng();
+      // 단 한번만 실행으로 모든 걸 처리
+      if (this.map_stage == 1) {
+        var container = document.getElementById("map");
+        var options = {
+          center: new kakao.maps.LatLng(35.896309, 128.621917),
+          // 지도 중심 좌표
+          level: 2,
+          // 지도 확대
+          draggable: false // 지도 이동 막기
+
+        };
+        var map = new kakao.maps.Map(container, options);
+        this.map = map;
+        this.map_stage = 2;
+      } // 여러 개 마커 생성하기
+
+
+      if (this.stage == 1) {
+        var _loop = function _loop(i) {
+          // 마커를 생성합니다
+          var marker = new kakao.maps.Marker({
+            position: new kakao.maps.LatLng(_this2.data[i].checkpoint_lat, _this2.data[i].checkpoint_lon) // 마커를 표시할 위치
+
+          }); // 인포 윈도우 생성
+
+          infowindow = new kakao.maps.InfoWindow({
+            content: "<div style='text-align:center; margin-left:5px; color:#18a2b8'>" + "checkpoint id : " + _this2.data[i].checkpoint_id + "</div>"
+          }); // 마우스 오버 이벤트
+
+          kakao.maps.event.addListener(marker, "mouseover", _this2.makeOverListener(map, marker, infowindow));
+          kakao.maps.event.addListener(marker, "mouseout", _this2.makeOutListener(infowindow));
+          marker.setMap(_this2.map);
+
+          _this2.markers.push(marker);
+
+          kakao.maps.event.addListener(marker, "click", function () {
+            _this2.stage = 2; // 정류장 클릭 후 수정 페이지 이동
+
+            if (_this2.click == 0) {
+              _this2.click += 1;
+              _this2.checkpoint_id = _this2.data[i].checkpoint_id;
+              _this2.lat = _this2.data[i].checkpoint_lat; // 위도
+
+              _this2.lon = _this2.data[i].checkpoint_lon; // 경도
+
+              marker.setDraggable(true);
+            }
+          });
+          kakao.maps.event.addListener(marker, "dragend", function () {
+            _this2.lat = marker.getPosition().Ha;
+            _this2.lon = marker.getPosition().Ga;
+            console.log(_this2.lat, _this2.lon);
+          });
+        };
+
+        for (var i = 0; i < this.data.length; i++) {
+          var infowindow;
+
+          _loop(i);
+        }
+      }
+    },
+    chk_delete: function chk_delete() {
+      Axios["delete"]("/api/dlvy/management/checkpoint/".concat(this.checkpoint_id)).then(function (res) {})["catch"](function (err) {
+        console.log(err);
       });
+    },
+    chk_update: function chk_update() {
+      console.log(this.lat);
+      Axios.patch("/api/dlvy/management/checkpoint/".concat(this.checkpoint_id), {
+        checkpoint_lat: this.lat,
+        checkpoint_lon: this.lon
+      }).then(function (res) {})["catch"](function (err) {
+        console.log(err);
+      });
+    },
+    cancel: function cancel() {
+      Axios.post("/api/dlvy/management/checkpoint", {
+        id: 3
+      });
+    },
+    initialize: function initialize() {
+      this.map_stage = 2, // 맵 한번만 생성
+      this.stage = 1, // 단계별 보여지는 화면
+      this.checkpoint_id = "", // 정류장 이름
+      this.lat = "", // 위도
+      this.lng = "", // 경도
+      this.data = "", // 정류장 데이터
+      this.markers = []; // 마커 표시
+
+      this.click = 0;
+      this.map = "";
+    },
+    map_click: function map_click() {
+      if (this.stage == 2) this.initMap();
     }
   }
 });
@@ -2929,7 +3033,6 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _data_rc__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./data/rc */ "./resources/js/components/Manage/data/rc.js");
 //
 //
 //
@@ -2953,16 +3056,29 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-
 /* harmony default export */ __webpack_exports__["default"] = ({
-  mounted: function mounted() {},
-  data: function data() {
+  mounted: function mounted() {
+    Axios.get('/api/car').then(function (res) {
+      console.log(res.data.car);
+    });
+  },
+  data: function (_data) {
+    function data() {
+      return _data.apply(this, arguments);
+    }
+
+    data.toString = function () {
+      return _data.toString();
+    };
+
+    return data;
+  }(function () {
     return {
       create_id: 1,
       // 등록하기 순서
       update_id: 1,
       // 수정하기 순서
-      items: _data_rc__WEBPACK_IMPORTED_MODULE_0__["default"],
+      items: data,
       // rc카 데이터
       car_num: '',
       // rc카 제품번호
@@ -2970,7 +3086,7 @@ __webpack_require__.r(__webpack_exports__);
       // rc카 이름
       update: ''
     };
-  },
+  }),
   methods: {
     rc_create: function rc_create(e) {
       if (this.create_id == 1) {
@@ -2980,7 +3096,7 @@ __webpack_require__.r(__webpack_exports__);
         });
         this.create_id += 1;
       } else if (this.create_id == 2) {
-        if (_data_rc__WEBPACK_IMPORTED_MODULE_0__["default"][_data_rc__WEBPACK_IMPORTED_MODULE_0__["default"].length - 1].car_num == '') {
+        if (data[data.length - 1].car_num == '') {
           this.items.splice(this.items.length - 1, 1);
         }
 
@@ -2997,7 +3113,7 @@ __webpack_require__.r(__webpack_exports__);
         this.update_id += 1;
         this.update = this.items[num].car_num;
       } else if (this.update_id == 2) {
-        _data_rc__WEBPACK_IMPORTED_MODULE_0__["default"][num].car_num = this.car_num, _data_rc__WEBPACK_IMPORTED_MODULE_0__["default"][num].car_name = this.car_name;
+        data[num].car_num = this.car_num, data[num].car_name = this.car_name;
         this.car_num = '';
         this.car_name = '';
         this.update = '';
@@ -3012,7 +3128,7 @@ __webpack_require__.r(__webpack_exports__);
         this.items.splice(this.items.length - 1, 1);
       }
 
-      this.items = _data_rc__WEBPACK_IMPORTED_MODULE_0__["default"];
+      this.items = data;
       this.update = '';
       this.update_id = 1;
       this.create_id = 1;
@@ -3066,7 +3182,7 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     var _this = this;
 
-    Axios.get('/api/manage').then(function (res) {
+    Axios.get('/api/dlvy/management/station').then(function (res) {
       _this.data = res.data.station;
 
       if (_this.data[_this.data.length - 1].station_name != "") {
@@ -3153,21 +3269,13 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     stn_create: function stn_create() {
-      var _this3 = this;
-
       console.log(this.station_name);
-      Axios.post('/api/manage', {
+      Axios.post('/api/dlvy/management/station', {
         id: 1,
         station_name: this.station_name,
         station_lat: this.lat,
         station_lon: this.lon
-      }).then(function (res) {
-        _this3.data = res.data.station;
-
-        _this3.initialize();
-
-        _this3.initMap();
-      })["catch"](function (err) {
+      }).then(function (res) {})["catch"](function (err) {
         console.log(err);
       });
     },
@@ -3194,16 +3302,8 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   cancel: function cancel() {
-    var _this4 = this;
-
-    Axios.post("/api/manage", {
+    Axios.post("/api/dlvy/management/station", {
       id: 3
-    }).then(function (res) {
-      _this4.initialize();
-
-      _this4.initMap();
-    })["catch"](function (err) {
-      console.log(err);
     });
   }
 });
@@ -3258,7 +3358,7 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     var _this = this;
 
-    Axios.get('/api/manage').then(function (res) {
+    Axios.get('/api/dlvy/management/station').then(function (res) {
       _this.data = res.data.station;
 
       _this.initMap();
@@ -3324,9 +3424,7 @@ __webpack_require__.r(__webpack_exports__);
         var _loop = function _loop(i) {
           // 마커를 생성합니다
           var marker = new kakao.maps.Marker({
-            position: new kakao.maps.LatLng(_this2.data[i].station_lat, _this2.data[i].station_lon),
-            // 마커를 표시할 위치
-            title: _this2.data[i].station_name // 마커의 타이틀, 마커에 마우스를 올리면 타이틀이 표시됩니다.
+            position: new kakao.maps.LatLng(_this2.data[i].station_lat, _this2.data[i].station_lon) // 마커를 표시할 위치
 
           }); // 인포 윈도우 생성
 
@@ -3372,7 +3470,7 @@ __webpack_require__.r(__webpack_exports__);
     stn_delete: function stn_delete() {
       var _this3 = this;
 
-      Axios["delete"]("/api/manage/".concat(this.old_station_name)).then(function (res) {
+      Axios["delete"]("/api/dlvy/management/station/".concat(this.old_station_name)).then(function (res) {
         _this3.markers[_this3.station_num].setMap(null);
 
         _this3.initialize();
@@ -3383,33 +3481,19 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     stn_update: function stn_update() {
-      var _this4 = this;
-
-      Axios.post("/api/manage", {
+      Axios.post("/api/dlvy/management/station", {
         id: 2,
         old_station_name: this.old_station_name,
         station_name: this.station_name,
         station_lat: this.lat,
         station_lon: this.lon
-      }).then(function (res) {
-        _this4.initialize();
-
-        _this4.initMap();
-      })["catch"](function (err) {
+      }).then(function (res) {})["catch"](function (err) {
         console.log(err);
       });
     },
     cancel: function cancel() {
-      var _this5 = this;
-
-      Axios.post("/api/manage", {
+      Axios.post("/api/dlvy/management/station", {
         id: 3
-      }).then(function (res) {
-        _this5.initialize();
-
-        _this5.initMap();
-      })["catch"](function (err) {
-        console.log(err);
       });
     },
     initialize: function initialize() {
@@ -44505,10 +44589,10 @@ exports.push([module.i, "\n#test[data-v-71409842]{\r\n  float : right;\n}\n.left
 
 /***/ }),
 
-/***/ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_check_create.vue?vue&type=style&index=0&id=b341dbe4&scoped=true&lang=css&":
-/*!********************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Manage/Manage_check_create.vue?vue&type=style&index=0&id=b341dbe4&scoped=true&lang=css& ***!
-  \********************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=style&index=0&id=4985b4b0&scoped=true&lang=css&":
+/*!*************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=style&index=0&id=4985b4b0&scoped=true&lang=css& ***!
+  \*************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -44517,17 +44601,17 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "\n#map[data-v-b341dbe4] {\n  /* width: 50rem; */\n  /* height: 40rem; */\n  height: 600px;\n}\n#manager[data-v-b341dbe4] {\n  position: absolute;\n  top: 0;\n  right: 0;\n  z-index: 10;\n  background-color: white;\n  border: 1px solid #18a2b8;\n  padding: 10px;\n  text-align: center;\n}\n.page-container[data-v-b341dbe4] {\n  position: relative;\n}\n", ""]);
+exports.push([module.i, "\n#map[data-v-4985b4b0] {\n  height: 600px;\n}\n#manager[data-v-4985b4b0] {\n  position: absolute;\n  top: 0;\n  right: 0;\n  z-index: 10;\n  background-color: white;\n  border: 1px solid #18a2b8;\n  padding: 10px;\n  text-align: center;\n}\n.page-container[data-v-4985b4b0] {\n  position: relative;\n}\n", ""]);
 
 // exports
 
 
 /***/ }),
 
-/***/ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_check_update.vue?vue&type=style&index=0&id=431efb5b&scoped=true&lang=css&":
-/*!********************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Manage/Manage_check_update.vue?vue&type=style&index=0&id=431efb5b&scoped=true&lang=css& ***!
-  \********************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=style&index=0&id=77fd0ef5&scoped=true&lang=css&":
+/*!*************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=style&index=0&id=77fd0ef5&scoped=true&lang=css& ***!
+  \*************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -44536,7 +44620,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "\n#map[data-v-431efb5b]{\n    width:65rem; \n    height:50rem;\n}\n", ""]);
+exports.push([module.i, "\n#map[data-v-77fd0ef5] {\n  height: 600px;\n}\n#manager[data-v-77fd0ef5] {\n  position: absolute;\n  top: 0;\n  right: 0;\n  z-index: 10;\n  background-color: white;\n  border: 1px solid #18a2b8;\n  padding: 10px;\n  text-align: center;\n}\n.page-container[data-v-77fd0ef5] {\n  position: relative;\n}\n", ""]);
 
 // exports
 
@@ -65522,15 +65606,15 @@ if(false) {}
 
 /***/ }),
 
-/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_check_create.vue?vue&type=style&index=0&id=b341dbe4&scoped=true&lang=css&":
-/*!************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/style-loader!./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Manage/Manage_check_create.vue?vue&type=style&index=0&id=b341dbe4&scoped=true&lang=css& ***!
-  \************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=style&index=0&id=4985b4b0&scoped=true&lang=css&":
+/*!*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader!./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=style&index=0&id=4985b4b0&scoped=true&lang=css& ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var content = __webpack_require__(/*! !../../../../node_modules/css-loader??ref--6-1!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--6-2!../../../../node_modules/vue-loader/lib??vue-loader-options!./Manage_check_create.vue?vue&type=style&index=0&id=b341dbe4&scoped=true&lang=css& */ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_check_create.vue?vue&type=style&index=0&id=b341dbe4&scoped=true&lang=css&");
+var content = __webpack_require__(/*! !../../../../node_modules/css-loader??ref--6-1!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--6-2!../../../../node_modules/vue-loader/lib??vue-loader-options!./Manage_checkpoint_create.vue?vue&type=style&index=0&id=4985b4b0&scoped=true&lang=css& */ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=style&index=0&id=4985b4b0&scoped=true&lang=css&");
 
 if(typeof content === 'string') content = [[module.i, content, '']];
 
@@ -65552,15 +65636,15 @@ if(false) {}
 
 /***/ }),
 
-/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_check_update.vue?vue&type=style&index=0&id=431efb5b&scoped=true&lang=css&":
-/*!************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/style-loader!./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Manage/Manage_check_update.vue?vue&type=style&index=0&id=431efb5b&scoped=true&lang=css& ***!
-  \************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=style&index=0&id=77fd0ef5&scoped=true&lang=css&":
+/*!*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader!./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=style&index=0&id=77fd0ef5&scoped=true&lang=css& ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var content = __webpack_require__(/*! !../../../../node_modules/css-loader??ref--6-1!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--6-2!../../../../node_modules/vue-loader/lib??vue-loader-options!./Manage_check_update.vue?vue&type=style&index=0&id=431efb5b&scoped=true&lang=css& */ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_check_update.vue?vue&type=style&index=0&id=431efb5b&scoped=true&lang=css&");
+var content = __webpack_require__(/*! !../../../../node_modules/css-loader??ref--6-1!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--6-2!../../../../node_modules/vue-loader/lib??vue-loader-options!./Manage_checkpoint_update.vue?vue&type=style&index=0&id=77fd0ef5&scoped=true&lang=css& */ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=style&index=0&id=77fd0ef5&scoped=true&lang=css&");
 
 if(typeof content === 'string') content = [[module.i, content, '']];
 
@@ -66826,7 +66910,7 @@ var render = function() {
                                   attrs: { variant: "link" },
                                   on: {
                                     click: function($event) {
-                                      return _vm.stn_create()
+                                      return _vm.station_create()
                                     }
                                   }
                                 },
@@ -66846,7 +66930,7 @@ var render = function() {
                                   attrs: { variant: "link" },
                                   on: {
                                     click: function($event) {
-                                      return _vm.stn_update()
+                                      return _vm.station_update()
                                     }
                                   }
                                 },
@@ -66914,7 +66998,7 @@ var render = function() {
                                   attrs: { variant: "link" },
                                   on: {
                                     click: function($event) {
-                                      return _vm.check_create()
+                                      return _vm.checkpoint_create()
                                     }
                                   }
                                 },
@@ -66934,7 +67018,7 @@ var render = function() {
                                   attrs: { variant: "link" },
                                   on: {
                                     click: function($event) {
-                                      return _vm.check_update()
+                                      return _vm.checkpoint_update()
                                     }
                                   }
                                 },
@@ -66996,10 +67080,10 @@ render._withStripped = true
 
 /***/ }),
 
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_check_create.vue?vue&type=template&id=b341dbe4&scoped=true&":
-/*!*****************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Manage/Manage_check_create.vue?vue&type=template&id=b341dbe4&scoped=true& ***!
-  \*****************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=template&id=4985b4b0&scoped=true&":
+/*!**********************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=template&id=4985b4b0&scoped=true& ***!
+  \**********************************************************************************************************************************************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -67056,7 +67140,7 @@ var render = function() {
                           attrs: { type: "submit", variant: "primary" },
                           on: {
                             click: function($event) {
-                              return _vm.stn_create()
+                              return _vm.chk_create()
                             }
                           }
                         },
@@ -67067,7 +67151,11 @@ var render = function() {
                         "b-button",
                         {
                           attrs: { type: "submit" },
-                          on: { click: _vm.cancel }
+                          on: {
+                            click: function($event) {
+                              return _vm.cancel()
+                            }
+                          }
                         },
                         [_vm._v("취소하기")]
                       )
@@ -67091,10 +67179,10 @@ render._withStripped = true
 
 /***/ }),
 
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_check_update.vue?vue&type=template&id=431efb5b&scoped=true&":
-/*!*****************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Manage/Manage_check_update.vue?vue&type=template&id=431efb5b&scoped=true& ***!
-  \*****************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=template&id=77fd0ef5&scoped=true&":
+/*!**********************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=template&id=77fd0ef5&scoped=true& ***!
+  \**********************************************************************************************************************************************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -67106,31 +67194,97 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    [
-      _c(
-        "b-container",
-        [
-          _c(
-            "b-row",
+  return _c("div", { staticClass: "page-container" }, [
+    _c("div", {
+      attrs: { id: "map" },
+      on: {
+        click: function($event) {
+          return _vm.map_click()
+        }
+      }
+    }),
+    _vm._v(" "),
+    _c("div", { attrs: { id: "manager" } }, [
+      _vm.stage == 1
+        ? _c("div", [
+            _vm._v("지도에서 수정/삭제할 체크포인트를 클릭해 주세요.")
+          ])
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.stage == 2
+        ? _c(
+            "div",
             [
-              _c("b-col", { attrs: { cols: "3" } }, [
-                _vm._v("\n                check 수정 및 삭제\n            ")
-              ]),
-              _vm._v(" "),
-              _c("b-col", { attrs: { cols: "7" } }, [
-                _c("div", { attrs: { id: "map" } })
-              ])
+              _c(
+                "b-form",
+                [
+                  _c("div", { staticStyle: { margin: "5px" } }, [
+                    _c("div", [
+                      _c("span", { staticStyle: { "font-size": "10px" } }, [
+                        _vm._v("위도 : " + _vm._s(_vm.lat))
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("div", [
+                      _c("span", { staticStyle: { "font-size": "10px" } }, [
+                        _vm._v("경도 : " + _vm._s(_vm.lon))
+                      ])
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "b-button-group",
+                    [
+                      _c(
+                        "b-button",
+                        {
+                          attrs: { type: "submit", variant: "primary" },
+                          on: {
+                            click: function($event) {
+                              return _vm.chk_update()
+                            }
+                          }
+                        },
+                        [_vm._v("수정하기")]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "b-button",
+                        {
+                          attrs: { variant: "danger", type: "submit" },
+                          on: {
+                            click: function($event) {
+                              return _vm.chk_delete()
+                            }
+                          }
+                        },
+                        [_vm._v("삭제하기")]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "b-button",
+                        {
+                          attrs: { type: "submit" },
+                          on: {
+                            click: function($event) {
+                              return _vm.cancel()
+                            }
+                          }
+                        },
+                        [_vm._v("취소하기")]
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
             ],
             1
           )
-        ],
-        1
-      )
-    ],
-    1
-  )
+        : _vm._e()
+    ])
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -82845,8 +82999,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_Manage_Manage_station_update__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./components/Manage/Manage_station_update */ "./resources/js/components/Manage/Manage_station_update.vue");
 /* harmony import */ var _components_Manage_Manage_path_create__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./components/Manage/Manage_path_create */ "./resources/js/components/Manage/Manage_path_create.vue");
 /* harmony import */ var _components_Manage_Manage_path_update__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./components/Manage/Manage_path_update */ "./resources/js/components/Manage/Manage_path_update.vue");
-/* harmony import */ var _components_Manage_Manage_check_create__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./components/Manage/Manage_check_create */ "./resources/js/components/Manage/Manage_check_create.vue");
-/* harmony import */ var _components_Manage_Manage_check_update__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./components/Manage/Manage_check_update */ "./resources/js/components/Manage/Manage_check_update.vue");
+/* harmony import */ var _components_Manage_Manage_checkpoint_create__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./components/Manage/Manage_checkpoint_create */ "./resources/js/components/Manage/Manage_checkpoint_create.vue");
+/* harmony import */ var _components_Manage_Manage_checkpoint_update__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./components/Manage/Manage_checkpoint_update */ "./resources/js/components/Manage/Manage_checkpoint_update.vue");
 /* harmony import */ var _components_Manage_Manage_rc__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./components/Manage/Manage_rc */ "./resources/js/components/Manage/Manage_rc.vue");
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
@@ -82901,13 +83055,13 @@ var router = new VueRouter({
       name: "Manage_path_update",
       component: _components_Manage_Manage_path_update__WEBPACK_IMPORTED_MODULE_10__["default"]
     }, {
-      path: "manage_check_create",
-      name: "Manage_check_create",
-      component: _components_Manage_Manage_check_create__WEBPACK_IMPORTED_MODULE_11__["default"]
+      path: "manage_checkpoint_create",
+      name: "Manage_checkpoint_create",
+      component: _components_Manage_Manage_checkpoint_create__WEBPACK_IMPORTED_MODULE_11__["default"]
     }, {
-      path: "manage_check_update",
-      name: "Manage_check_update",
-      component: _components_Manage_Manage_check_update__WEBPACK_IMPORTED_MODULE_12__["default"]
+      path: "manage_checkpoint_update",
+      name: "Manage_checkpoint_update",
+      component: _components_Manage_Manage_checkpoint_update__WEBPACK_IMPORTED_MODULE_12__["default"]
     }, {
       path: "manage_rc",
       name: "Manage_rc",
@@ -83183,18 +83337,18 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/js/components/Manage/Manage_check_create.vue":
-/*!****************************************************************!*\
-  !*** ./resources/js/components/Manage/Manage_check_create.vue ***!
-  \****************************************************************/
+/***/ "./resources/js/components/Manage/Manage_checkpoint_create.vue":
+/*!*********************************************************************!*\
+  !*** ./resources/js/components/Manage/Manage_checkpoint_create.vue ***!
+  \*********************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Manage_check_create_vue_vue_type_template_id_b341dbe4_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Manage_check_create.vue?vue&type=template&id=b341dbe4&scoped=true& */ "./resources/js/components/Manage/Manage_check_create.vue?vue&type=template&id=b341dbe4&scoped=true&");
-/* harmony import */ var _Manage_check_create_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Manage_check_create.vue?vue&type=script&lang=js& */ "./resources/js/components/Manage/Manage_check_create.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _Manage_check_create_vue_vue_type_style_index_0_id_b341dbe4_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Manage_check_create.vue?vue&type=style&index=0&id=b341dbe4&scoped=true&lang=css& */ "./resources/js/components/Manage/Manage_check_create.vue?vue&type=style&index=0&id=b341dbe4&scoped=true&lang=css&");
+/* harmony import */ var _Manage_checkpoint_create_vue_vue_type_template_id_4985b4b0_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Manage_checkpoint_create.vue?vue&type=template&id=4985b4b0&scoped=true& */ "./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=template&id=4985b4b0&scoped=true&");
+/* harmony import */ var _Manage_checkpoint_create_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Manage_checkpoint_create.vue?vue&type=script&lang=js& */ "./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _Manage_checkpoint_create_vue_vue_type_style_index_0_id_4985b4b0_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Manage_checkpoint_create.vue?vue&type=style&index=0&id=4985b4b0&scoped=true&lang=css& */ "./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=style&index=0&id=4985b4b0&scoped=true&lang=css&");
 /* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
@@ -83205,83 +83359,83 @@ __webpack_require__.r(__webpack_exports__);
 /* normalize component */
 
 var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
-  _Manage_check_create_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _Manage_check_create_vue_vue_type_template_id_b341dbe4_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _Manage_check_create_vue_vue_type_template_id_b341dbe4_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  _Manage_checkpoint_create_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _Manage_checkpoint_create_vue_vue_type_template_id_4985b4b0_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _Manage_checkpoint_create_vue_vue_type_template_id_4985b4b0_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
   false,
   null,
-  "b341dbe4",
+  "4985b4b0",
   null
   
 )
 
 /* hot reload */
 if (false) { var api; }
-component.options.__file = "resources/js/components/Manage/Manage_check_create.vue"
+component.options.__file = "resources/js/components/Manage/Manage_checkpoint_create.vue"
 /* harmony default export */ __webpack_exports__["default"] = (component.exports);
 
 /***/ }),
 
-/***/ "./resources/js/components/Manage/Manage_check_create.vue?vue&type=script&lang=js&":
-/*!*****************************************************************************************!*\
-  !*** ./resources/js/components/Manage/Manage_check_create.vue?vue&type=script&lang=js& ***!
-  \*****************************************************************************************/
+/***/ "./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=script&lang=js&":
+/*!**********************************************************************************************!*\
+  !*** ./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=script&lang=js& ***!
+  \**********************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_create_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib??ref--4-0!../../../../node_modules/vue-loader/lib??vue-loader-options!./Manage_check_create.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_check_create.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_create_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_create_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib??ref--4-0!../../../../node_modules/vue-loader/lib??vue-loader-options!./Manage_checkpoint_create.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_create_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
 
 /***/ }),
 
-/***/ "./resources/js/components/Manage/Manage_check_create.vue?vue&type=style&index=0&id=b341dbe4&scoped=true&lang=css&":
-/*!*************************************************************************************************************************!*\
-  !*** ./resources/js/components/Manage/Manage_check_create.vue?vue&type=style&index=0&id=b341dbe4&scoped=true&lang=css& ***!
-  \*************************************************************************************************************************/
+/***/ "./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=style&index=0&id=4985b4b0&scoped=true&lang=css&":
+/*!******************************************************************************************************************************!*\
+  !*** ./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=style&index=0&id=4985b4b0&scoped=true&lang=css& ***!
+  \******************************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_create_vue_vue_type_style_index_0_id_b341dbe4_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/style-loader!../../../../node_modules/css-loader??ref--6-1!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--6-2!../../../../node_modules/vue-loader/lib??vue-loader-options!./Manage_check_create.vue?vue&type=style&index=0&id=b341dbe4&scoped=true&lang=css& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_check_create.vue?vue&type=style&index=0&id=b341dbe4&scoped=true&lang=css&");
-/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_create_vue_vue_type_style_index_0_id_b341dbe4_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_create_vue_vue_type_style_index_0_id_b341dbe4_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_create_vue_vue_type_style_index_0_id_b341dbe4_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_create_vue_vue_type_style_index_0_id_b341dbe4_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_create_vue_vue_type_style_index_0_id_b341dbe4_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_create_vue_vue_type_style_index_0_id_4985b4b0_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/style-loader!../../../../node_modules/css-loader??ref--6-1!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--6-2!../../../../node_modules/vue-loader/lib??vue-loader-options!./Manage_checkpoint_create.vue?vue&type=style&index=0&id=4985b4b0&scoped=true&lang=css& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=style&index=0&id=4985b4b0&scoped=true&lang=css&");
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_create_vue_vue_type_style_index_0_id_4985b4b0_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_create_vue_vue_type_style_index_0_id_4985b4b0_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_create_vue_vue_type_style_index_0_id_4985b4b0_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_create_vue_vue_type_style_index_0_id_4985b4b0_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_create_vue_vue_type_style_index_0_id_4985b4b0_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
 
 /***/ }),
 
-/***/ "./resources/js/components/Manage/Manage_check_create.vue?vue&type=template&id=b341dbe4&scoped=true&":
-/*!***********************************************************************************************************!*\
-  !*** ./resources/js/components/Manage/Manage_check_create.vue?vue&type=template&id=b341dbe4&scoped=true& ***!
-  \***********************************************************************************************************/
+/***/ "./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=template&id=4985b4b0&scoped=true&":
+/*!****************************************************************************************************************!*\
+  !*** ./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=template&id=4985b4b0&scoped=true& ***!
+  \****************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_create_vue_vue_type_template_id_b341dbe4_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./Manage_check_create.vue?vue&type=template&id=b341dbe4&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_check_create.vue?vue&type=template&id=b341dbe4&scoped=true&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_create_vue_vue_type_template_id_b341dbe4_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_create_vue_vue_type_template_id_4985b4b0_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./Manage_checkpoint_create.vue?vue&type=template&id=4985b4b0&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_checkpoint_create.vue?vue&type=template&id=4985b4b0&scoped=true&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_create_vue_vue_type_template_id_4985b4b0_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_create_vue_vue_type_template_id_b341dbe4_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_create_vue_vue_type_template_id_4985b4b0_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 
 /***/ }),
 
-/***/ "./resources/js/components/Manage/Manage_check_update.vue":
-/*!****************************************************************!*\
-  !*** ./resources/js/components/Manage/Manage_check_update.vue ***!
-  \****************************************************************/
+/***/ "./resources/js/components/Manage/Manage_checkpoint_update.vue":
+/*!*********************************************************************!*\
+  !*** ./resources/js/components/Manage/Manage_checkpoint_update.vue ***!
+  \*********************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Manage_check_update_vue_vue_type_template_id_431efb5b_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Manage_check_update.vue?vue&type=template&id=431efb5b&scoped=true& */ "./resources/js/components/Manage/Manage_check_update.vue?vue&type=template&id=431efb5b&scoped=true&");
-/* harmony import */ var _Manage_check_update_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Manage_check_update.vue?vue&type=script&lang=js& */ "./resources/js/components/Manage/Manage_check_update.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _Manage_check_update_vue_vue_type_style_index_0_id_431efb5b_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Manage_check_update.vue?vue&type=style&index=0&id=431efb5b&scoped=true&lang=css& */ "./resources/js/components/Manage/Manage_check_update.vue?vue&type=style&index=0&id=431efb5b&scoped=true&lang=css&");
+/* harmony import */ var _Manage_checkpoint_update_vue_vue_type_template_id_77fd0ef5_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Manage_checkpoint_update.vue?vue&type=template&id=77fd0ef5&scoped=true& */ "./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=template&id=77fd0ef5&scoped=true&");
+/* harmony import */ var _Manage_checkpoint_update_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Manage_checkpoint_update.vue?vue&type=script&lang=js& */ "./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _Manage_checkpoint_update_vue_vue_type_style_index_0_id_77fd0ef5_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Manage_checkpoint_update.vue?vue&type=style&index=0&id=77fd0ef5&scoped=true&lang=css& */ "./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=style&index=0&id=77fd0ef5&scoped=true&lang=css&");
 /* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
@@ -83292,66 +83446,66 @@ __webpack_require__.r(__webpack_exports__);
 /* normalize component */
 
 var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
-  _Manage_check_update_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _Manage_check_update_vue_vue_type_template_id_431efb5b_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _Manage_check_update_vue_vue_type_template_id_431efb5b_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  _Manage_checkpoint_update_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _Manage_checkpoint_update_vue_vue_type_template_id_77fd0ef5_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _Manage_checkpoint_update_vue_vue_type_template_id_77fd0ef5_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
   false,
   null,
-  "431efb5b",
+  "77fd0ef5",
   null
   
 )
 
 /* hot reload */
 if (false) { var api; }
-component.options.__file = "resources/js/components/Manage/Manage_check_update.vue"
+component.options.__file = "resources/js/components/Manage/Manage_checkpoint_update.vue"
 /* harmony default export */ __webpack_exports__["default"] = (component.exports);
 
 /***/ }),
 
-/***/ "./resources/js/components/Manage/Manage_check_update.vue?vue&type=script&lang=js&":
-/*!*****************************************************************************************!*\
-  !*** ./resources/js/components/Manage/Manage_check_update.vue?vue&type=script&lang=js& ***!
-  \*****************************************************************************************/
+/***/ "./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=script&lang=js&":
+/*!**********************************************************************************************!*\
+  !*** ./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=script&lang=js& ***!
+  \**********************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_update_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib??ref--4-0!../../../../node_modules/vue-loader/lib??vue-loader-options!./Manage_check_update.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_check_update.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_update_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_update_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib??ref--4-0!../../../../node_modules/vue-loader/lib??vue-loader-options!./Manage_checkpoint_update.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_update_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
 
 /***/ }),
 
-/***/ "./resources/js/components/Manage/Manage_check_update.vue?vue&type=style&index=0&id=431efb5b&scoped=true&lang=css&":
-/*!*************************************************************************************************************************!*\
-  !*** ./resources/js/components/Manage/Manage_check_update.vue?vue&type=style&index=0&id=431efb5b&scoped=true&lang=css& ***!
-  \*************************************************************************************************************************/
+/***/ "./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=style&index=0&id=77fd0ef5&scoped=true&lang=css&":
+/*!******************************************************************************************************************************!*\
+  !*** ./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=style&index=0&id=77fd0ef5&scoped=true&lang=css& ***!
+  \******************************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_update_vue_vue_type_style_index_0_id_431efb5b_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/style-loader!../../../../node_modules/css-loader??ref--6-1!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--6-2!../../../../node_modules/vue-loader/lib??vue-loader-options!./Manage_check_update.vue?vue&type=style&index=0&id=431efb5b&scoped=true&lang=css& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_check_update.vue?vue&type=style&index=0&id=431efb5b&scoped=true&lang=css&");
-/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_update_vue_vue_type_style_index_0_id_431efb5b_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_update_vue_vue_type_style_index_0_id_431efb5b_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_update_vue_vue_type_style_index_0_id_431efb5b_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_update_vue_vue_type_style_index_0_id_431efb5b_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_update_vue_vue_type_style_index_0_id_431efb5b_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_update_vue_vue_type_style_index_0_id_77fd0ef5_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/style-loader!../../../../node_modules/css-loader??ref--6-1!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--6-2!../../../../node_modules/vue-loader/lib??vue-loader-options!./Manage_checkpoint_update.vue?vue&type=style&index=0&id=77fd0ef5&scoped=true&lang=css& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=style&index=0&id=77fd0ef5&scoped=true&lang=css&");
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_update_vue_vue_type_style_index_0_id_77fd0ef5_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_update_vue_vue_type_style_index_0_id_77fd0ef5_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_update_vue_vue_type_style_index_0_id_77fd0ef5_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_update_vue_vue_type_style_index_0_id_77fd0ef5_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_update_vue_vue_type_style_index_0_id_77fd0ef5_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
 
 /***/ }),
 
-/***/ "./resources/js/components/Manage/Manage_check_update.vue?vue&type=template&id=431efb5b&scoped=true&":
-/*!***********************************************************************************************************!*\
-  !*** ./resources/js/components/Manage/Manage_check_update.vue?vue&type=template&id=431efb5b&scoped=true& ***!
-  \***********************************************************************************************************/
+/***/ "./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=template&id=77fd0ef5&scoped=true&":
+/*!****************************************************************************************************************!*\
+  !*** ./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=template&id=77fd0ef5&scoped=true& ***!
+  \****************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_update_vue_vue_type_template_id_431efb5b_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./Manage_check_update.vue?vue&type=template&id=431efb5b&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_check_update.vue?vue&type=template&id=431efb5b&scoped=true&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_update_vue_vue_type_template_id_431efb5b_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_update_vue_vue_type_template_id_77fd0ef5_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./Manage_checkpoint_update.vue?vue&type=template&id=77fd0ef5&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Manage/Manage_checkpoint_update.vue?vue&type=template&id=77fd0ef5&scoped=true&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_update_vue_vue_type_template_id_77fd0ef5_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_check_update_vue_vue_type_template_id_431efb5b_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_checkpoint_update_vue_vue_type_template_id_77fd0ef5_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 
@@ -83771,28 +83925,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Manage_station_update_vue_vue_type_template_id_da9dc222_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
-
-/***/ }),
-
-/***/ "./resources/js/components/Manage/data/rc.js":
-/*!***************************************************!*\
-  !*** ./resources/js/components/Manage/data/rc.js ***!
-  \***************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ([{
-  car_num: 1234,
-  car_name: 'rc_1'
-}, {
-  car_num: 5678,
-  car_name: 'rc_2'
-}, {
-  car_num: 9012,
-  car_name: 'rc_3'
-}]);
 
 /***/ }),
 

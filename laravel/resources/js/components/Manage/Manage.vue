@@ -16,13 +16,13 @@
                 <h5>정류장</h5>
               </b-row>
               <b-row>
-                <b-card-text style="cursor:pointer" variant="link" @click="stn_create()">&nbsp; 등록하기</b-card-text>
+                <b-card-text style="cursor:pointer" variant="link" @click="station_create()">&nbsp; 등록하기</b-card-text>
               </b-row>
               <b-row>
                 <b-card-text
                   style="cursor:pointer"
                   variant="link"
-                  @click="stn_update()"
+                  @click="station_update()"
                 >&nbsp; 수정/삭제</b-card-text>
                 <br />
               </b-row>
@@ -52,14 +52,14 @@
                 <b-card-text
                   style="cursor:pointer"
                   variant="link"
-                  @click="check_create()"
+                  @click="checkpoint_create()"
                 >&nbsp; 등록하기</b-card-text>
               </b-row>
               <b-row>
                 <b-card-text
                   style="cursor:pointer"
                   variant="link"
-                  @click="check_update()"
+                  @click="checkpoint_update()"
                 >&nbsp; 수정/삭제</b-card-text>
                 <br />
               </b-row>
@@ -86,10 +86,10 @@ export default {
     return {};
   },
   methods: {
-    stn_create() {
+    station_create() {
       this.$router.push({ name: "Manage_station_create" }).catch(err => {});
     },
-    stn_update() {
+    station_update() {
       this.$router.push({ name: "Manage_station_update" }).catch(err => {});
     },
     path_create() {
@@ -101,11 +101,11 @@ export default {
     rc() {
       this.$router.push({ name: "Manage_rc" }).catch(err => {});
     },
-    check_create() {
-      this.$router.push({ name: "Manage_check_create" }).catch(err => {});
+    checkpoint_create() {
+      this.$router.push({ name: "Manage_checkpoint_create" }).catch(err => {});
     },
-    check_update() {
-      this.$router.push({ name: "Manage_check_update" }).catch(err => {});
+    checkpoint_update() {
+      this.$router.push({ name: "Manage_checkpoint_update" }).catch(err => {});
     }
   }
 };
