@@ -127,10 +127,6 @@ export default {
             }
           });
 
-          //   kakao.maps.event.addListener(marker, "mouseout", () => {
-          //     marker.setDraggable(false);
-          //   });
-
           kakao.maps.event.addListener(marker, "dragend", () => {
             this.lat = marker.getPosition().Ha;
             this.lon = marker.getPosition().Ga;
@@ -177,7 +173,6 @@ export default {
       .catch(err => {
         console.log(err)
       })
-      
     },
     initialize() {
       (this.map_stage = 2), // 맵 한번만 생성

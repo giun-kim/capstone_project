@@ -8,7 +8,6 @@
           <b-form-input
             v-model="station_name"
             placeholder="정류장명을 입력해 주세요."
-            required
           ></b-form-input>
           <div style="margin: 5px;">
             <div>
@@ -22,7 +21,7 @@
             <b-button type="submit" variant="primary" @click="stn_create()"
               >등록하기</b-button
             >
-            <b-button type="submit" @click="cancel()">취소하기</b-button>
+            <b-button type="submit" @click="cancel">취소하기</b-button>
           </b-button-group>
         </b-form>
       </div>
@@ -140,19 +139,6 @@ export default {
         console.log(err)
       })
     },
-    cancel() {
-      Axios.post("/api/manage", {
-        id : 3
-      })
-      .then(res => {
-        this.initialize();
-        this.initMap();
-      })
-      .catch(err => {
-        console.log(err)
-      })
-      
-    },
     map_click() {
       if (this.stage == 1) this.stage += 1;
     },
@@ -174,6 +160,18 @@ export default {
       }
     },
   },
+  cancel() {
+      Axios.post("/api/manage", {
+        id : 3
+      })
+      .then(res => {
+        this.initialize();
+        this.initMap();
+      })
+      .catch(err => {
+        console.log(err)
+      })
+    },
 };
 </script>
 

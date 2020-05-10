@@ -37,13 +37,13 @@ class StationController extends Controller
     public function store(Request $request)
     {
         $station = new Station();
-        if($request->id == 1) {
+        if($request->id == 1) { // 등록
             $station->station_name = $request->station_name;
             $station->station_lat = $request->station_lat;
             $station->station_lon = $request->station_lon;
 
             $station->save();
-        } else if($request->id == 2) { 
+        } else if($request->id == 2) { // 수정
             debug($request->station_name);
             $station_update = $station->where('station_name', $request->old_station_name)->first();// 배열 형태
             $station_update->station_name = $request->station_name; // 정류장 이름
@@ -53,7 +53,7 @@ class StationController extends Controller
             $station_update->save();
         }
 
-        if($request->id == 3) {
+        if($request->id == 3) { // 취소
             return response()->json('cancel');
         } else {
             return response()->json(['station'=>Station::get()]);

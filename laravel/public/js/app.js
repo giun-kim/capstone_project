@@ -2575,38 +2575,160 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
-    this.initMap();
+    var _this = this;
+
+    Axios.get('/api/manage').then(function (res) {
+      _this.data = res.data.station;
+
+      if (_this.data[_this.data.length - 1].station_name != "") {
+        _this.data.push({
+          station_name: "",
+          station_lat: "",
+          station_lon: ""
+        });
+      } else if (_this.data[_this.data.length - 1].station_name == "") {
+        _this.data.splice(_this.data.length - 1, 1);
+      }
+
+      _this.initMap();
+    });
   },
   data: function data() {
     return {
-      map_x: 35.896309,
-      map_y: 128.621917
+      map_stage: 1,
+      // 맵 한번만 생성
+      stage: 1,
+      // 단계별 보여지는 화면
+      station_name: "",
+      // 정류장 이름
+      lat: "",
+      // 위도
+      lon: "",
+      // 경도
+      data: "",
+      // 정류장 데이터
+      map: ""
     };
   },
   methods: {
-    initMap: function initMap() {
-      var container = document.getElementById('map');
-      var options = {
-        center: new kakao.maps.LatLng(this.map_x, this.map_y),
-        level: 2
+    makeOverListener: function makeOverListener(map, marker, infowindow) {
+      return function () {
+        infowindow.open(map, marker);
       };
-      var map = new kakao.maps.Map(container, options);
-      this.map = map;
-      var marker = new kakao.maps.Marker({
-        position: ''
-      });
-      marker.setMap(map);
-      kakao.maps.event.addListener(map, 'click', function (mouseEvent) {
-        // 클릭한 위도, 경도 정보를 가져옵니다 
+    },
+    // 인포윈도우를 닫는 클로저를 만드는 함수입니다
+    makeOutListener: function makeOutListener(infowindow) {
+      return function () {
+        infowindow.close();
+      };
+    },
+    initMap: function initMap() {
+      var _this2 = this;
+
+      if (this.map_stage == 1) {
+        var container = document.getElementById("map");
+        var options = {
+          center: new kakao.maps.LatLng(35.896309, 128.621917),
+          level: 2,
+          draggable: false
+        };
+        var map = new kakao.maps.Map(container, options);
+        this.map = map;
+      } // 여러 개 마커 생성하기
+
+
+      for (var i = 0; i < this.data.length; i++) {
+        // 마커를 생성합니다
+        var marker = new kakao.maps.Marker({
+          map: this.map,
+          position: new kakao.maps.LatLng(this.data[i].station_lat, this.data[i].station_lon) ? new kakao.maps.LatLng(this.data[i].station_lat, this.data[i].station_lon) : "" // 마커를 표시할 위치
+
+        }); // 인포 윈도우 생성
+
+        var infowindow = new kakao.maps.InfoWindow({
+          content: "<div style='text-align:center; margin-left:5px; color:#18a2b8'>" + (this.data[i].station_name ? this.data[i].station_name : "") + "</div>"
+        }); // 마우스 오버 이벤트
+
+        kakao.maps.event.addListener(marker, "mouseover", this.makeOverListener(map, marker, infowindow));
+        kakao.maps.event.addListener(marker, "mouseout", this.makeOutListener(infowindow));
+      } // 마커 표시
+
+
+      kakao.maps.event.addListener(map, "click", function (mouseEvent) {
+        // 클릭한 위도, 경도 정보를 가져옵니다
         var latlng = mouseEvent.latLng; // 마커 위치를 클릭한 위치로 옮깁니다
 
         marker.setPosition(latlng);
-        lat = latlng.getLat();
-        lng = latlng.getLng();
+        _this2.lat = latlng.getLat();
+        _this2.lon = latlng.getLng();
       });
+    },
+    stn_create: function stn_create() {
+      var _this3 = this;
+
+      console.log(this.station_name);
+      Axios.post('/api/manage', {
+        id: 1,
+        station_name: this.station_name,
+        station_lat: this.lat,
+        station_lon: this.lon
+      }).then(function (res) {
+        _this3.data = res.data.station;
+
+        _this3.initialize();
+
+        _this3.initMap();
+      })["catch"](function (err) {
+        console.log(err);
+      });
+    },
+    map_click: function map_click() {
+      if (this.stage == 1) this.stage += 1;
+    },
+    initialize: function initialize() {
+      this.map_stage = 1, // 맵 한번만 생성
+      this.stage = 1, // 단계별 보여지는 화면
+      this.lat = "", // 위도
+      this.lng = "", // 경도
+      this.data = "", // 정류장 데이터
+      this.station_name = ""; // 정류장 이름
+
+      if (this.data[this.data.length - 1].station_name != "") {
+        this.data.push({
+          station_name: "",
+          station_lat: "",
+          station_lon: ""
+        });
+      } else if (this.data[this.data.length - 1].station_name == "") {
+        this.data.splice(this.length - 1, 1);
+      }
     }
+  },
+  cancel: function cancel() {
+    var _this4 = this;
+
+    Axios.post("/api/manage", {
+      id: 3
+    }).then(function (res) {
+      _this4.initialize();
+
+      _this4.initMap();
+    })["catch"](function (err) {
+      console.log(err);
+    });
   }
 });
 
@@ -2940,7 +3062,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
     var _this = this;
@@ -3050,19 +3171,6 @@ __webpack_require__.r(__webpack_exports__);
         console.log(err);
       });
     },
-    cancel: function cancel() {
-      var _this4 = this;
-
-      Axios.post("/api/manage", {
-        id: 3
-      }).then(function (res) {
-        _this4.initialize();
-
-        _this4.initMap();
-      })["catch"](function (err) {
-        console.log(err);
-      });
-    },
     map_click: function map_click() {
       if (this.stage == 1) this.stage += 1;
     },
@@ -3084,6 +3192,19 @@ __webpack_require__.r(__webpack_exports__);
         this.data.splice(this.length - 1, 1);
       }
     }
+  },
+  cancel: function cancel() {
+    var _this4 = this;
+
+    Axios.post("/api/manage", {
+      id: 3
+    }).then(function (res) {
+      _this4.initialize();
+
+      _this4.initMap();
+    })["catch"](function (err) {
+      console.log(err);
+    });
   }
 });
 
@@ -3233,10 +3354,7 @@ __webpack_require__.r(__webpack_exports__);
 
               marker.setDraggable(true);
             }
-          }); //   kakao.maps.event.addListener(marker, "mouseout", () => {
-          //     marker.setDraggable(false);
-          //   });
-
+          });
           kakao.maps.event.addListener(marker, "dragend", function () {
             _this2.lat = marker.getPosition().Ha;
             _this2.lon = marker.getPosition().Ga;
@@ -44399,7 +44517,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "\n#map[data-v-b341dbe4]{\n    width:65rem; \n    height:50rem;\n}\n", ""]);
+exports.push([module.i, "\n#map[data-v-b341dbe4] {\n  /* width: 50rem; */\n  /* height: 40rem; */\n  height: 600px;\n}\n#manager[data-v-b341dbe4] {\n  position: absolute;\n  top: 0;\n  right: 0;\n  z-index: 10;\n  background-color: white;\n  border: 1px solid #18a2b8;\n  padding: 10px;\n  text-align: center;\n}\n.page-container[data-v-b341dbe4] {\n  position: relative;\n}\n", ""]);
 
 // exports
 
@@ -66893,31 +67011,78 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    [
-      _c(
-        "b-container",
-        [
-          _c(
-            "b-row",
+  return _c("div", { staticClass: "page-container" }, [
+    _c("div", {
+      attrs: { id: "map" },
+      on: {
+        click: function($event) {
+          return _vm.map_click()
+        }
+      }
+    }),
+    _vm._v(" "),
+    _c("div", { attrs: { id: "manager" } }, [
+      _vm.stage == 1
+        ? _c("div", [_vm._v("지도에서 원하는 위치를 클릭해 주세요.")])
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.stage == 2
+        ? _c(
+            "div",
             [
-              _c("b-col", { attrs: { cols: "3" } }, [
-                _vm._v("\n                check 등록\n            ")
-              ]),
-              _vm._v(" "),
-              _c("b-col", { attrs: { cols: "7" } }, [
-                _c("div", { attrs: { id: "map" } })
-              ])
+              _c(
+                "b-form",
+                [
+                  _c("div", { staticStyle: { margin: "5px" } }, [
+                    _c("div", [
+                      _c("span", { staticStyle: { "font-size": "10px" } }, [
+                        _vm._v("위도 : " + _vm._s(_vm.lat))
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("div", [
+                      _c("span", { staticStyle: { "font-size": "10px" } }, [
+                        _vm._v("경도 : " + _vm._s(_vm.lon))
+                      ])
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "b-button-group",
+                    [
+                      _c(
+                        "b-button",
+                        {
+                          attrs: { type: "submit", variant: "primary" },
+                          on: {
+                            click: function($event) {
+                              return _vm.stn_create()
+                            }
+                          }
+                        },
+                        [_vm._v("등록하기")]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "b-button",
+                        {
+                          attrs: { type: "submit" },
+                          on: { click: _vm.cancel }
+                        },
+                        [_vm._v("취소하기")]
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
             ],
             1
           )
-        ],
-        1
-      )
-    ],
-    1
-  )
+        : _vm._e()
+    ])
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -67269,10 +67434,7 @@ var render = function() {
                 "b-form",
                 [
                   _c("b-form-input", {
-                    attrs: {
-                      placeholder: "정류장명을 입력해 주세요.",
-                      required: ""
-                    },
+                    attrs: { placeholder: "정류장명을 입력해 주세요." },
                     model: {
                       value: _vm.station_name,
                       callback: function($$v) {
@@ -67316,11 +67478,7 @@ var render = function() {
                         "b-button",
                         {
                           attrs: { type: "submit" },
-                          on: {
-                            click: function($event) {
-                              return _vm.cancel()
-                            }
-                          }
+                          on: { click: _vm.cancel }
                         },
                         [_vm._v("취소하기")]
                       )
