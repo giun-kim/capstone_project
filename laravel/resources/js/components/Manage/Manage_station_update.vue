@@ -34,7 +34,6 @@
 </template>
 
 <script>
-// import data from "./data/station";
 export default {
   mounted() {
     Axios.get('/api/manage')

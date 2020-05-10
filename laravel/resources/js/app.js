@@ -14,7 +14,6 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import Parent from './components/Parent';
 import Control from './components/Control';
 import Statistics from './components/Statistics';
-import store from './store';
 import Manage from "./components/Manage/Manage";
 import Manage_station_create from "./components/Manage/Manage_station_create";
 import Manage_station_update from "./components/Manage/Manage_station_update";
@@ -83,7 +82,6 @@ const router = new VueRouter({
 const app = new Vue({
     el : '#app',
     router,
-    store,
     render : (h) => h(Parent)
 });
 

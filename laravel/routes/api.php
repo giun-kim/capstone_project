@@ -18,4 +18,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::resource('/manage', 'StationController');
+Route::resource('/manage', 'StationController'); // 관리 페이지

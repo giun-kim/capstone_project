@@ -110,14 +110,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-/* #map {
-  width: 65rem;
-  height: 50rem;
-} */
-
-/* .view-col {
-  max-height: 600px;
-} */
-</style>
