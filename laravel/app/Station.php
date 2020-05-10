@@ -10,7 +10,7 @@ class Station extends Model
         'station_name', 'station_lat', 'station_lon'
     ];
 
-    protected $primaryKey = 'station_name';
+    // protected $primaryKey = 'station_name';
 
     public $timestamps = false; // created_at, updated_at 취소하기
 
