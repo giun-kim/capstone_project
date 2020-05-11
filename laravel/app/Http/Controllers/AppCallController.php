@@ -12,7 +12,7 @@ class AppCallController extends Controller
                         ->get();
         
         debug($station_all);
-        return response($station_all);
+        return response()->json(['station_all'=>$station_all]);
     }
 
     // 유저확인(동명이인)
@@ -20,9 +20,12 @@ class AppCallController extends Controller
         debug($id);
         $same_user = DB::table('user')
                         ->select('user_name','user_phone')
+                        ->where('user_name', $id)
                         ->get();
                         
         debug($same_user);
         return response($same_user);
     }
+
+
 }

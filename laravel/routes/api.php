@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+///////////// WEB /////////////
 // 관제
 Route::get('/dlvy/control', 'WebControlController@index');
 Route::get('/dlvy/control/show/{id}', 'WebControlController@run_status');
@@ -41,15 +43,17 @@ Route::resource('dlvy/management/car', 'WebCarManagementController');
 
 
 ///////////// APP /////////////
+// 로그인
+Route::post('app/login', 'AppLoginController@login_check' );
 // 메인
-
 // 호출하기
 Route::get('dlvy/call', 'AppCallController@call');
 // 동명이인 체크
 Route::post('dlvy/check_user/{id}', 'AppCallController@check_user');
 
 // 받는 배달
-Route::get('dlvy/send/{id}', 'AppDlvyInfoController@send_dlvy');
+Route::get('dlvy/senddlvy/{id}', 'AppDlvyInfoController@send_dlvy');
 // 보낸 배달
-
+Route::get('dlvy/receivdlvy/{id}', 'AppDlvyInfoController@receiv_dlvy');
 // 완료된 배달
+Route::get('dlvy/completedlvy/{user_name}/{term}/{date_start}/{date_end}', 'AppDlvyCompleteController@completed_dlvy');
