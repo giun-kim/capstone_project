@@ -2,7 +2,7 @@
   <div class="page-container">
     <div id="map" @click="map_click()"></div>
     <div id="manager">
-      <div v-if="stage == 1">지도에서 원하는 위치를 클릭해 주세요.</div>
+      <div v-if="stage == 1">지도에서 경로를 등록할 정류장을 두 개 클릭해주세요.</div>
       <div v-if="stage == 2">
         <b-form>
           <div style="margin: 5px;">
@@ -24,6 +24,7 @@
 </template>
 
 <script>
+// 미완성
 export default {
   mounted() {
     Axios.get('/api/dlvy/management/checkpoint')
@@ -83,12 +84,17 @@ export default {
         this.map = map;
       }
 
+      var imageSrc =
+        "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
       // 여러 개 마커 생성하기
       for (let i = 0; i < this.data.length; i++) {
+        var imageSize = new kakao.maps.Size(24, 35);
+        var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
         // 마커를 생성합니다
         var marker = new kakao.maps.Marker({
           map: this.map,
           position: new kakao.maps.LatLng(this.data[i].checkpoint_lat, this.data[i].checkpoint_lon) ? new kakao.maps.LatLng(this.data[i].checkpoint_lat, this.data[i].checkpoint_lon) : "", // 마커를 표시할 위치
+          image: markerImage,
         });
         // 인포 윈도우 생성
         var infowindow = new kakao.maps.InfoWindow({

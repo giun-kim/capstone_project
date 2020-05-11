@@ -25,6 +25,7 @@
 </template>
 
 <script>
+// 미완성
 export default {
   mounted() {
     Axios.get('/api/dlvy/management/checkpoint')
@@ -73,12 +74,17 @@ export default {
         this.map_stage = 2;
       }
 
+      var imageSrc =
+        "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
       // 여러 개 마커 생성하기
       if (this.stage == 1) {
         for (let i = 0; i < this.data.length; i++) {
+          var imageSize = new kakao.maps.Size(24, 35);
+          var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
           // 마커를 생성합니다
           const marker = new kakao.maps.Marker({
             position: new kakao.maps.LatLng(this.data[i].checkpoint_lat, this.data[i].checkpoint_lon), // 마커를 표시할 위치
+            image: markerImage,
           });
           // 인포 윈도우 생성
           var infowindow = new kakao.maps.InfoWindow({
