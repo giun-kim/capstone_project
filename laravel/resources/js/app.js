@@ -16,6 +16,8 @@ import Control from './components/Control';
 import Statistics from './components/Statistics';
 import Manage from './components/Manage';
 
+import DataTest from './components/DataTestComponent.vue'
+
 Vue.use(BootstrapVue);
 
 const router = new VueRouter({
@@ -35,7 +37,12 @@ const router = new VueRouter({
             path : '/manage',
             name : 'Manage',
             component : Manage
-        }
+        },
+        {
+            path : '/test',
+            name : 'DataTest',
+            component : DataTest
+        },
     ]
 });
 
