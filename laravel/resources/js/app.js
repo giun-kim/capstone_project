@@ -29,6 +29,8 @@ Vue.use(VCalendar,{
     componentPrefix:'vc'
 });
 
+import DataTest from './components/DataTestComponent.vue'
+
 Vue.use(BootstrapVue);
 
 const router = new VueRouter({

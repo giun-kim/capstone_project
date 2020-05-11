@@ -146,7 +146,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
             selected(day){
                 if(this.categori == "배달 완료"){   //날짜를 사용자가 바꿧을 때 해당 값으로 요청하기 위해
                     if(this.term == 'day'){     //this.date로 써서 한 번에 적을라고 했는데 캘린더에서 날짜 바꾸면 이벤트 파라미터 day와 this.date가 변하는 속도가 다름;;
-                    Axios.get('http://300c68ec.ngrok.io/api/dlvy/statistics/complete/'+this.mode+'/'+this.term+'/'+this.getFormDate(day.date)) //배달 완료 건 수 첫 로딩
+                    Axios.get('/api/dlvy/statistics/complete/'+this.mode+'/'+this.term+'/'+this.getFormDate(day.date)) //배달 완료 건 수 첫 로딩
                     .then((response) => {
                         this.complete_date = response.data.date_info.reverse();
                         this.complete_number = response.data.statis_info.reverse();
@@ -177,7 +177,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                     }
                 }else if(this.categori == "대기 완료/취소"){
                     if(this.term == 'day'){
-                        Axios.get('http://300c68ec.ngrok.io/api/dlvy/statistics/waitcancel/'+this.mode+'/'+this.term+'/'+this.getFormDate(day.date))
+                        Axios.get('/api/dlvy/statistics/waitcancel/'+this.mode+'/'+this.term+'/'+this.getFormDate(day.date))
                         .then((response) => {
                             this.waiting_status_date = response.data.date_info.reverse();
                             this.waiting_complete = response.data.wait_count.reverse();
@@ -211,7 +211,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                     }
                 }else if(this.categori == "평균 대기 시간"){
                     if(this.term == 'day'){
-                        Axios.get('http://300c68ec.ngrok.io/api/dlvy/statistics/waittimeavg/'+this.term+'/'+this.getFormDate(day.date))
+                        Axios.get('/api/dlvy/statistics/waittimeavg/'+this.term+'/'+this.getFormDate(day.date))
                         .then((response) => {
                             this.wait_time_avg_date = response.data.date_info.reverse();
                             this.wait_time_avg = response.data.statis_info.reverse();
@@ -254,7 +254,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
             loaded(){       //맨 첨에 로딩 될 때, 각종 카테고리, 모드, 기간 클릭했을 때 나오도록.
                 if(this.categori == "배달 완료"){   //배달 완료 : 일간, 주간, 월간 버튼 눌렀을 시 로딩 되는 것.
                     if(this.term=='day'){
-                        Axios.get('http://300c68ec.ngrok.io/api/dlvy/statistics/complete/'+this.mode+'/'+this.term+'/'+this.getFormDate(this.date)) //배달 완료 건 수 첫 로딩
+                        Axios.get('/api/dlvy/statistics/complete/'+this.mode+'/'+this.term+'/'+this.getFormDate(this.date)) //배달 완료 건 수 첫 로딩
                         .then((response) => {
                             this.complete_date = response.data.date_info.reverse();
                             this.complete_number = response.data.statis_info.reverse();
@@ -273,7 +273,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                             console.log(error);
                         });                        
                     }else if(this.term == 'week'){
-                        Axios.get('http://300c68ec.ngrok.io/api/dlvy/statistics/complete/'+this.mode+'/'+this.term+'/'+this.getFormDate(this.attributes[0].dates.start)) //배달 완료 건 수 첫 로딩
+                        Axios.get('/api/dlvy/statistics/complete/'+this.mode+'/'+this.term+'/'+this.getFormDate(this.attributes[0].dates.start)) //배달 완료 건 수 첫 로딩
                         .then((response) => {
                             this.complete_date = response.data.date_info.reverse();
                             this.complete_number = response.data.statis_info.reverse();
@@ -293,7 +293,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                         });
                     }else if(this.term == 'month'){
                         var parse_month = this.selected_month.split('/');
-                        Axios.get('http://300c68ec.ngrok.io/api/dlvy/statistics/complete/'+this.mode+'/'+this.term+'/'+this.getFormDate(new Date(parse_month[0], parse_month[1]-1, 1))) //배달 완료 건 수 첫 로딩
+                        Axios.get('/api/dlvy/statistics/complete/'+this.mode+'/'+this.term+'/'+this.getFormDate(new Date(parse_month[0], parse_month[1]-1, 1))) //배달 완료 건 수 첫 로딩
                         .then((response) => {
                             this.complete_date = response.data.date_info.reverse();
                             this.complete_number = response.data.statis_info.reverse();
@@ -314,7 +314,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                     }
                 }else if(this.categori == "대기 완료/취소"){
                     if(this.term=='day'){
-                        Axios.get('http://300c68ec.ngrok.io/api/dlvy/statistics/waitcancel/'+this.mode+'/'+this.term+'/'+this.getFormDate(this.date)) //배달 완료 건 수 첫 로딩
+                        Axios.get('/api/dlvy/statistics/waitcancel/'+this.mode+'/'+this.term+'/'+this.getFormDate(this.date)) //배달 완료 건 수 첫 로딩
                         .then((response) => {
                             this.waiting_status_date = response.data.date_info.reverse();
                             this.waiting_complete = response.data.wait_count.reverse();
@@ -339,7 +339,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                             console.log(error);
                         });                        
                     }else if(this.term == 'week'){
-                        Axios.get('http://300c68ec.ngrok.io/api/dlvy/statistics/waitcancel/'+this.mode+'/'+this.term+'/'+this.getFormDate(this.attributes[0].dates.start)) //배달 완료 건 수 첫 로딩
+                        Axios.get('/api/dlvy/statistics/waitcancel/'+this.mode+'/'+this.term+'/'+this.getFormDate(this.attributes[0].dates.start)) //배달 완료 건 수 첫 로딩
                         .then((response) => {
                             this.waiting_status_date = response.data.date_info.reverse();
                             this.waiting_complete = response.data.wait_count.reverse();
@@ -366,7 +366,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                     }else if(this.term == 'month'){
                         var parse_month = this.selected_month.split('/');
                         console.log(new Date(parse_month[0], parse_month[1]-1, 1))
-                        Axios.get('http://300c68ec.ngrok.io/api/dlvy/statistics/waitcancel/'+this.mode+'/'+this.term+'/'+this.getFormDate(new Date(parse_month[0], parse_month[1]-1, 1))) //배달 완료 건 수 첫 로딩
+                        Axios.get('/api/dlvy/statistics/waitcancel/'+this.mode+'/'+this.term+'/'+this.getFormDate(new Date(parse_month[0], parse_month[1]-1, 1))) //배달 완료 건 수 첫 로딩
                         .then((response) => {
                             this.waiting_status_date = response.data.date_info.reverse();
                             this.waiting_complete = response.data.wait_count.reverse();
@@ -393,7 +393,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                     }
                 }else if(this.categori == "평균 대기 시간"){
                     if(this.term=='day'){
-                        Axios.get('http://300c68ec.ngrok.io/api/dlvy/statistics/waittimeavg/'+this.term+'/'+this.getFormDate(this.date)) //배달 완료 건 수 첫 로딩
+                        Axios.get('/api/dlvy/statistics/waittimeavg/'+this.term+'/'+this.getFormDate(this.date)) //배달 완료 건 수 첫 로딩
                         .then((response) => {
                             console.log(response.data)
                             this.wait_time_avg_date = response.data.date_info.reverse();
@@ -413,7 +413,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                             console.log(error);
                         });                        
                     }else if(this.term == 'week'){
-                        Axios.get('http://300c68ec.ngrok.io/api/dlvy/statistics/waittimeavg/'+this.term+'/'+this.getFormDate(this.attributes[0].dates.start)) //배달 완료 건 수 첫 로딩
+                        Axios.get('/api/dlvy/statistics/waittimeavg/'+this.term+'/'+this.getFormDate(this.attributes[0].dates.start)) //배달 완료 건 수 첫 로딩
                         .then((response) => {
                             this.wait_time_avg_date = response.data.date_info.reverse();
                             this.wait_time_avg = response.data.statis_info.reverse();
@@ -434,7 +434,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                     }else if(this.term == 'month'){
                         var parse_month = this.selected_month.split('/');
                         console.log(new Date(parse_month[0], parse_month[1]-1, 1))
-                        Axios.get('http://300c68ec.ngrok.io/api/dlvy/statistics/waittimeavg/'+this.term+'/'+this.getFormDate(new Date(parse_month[0], parse_month[1]-1, 1))) //배달 완료 건 수 첫 로딩
+                        Axios.get('/api/dlvy/statistics/waittimeavg/'+this.term+'/'+this.getFormDate(new Date(parse_month[0], parse_month[1]-1, 1))) //배달 완료 건 수 첫 로딩
                         .then((response) => {
                             this.wait_time_avg_date = response.data.date_info.reverse();
                             this.wait_time_avg = response.data.statis_info.reverse();
