@@ -34,12 +34,12 @@ class WebControlController extends Controller
         # 운행 가능
         $waiting_rc = DB::table('car')   
                         ->select('car_num')
-                        ->where('car_status', '운행 대기')
+                        ->where('car_status', '배달대기')
                         ->count();
         # 에러
         $error_rc = DB::table('car')    
                         ->select('car_num')
-                        ->where('car_status', '에러')
+                        ->where('car_status', '오류')
                         ->count();
         
         // 3. 실시간 배달 현황
