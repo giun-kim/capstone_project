@@ -1,24 +1,37 @@
 <template>
   <b-col align="right">
-    {{ data }}
-    <table border="2" style="margin: auto">
-            <tr>
-                <td>car_num</td>
-                <td>car_name</td>
-                <td>수정</td>
-                <td>삭제</td>
-            </tr>
-            <tr v-for="item in data" :key="item.index">
-                <td v-if="item.car_num == ''"><input type="text" v-model="car_num" required/></td>
-                <td v-if="item.car_num == '' || update == item.car_num ? true : false"><input type="text" v-model="car_name" required/></td>
-                <td v-if="item.car_num != '' && update != item.car_num">{{ item.car_num }}</td>
-                <td v-if="item.car_num != '' && update != item.car_num">{{ item.car_name }}</td>
-                <td><button v-if="create_id == 1" @click="rc_update(item.car_num)">수정</button></td>
-                <td><button @click="create_id == 1 && update_id == 1 ? rc_delete(items.indexOf(item)) : cancel()">{{create_id == 1 && update_id == 1 ? '삭제' : '취소'}}</button></td>
-            </tr>
-        </table> 
-        <br />
-        <button v-if="update_id == 1" @click="rc_create()">등록</button>
+    <b-table
+      show-empty
+      :fields="fields"
+      :items="items"
+      :per-page="perPage"
+      :current-page="currentPage"
+    >
+      <template v-slot:cell(car_num)="data">
+          {{ data.item.car_num == '' ? '' :  data.value }} <b-form-input v-if="data.item.car_num == ''" v-model="car_num" :placeholder="update_car_num ? update_car_num : 'RC카 제품번호'"></b-form-input>
+      </template>
+
+      <template v-slot:cell(car_name)="data">
+          {{ data.item.car_name == update_car_name || data.item.car_name == '' ? '' : data.value }} <b-form-input v-if="data.item.car_name == update_car_name || data.item.car_name == ''" v-model="car_name" :placeholder="update_car_name ? update_car_name : 'RC카 이름'"></b-form-input>
+      </template>
+
+      <template v-slot:cell(update)="data">
+          <b-button type="button" @click="updateclick(data.item)" variant="primary" v-if="create_id != 2 && update_id != 2">수정</b-button>
+           <b-button type="button" @click="updateclick(data.item)" variant="primary" v-if="create_id != 2 && data.item.car_num == update_car_num">수정 완료</b-button>
+      </template>
+
+      <template v-slot:cell(delete)="data">
+          <b-button type="button" @click="deleteclick(data.item.car_num)" variant="danger" v-if="create_id != 2 && update_id != 2">삭제</b-button>
+          <b-button type="button" @click="cancelclick()" v-if="(create_id == 2 || update_id == 2) && (data.item.car_num == '' || data.item.car_num == update_car_num)">취소</b-button>
+      </template>
+    </b-table>
+    <b-pagination
+      v-model="currentPage"
+      :total-rows="rows"
+      :per-page="perPage"
+      align="center"
+    ></b-pagination>
+    <b-button type="button" @click="createclick()" variant="success" v-if="update_id != 2"> {{ create_id == 1 ? "등록" : "등록 완료"}}</b-button>
   </b-col>
 </template>
 
@@ -28,73 +41,105 @@
     mounted() {
       Axios.get('/api/dlvy/management/car')
       .then(res => {
-        this.data = res.data.car;
+        this.items = res.data.car_all
       })
     },
     data() {
       return {
-        create_id : 1, // 등록하기 순서
-        update_id : 1, // 수정하기 순서
-        data : "", // rc카 데이터
-        car_num : "", // rc카 제품번호
-        car_name : "", // rc카 이름
-        update : "" // 업데이트
+        perPage: 5,
+        currentPage: 1,
+        fields: [{
+          key : 'car_num',
+          label : 'car_num'
+        },{
+          key : 'car_name',
+          label : 'car_name'
+        },{
+          key : 'update',
+          label : 'update'
+        },{
+          key : 'delete',
+          label : 'delete'
+        }],
+        items: [],
+        create_id : 1, // 1: 등록전 2: 등록후 
+        update_id : 1, // 1: 업뎃전 2: 업뎃후
+        car_num : "", // RC카 제품번호
+        car_name : "", // RC카 이름
+        update_car_num : "", // 업데이트되는 RC카 제품번호
+        update_car_name : "" // 업데이트되는 RC카 이름
       }
     },
     methods : {
-      rc_create(e) {
+      updateclick(car) {
+        if(this.update_id == 1) {
+          this.update_car_num = car.car_num
+          this.update_car_name = car.car_name
+          this.car_num = car.car_num
+          this.car_name = car.car_name
+          this.update_id += 1
+        } else if(this.update_id == 2) {
+          Axios.patch(`/api/dlvy/management/car/${car.car_num}`, {
+            car_name : this.car_name
+          })
+          .then(res => {
+            this.update_id = 1
+            this.update_car_num = ''
+            this.update_car_name = ''
+            this.car_num = ''
+            this.car_name = ''
+            this.items = res.data.car_all
+          })
+        }
+      },
+      deleteclick(car_num) {
+        Axios.delete(`/api/dlvy/management/car/${car_num}`)
+        .then(res => {
+          this.items = res.data.car_all
+        })
+      },
+      cancelclick(){
+        if(this.items[this.items.length-1].car_num == "") {
+          this.items.splice(this.items.length-1, 1)
+        }
+        this.update_id = 1
+        this.create_id = 1
+        this.update_car_num = ''
+        this.update_car_name = ''
+        this.car_num = ''
+        this.car_name = ''
+      },
+      createclick() {
+        // 등록
         if(this.create_id == 1) {
-          this.data.push({
-            car_num : '',
-            car_name : ''
+          this.currentPage = Math.floor((this.items.length + 5) / 5)
+          this.items.push({
+            car_num : "",
+            car_name : "",
+            car_status : "",
+            car_lat : "",
+            car_lon : "",
+            car_error : ""
           })
           this.create_id += 1
-        } else if(this.create_id == 2) {
-          if(data[data.length-1].car_num == '') {
-            this.items.splice(this.items.length-1, 1)
-          }
-          // 저장한 다음 -> 조회
+        }
+        // 등록 완료
+        else if (this.create_id == 2){
           Axios.post('/api/dlvy/management/car', {
             car_num : this.car_num,
             car_name : this.car_name
           })
           .then(res => {
-            this.data = res.data.car
-            this.car_num = '',
-            this.car_name = ''
             this.create_id = 1
-          })
-          .catch(err => {
-            console.log(err)
-          })
-        }
-      },
-      rc_update(car_num) {
-        if(this.update_id == 1) {
-          this.update_id += 1
-          this.update = this.data[car_num].car_num 
-        } else if(this.update_id == 2) {
-          Axios.patch(`/api/dlvy/management/car/${car_num}`, {
-            car_name : this.car_name
-          })
-          .then(res => {
-            this.data = res.data.car
-            this.car_name = ''
-            this.update = ''
-            this.update_id = 1
+            this.items.splice(this.items.length-1, 1)
+            this.items = res.data.car_all
           })
         }
-      },
-      rc_delete(num) {
-        this.data.splice(num, 1)
-      },
-      cancel() {
-        if(this.data[this.items.length-1].car_name == '') {
-          this.data.splice(this.items.length-1, 1)
-        }
-        this.update = ''
-        this.update_id = 1
-        this.create_id = 1
+      }
+    },
+    computed: {
+      rows() {
+        return this.items.length
       }
     }
   }

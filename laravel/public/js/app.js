@@ -2503,44 +2503,59 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "Manage",
   mounted: function mounted() {},
   data: function data() {
-    return {};
+    return {
+      id: ''
+    };
   },
   methods: {
     station_create: function station_create() {
+      this.id = 1;
       this.$router.push({
         name: "Manage_station_create"
       })["catch"](function (err) {});
     },
     station_update: function station_update() {
+      this.id = 1;
       this.$router.push({
         name: "Manage_station_update"
       })["catch"](function (err) {});
     },
     path_create: function path_create() {
+      this.id = 1;
       this.$router.push({
         name: "Manage_path_create"
       })["catch"](function (err) {});
     },
     path_update: function path_update() {
+      this.id = 1;
       this.$router.push({
         name: "Manage_path_update"
       })["catch"](function (err) {});
     },
     rc: function rc() {
+      this.id = 2;
       this.$router.push({
         name: "Manage_rc"
       })["catch"](function (err) {});
     },
     checkpoint_create: function checkpoint_create() {
+      this.id = 1;
       this.$router.push({
         name: "Manage_checkpoint_create"
       })["catch"](function (err) {});
     },
     checkpoint_update: function checkpoint_update() {
+      this.id = 1;
       this.$router.push({
         name: "Manage_checkpoint_update"
       })["catch"](function (err) {});
@@ -2590,18 +2605,14 @@ __webpack_require__.r(__webpack_exports__);
     var _this = this;
 
     Axios.get('/api/dlvy/management/checkpoint').then(function (res) {
-      console.log(res.data.checkpoint);
-      _this.data = res.data.checkpoint;
+      console.log(res.data.checkpoint_all);
+      _this.data = res.data.checkpoint_all;
 
-      if (_this.data[_this.data.length - 1].checkpoint_id != "") {
-        _this.data.push({
-          checkpoint_id: "",
-          checkpoint_lat: "",
-          checkpoint_lon: ""
-        });
-      } else if (_this.data[_this.data.length - 1].checkpoint_id == "") {
-        _this.data.splice(_this.data.length - 1, 1);
-      }
+      _this.data.push({
+        checkpoint_id: "",
+        checkpoint_lat: "",
+        checkpoint_lon: ""
+      });
 
       _this.initMap();
     });
@@ -2620,15 +2631,11 @@ __webpack_require__.r(__webpack_exports__);
       // 경도
       data: "",
       // 체크포인트 데이터
-      map: ""
+      map: "",
+      markers: []
     };
   },
   methods: {
-    cancel: function cancel() {
-      Axios.post("/api/dlvy/management/checkpoint", {
-        id: 3
-      });
-    },
     makeOverListener: function makeOverListener(map, marker, infowindow) {
       return function () {
         infowindow.open(map, marker);
@@ -2650,8 +2657,7 @@ __webpack_require__.r(__webpack_exports__);
           level: 2,
           draggable: false
         };
-        var map = new kakao.maps.Map(container, options);
-        this.map = map;
+        this.map = new kakao.maps.Map(container, options);
       }
 
       var imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"; // 여러 개 마커 생성하기
@@ -2661,7 +2667,6 @@ __webpack_require__.r(__webpack_exports__);
         var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize); // 마커를 생성합니다
 
         var marker = new kakao.maps.Marker({
-          map: this.map,
           position: new kakao.maps.LatLng(this.data[i].checkpoint_lat, this.data[i].checkpoint_lon) ? new kakao.maps.LatLng(this.data[i].checkpoint_lat, this.data[i].checkpoint_lon) : "",
           // 마커를 표시할 위치
           image: markerImage
@@ -2671,52 +2676,69 @@ __webpack_require__.r(__webpack_exports__);
           content: "<div style='text-align:center; margin-left:5px; color:#18a2b8'>" + "checkpoint id : " + (this.data[i].checkpoint_id ? this.data[i].checkpoint_id : "") + "</div>"
         }); // 마우스 오버 이벤트
 
-        kakao.maps.event.addListener(marker, "mouseover", this.makeOverListener(map, marker, infowindow));
+        kakao.maps.event.addListener(marker, "mouseover", this.makeOverListener(this.map, marker, infowindow));
         kakao.maps.event.addListener(marker, "mouseout", this.makeOutListener(infowindow));
+        marker.setMap(this.map);
+        this.markers.push(marker);
       } // 마커 표시
 
 
-      kakao.maps.event.addListener(map, "click", function (mouseEvent) {
+      kakao.maps.event.addListener(this.map, "click", function (mouseEvent) {
         // 클릭한 위도, 경도 정보를 가져옵니다
         var latlng = mouseEvent.latLng; // 마커 위치를 클릭한 위치로 옮깁니다
 
-        marker.setPosition(latlng);
+        _this2.markers[_this2.markers.length - 1].setPosition(latlng);
+
         _this2.lat = latlng.getLat();
         _this2.lon = latlng.getLng();
+        if (_this2.stage == 1) _this2.stage += 1;
       });
     },
     chk_create: function chk_create() {
+      var _this3 = this;
+
       console.log(this.checkpoint_id);
       console.log(this.lat);
       Axios.post('/api/dlvy/management/checkpoint', {
-        id: 1,
         checkpoint_id: this.checkpoint_id,
         checkpoint_lat: this.lat,
         checkpoint_lon: this.lon
-      }).then(function (res) {})["catch"](function (err) {
+      }).then(function (res) {
+        _this3.data = res.data.checkpoint_all;
+
+        _this3.initialize();
+      })["catch"](function (err) {
         console.log(err);
       });
     },
-    map_click: function map_click() {
-      if (this.stage == 1) this.stage += 1;
-    },
     initialize: function initialize() {
-      this.map_stage = 1, // 맵 한번만 생성
+      for (var i = 0; i < this.data.length; i++) {
+        this.markers[i].setMap(null);
+      }
+
+      this.map_stage = 2, // 맵 한번만 생성
       this.stage = 1, // 단계별 보여지는 화면
       this.lat = "", // 위도
       this.lng = "", // 경도
-      this.data = "", // 정류장 데이터
-      this.checkpoint_id = ""; // 정류장 이름
+      this.checkpoint_id = "", // 체크포인트 이름
+      this.markers = [];
 
-      if (this.data[this.data.length - 1].checkpoint_id != "") {
+      if (this.data[this.data.length - 1].checkpoint_id == "") {
+        this.data.splice(this.data.length - 1, 1);
         this.data.push({
           checkpoint_id: "",
           checkpoint_lat: "",
           checkpoint_lon: ""
         });
-      } else if (this.data[this.data.length - 1].checkpoint_id == "") {
-        this.data.splice(this.length - 1, 1);
+      } else if (this.data[this.data.length - 1].checkpoint_id != "") {
+        this.data.push({
+          checkpoint_id: "",
+          checkpoint_lat: "",
+          checkpoint_lon: ""
+        });
       }
+
+      this.initMap();
     }
   }
 });
@@ -2764,7 +2786,7 @@ __webpack_require__.r(__webpack_exports__);
     var _this = this;
 
     Axios.get('/api/dlvy/management/checkpoint').then(function (res) {
-      _this.data = res.data.checkpoint;
+      _this.data = res.data.checkpoint_all;
 
       _this.initMap();
     });
@@ -2816,9 +2838,7 @@ __webpack_require__.r(__webpack_exports__);
           draggable: false // 지도 이동 막기
 
         };
-        var map = new kakao.maps.Map(container, options);
-        this.map = map;
-        this.map_stage = 2;
+        this.map = new kakao.maps.Map(container, options);
       }
 
       var imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"; // 여러 개 마커 생성하기
@@ -2838,29 +2858,27 @@ __webpack_require__.r(__webpack_exports__);
             content: "<div style='text-align:center; margin-left:5px; color:#18a2b8'>" + "checkpoint id : " + _this2.data[i].checkpoint_id + "</div>"
           }); // 마우스 오버 이벤트
 
-          kakao.maps.event.addListener(marker, "mouseover", _this2.makeOverListener(map, marker, infowindow));
+          kakao.maps.event.addListener(marker, "mouseover", _this2.makeOverListener(_this2.map, marker, infowindow));
           kakao.maps.event.addListener(marker, "mouseout", _this2.makeOutListener(infowindow));
           marker.setMap(_this2.map);
 
           _this2.markers.push(marker);
 
-          kakao.maps.event.addListener(marker, "click", function () {
+          kakao.maps.event.addListener(_this2.markers[i], "click", function () {
             _this2.stage = 2; // 정류장 클릭 후 수정 페이지 이동
 
-            if (_this2.click == 0) {
-              _this2.click += 1;
-              _this2.checkpoint_id = _this2.data[i].checkpoint_id;
-              _this2.lat = _this2.data[i].checkpoint_lat; // 위도
+            _this2.markers[i].setDraggable(true);
 
-              _this2.lon = _this2.data[i].checkpoint_lon; // 경도
+            _this2.checkpoint_id = _this2.data[i].checkpoint_id;
+            _this2.lat = _this2.data[i].checkpoint_lat; // 위도
 
-              marker.setDraggable(true);
-            }
+            _this2.lon = _this2.data[i].checkpoint_lon; // 경도
+
+            _this2.click += 1;
           });
-          kakao.maps.event.addListener(marker, "dragend", function () {
-            _this2.lat = marker.getPosition().Ha;
-            _this2.lon = marker.getPosition().Ga;
-            console.log(_this2.lat, _this2.lon);
+          kakao.maps.event.addListener(_this2.markers[i], "dragend", function () {
+            _this2.lat = _this2.markers[i].getPosition().Ha;
+            _this2.lon = _this2.markers[i].getPosition().Ga;
           });
         };
 
@@ -2874,38 +2892,45 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     chk_delete: function chk_delete() {
-      Axios["delete"]("/api/dlvy/management/checkpoint/".concat(this.checkpoint_id)).then(function (res) {})["catch"](function (err) {
+      var _this3 = this;
+
+      Axios["delete"]("/api/dlvy/management/checkpoint/".concat(this.checkpoint_id)).then(function (res) {
+        _this3.data = res.data.checkpoint_all;
+
+        _this3.initialize();
+      })["catch"](function (err) {
         console.log(err);
       });
     },
     chk_update: function chk_update() {
-      console.log(this.lat);
+      var _this4 = this;
+
       Axios.patch("/api/dlvy/management/checkpoint/".concat(this.checkpoint_id), {
         checkpoint_lat: this.lat,
         checkpoint_lon: this.lon
-      }).then(function (res) {})["catch"](function (err) {
+      }).then(function (res) {
+        _this4.stage == 1;
+        _this4.data = res.data.checkpoint_all;
+
+        _this4.initialize();
+      })["catch"](function (err) {
         console.log(err);
       });
     },
-    cancel: function cancel() {
-      Axios.post("/api/dlvy/management/checkpoint", {
-        id: 3
-      });
-    },
     initialize: function initialize() {
+      for (var i = 0; i < this.data.length; i++) {
+        this.markers[i].setMap(null);
+      }
+
       this.map_stage = 2, // 맵 한번만 생성
       this.stage = 1, // 단계별 보여지는 화면
-      this.checkpoint_id = "", // 정류장 이름
+      this.checkpoint_id = "", // 체크포인트 이름
       this.lat = "", // 위도
-      this.lng = "", // 경도
-      this.data = "", // 정류장 데이터
+      this.lon = "", // 경도
       this.markers = []; // 마커 표시
 
       this.click = 0;
-      this.map = "";
-    },
-    map_click: function map_click() {
-      if (this.stage == 2) this.initMap();
+      this.initMap();
     }
   }
 });
@@ -2921,8 +2946,6 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-//
-//
 //
 //
 //
@@ -3318,87 +3341,135 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 // 미완성
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
     var _this = this;
 
     Axios.get('/api/dlvy/management/car').then(function (res) {
-      _this.data = res.data.car;
+      _this.items = res.data.car_all;
     });
   },
   data: function data() {
     return {
+      perPage: 5,
+      currentPage: 1,
+      fields: [{
+        key: 'car_num',
+        label: 'car_num'
+      }, {
+        key: 'car_name',
+        label: 'car_name'
+      }, {
+        key: 'update',
+        label: 'update'
+      }, {
+        key: 'delete',
+        label: 'delete'
+      }],
+      items: [],
       create_id: 1,
-      // 등록하기 순서
+      // 1: 등록전 2: 등록후 
       update_id: 1,
-      // 수정하기 순서
-      data: "",
-      // rc카 데이터
+      // 1: 업뎃전 2: 업뎃후
       car_num: "",
-      // rc카 제품번호
+      // RC카 제품번호
       car_name: "",
-      // rc카 이름
-      update: "" // 업데이트
+      // RC카 이름
+      update_car_num: "",
+      // 업데이트되는 RC카 제품번호
+      update_car_name: "" // 업데이트되는 RC카 이름
 
     };
   },
   methods: {
-    rc_create: function rc_create(e) {
+    updateclick: function updateclick(car) {
       var _this2 = this;
 
-      if (this.create_id == 1) {
-        this.data.push({
-          car_num: '',
-          car_name: ''
-        });
-        this.create_id += 1;
-      } else if (this.create_id == 2) {
-        if (data[data.length - 1].car_num == '') {
-          this.items.splice(this.items.length - 1, 1);
-        } // 저장한 다음 -> 조회
-
-
-        Axios.post('/api/dlvy/management/car', {
-          car_num: this.car_num,
+      if (this.update_id == 1) {
+        this.update_car_num = car.car_num;
+        this.update_car_name = car.car_name;
+        this.car_num = car.car_num;
+        this.car_name = car.car_name;
+        this.update_id += 1;
+      } else if (this.update_id == 2) {
+        Axios.patch("/api/dlvy/management/car/".concat(car.car_num), {
           car_name: this.car_name
         }).then(function (res) {
-          _this2.data = res.data.car;
-          _this2.car_num = '', _this2.car_name = '';
-          _this2.create_id = 1;
-        })["catch"](function (err) {
-          console.log(err);
+          _this2.update_id = 1;
+          _this2.update_car_num = '';
+          _this2.update_car_name = '';
+          _this2.car_num = '';
+          _this2.car_name = '';
+          _this2.items = res.data.car_all;
         });
       }
     },
-    rc_update: function rc_update(car_num) {
+    deleteclick: function deleteclick(car_num) {
       var _this3 = this;
 
-      if (this.update_id == 1) {
-        this.update_id += 1;
-        this.update = this.data[car_num].car_num;
-      } else if (this.update_id == 2) {
-        Axios.patch("/api/dlvy/management/car/".concat(car_num), {
-          car_name: this.car_name
-        }).then(function (res) {
-          _this3.data = res.data.car;
-          _this3.car_name = '';
-          _this3.update = '';
-          _this3.update_id = 1;
-        });
-      }
+      Axios["delete"]("/api/dlvy/management/car/".concat(car_num)).then(function (res) {
+        _this3.items = res.data.car_all;
+      });
     },
-    rc_delete: function rc_delete(num) {
-      this.data.splice(num, 1);
-    },
-    cancel: function cancel() {
-      if (this.data[this.items.length - 1].car_name == '') {
-        this.data.splice(this.items.length - 1, 1);
+    cancelclick: function cancelclick() {
+      if (this.items[this.items.length - 1].car_num == "") {
+        this.items.splice(this.items.length - 1, 1);
       }
 
-      this.update = '';
       this.update_id = 1;
       this.create_id = 1;
+      this.update_car_num = '';
+      this.update_car_name = '';
+      this.car_num = '';
+      this.car_name = '';
+    },
+    createclick: function createclick() {
+      var _this4 = this;
+
+      // 등록
+      if (this.create_id == 1) {
+        this.currentPage = Math.floor((this.items.length + 5) / 5);
+        this.items.push({
+          car_num: "",
+          car_name: "",
+          car_status: "",
+          car_lat: "",
+          car_lon: "",
+          car_error: ""
+        });
+        this.create_id += 1;
+      } // 등록 완료
+      else if (this.create_id == 2) {
+          Axios.post('/api/dlvy/management/car', {
+            car_num: this.car_num,
+            car_name: this.car_name
+          }).then(function (res) {
+            _this4.create_id = 1;
+
+            _this4.items.splice(_this4.items.length - 1, 1);
+
+            _this4.items = res.data.car_all;
+          });
+        }
+    }
+  },
+  computed: {
+    rows: function rows() {
+      return this.items.length;
     }
   }
 });
@@ -3445,22 +3516,19 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
     var _this = this;
 
     Axios.get('/api/dlvy/management/station').then(function (res) {
-      _this.data = res.data.station;
+      _this.data = res.data.station_all;
 
-      if (_this.data[_this.data.length - 1].station_name != "") {
-        _this.data.push({
-          station_name: "",
-          station_lat: "",
-          station_lon: ""
-        });
-      } else if (_this.data[_this.data.length - 1].station_name == "") {
-        _this.data.splice(_this.data.length - 1, 1);
-      }
+      _this.data.push({
+        station_name: "",
+        station_lat: "",
+        station_lon: ""
+      });
 
       _this.initMap();
     });
@@ -3479,7 +3547,9 @@ __webpack_require__.r(__webpack_exports__);
       // 경도
       data: "",
       // 정류장 데이터
-      map: ""
+      map: "",
+      // 맵
+      markers: []
     };
   },
   methods: {
@@ -3504,74 +3574,84 @@ __webpack_require__.r(__webpack_exports__);
           level: 2,
           draggable: false
         };
-        var map = new kakao.maps.Map(container, options);
-        this.map = map;
+        this.map = new kakao.maps.Map(container, options);
       } // 여러 개 마커 생성하기
 
 
       for (var i = 0; i < this.data.length; i++) {
         // 마커를 생성합니다
         var marker = new kakao.maps.Marker({
-          map: this.map,
           position: new kakao.maps.LatLng(this.data[i].station_lat, this.data[i].station_lon) ? new kakao.maps.LatLng(this.data[i].station_lat, this.data[i].station_lon) : "" // 마커를 표시할 위치
 
         }); // 인포 윈도우 생성
 
         var infowindow = new kakao.maps.InfoWindow({
-          content: "<div style='text-align:center; margin-left:5px; color:#18a2b8'>" + (this.data[i].station_name ? this.data[i].station_name : "") + "</div>"
+          content: "<div style='text-align:center; margin-left:5px; color:#18a2b8'>" + (this.data[i].station_name ? this.data[i].station_name : '') + "</div>"
         }); // 마우스 오버 이벤트
 
-        kakao.maps.event.addListener(marker, "mouseover", this.makeOverListener(map, marker, infowindow));
+        kakao.maps.event.addListener(marker, "mouseover", this.makeOverListener(this.map, marker, infowindow));
         kakao.maps.event.addListener(marker, "mouseout", this.makeOutListener(infowindow));
+        marker.setMap(this.map);
+        this.markers.push(marker);
       } // 마커 표시
 
 
-      kakao.maps.event.addListener(map, "click", function (mouseEvent) {
+      kakao.maps.event.addListener(this.map, "click", function (mouseEvent) {
         // 클릭한 위도, 경도 정보를 가져옵니다
         var latlng = mouseEvent.latLng; // 마커 위치를 클릭한 위치로 옮깁니다
 
-        marker.setPosition(latlng);
+        _this2.markers[_this2.markers.length - 1].setPosition(latlng);
+
         _this2.lat = latlng.getLat();
         _this2.lon = latlng.getLng();
+        if (_this2.stage == 1) _this2.stage += 1;
       });
     },
     stn_create: function stn_create() {
+      var _this3 = this;
+
       console.log(this.station_name);
       Axios.post('/api/dlvy/management/station', {
-        id: 1,
         station_name: this.station_name,
         station_lat: this.lat,
         station_lon: this.lon
-      }).then(function (res) {})["catch"](function (err) {
+      }).then(function (res) {
+        _this3.data = res.data.station_all;
+
+        _this3.initialize();
+      })["catch"](function (err) {
         console.log(err);
       });
     },
-    map_click: function map_click() {
-      if (this.stage == 1) this.stage += 1;
-    },
     initialize: function initialize() {
-      this.map_stage = 1, // 맵 한번만 생성
+      for (var i = 0; i < this.data.length; i++) {
+        this.markers[i].setMap(null);
+      }
+
+      this.map_stage = 2, // 맵 한번만 생성
       this.stage = 1, // 단계별 보여지는 화면
       this.lat = "", // 위도
-      this.lng = "", // 경도
-      this.data = "", // 정류장 데이터
-      this.station_name = ""; // 정류장 이름
+      this.lon = "", // 경도
+      this.station_name = "", // 정류장 이름
+      this.markers = [];
 
-      if (this.data[this.data.length - 1].station_name != "") {
+      if (this.data[this.data.length - 1].station_name == "") {
+        this.data.splice(this.data.length - 1, 1);
         this.data.push({
           station_name: "",
           station_lat: "",
           station_lon: ""
         });
-      } else if (this.data[this.data.length - 1].station_name == "") {
-        this.data.splice(this.length - 1, 1);
+      } else if (this.data[this.data.length - 1].station_name != "") {
+        this.data.push({
+          station_name: "",
+          station_lat: "",
+          station_lon: ""
+        });
       }
+
+      this.initMap();
     }
-  },
-  cancel: function cancel() {
-    Axios.post("/api/dlvy/management/station", {
-      id: 3
-    });
   }
 });
 
@@ -3617,16 +3697,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
     var _this = this;
 
     Axios.get('/api/dlvy/management/station').then(function (res) {
-      _this.data = res.data.station;
+      _this.data = res.data.station_all;
 
       _this.initMap();
     });
@@ -3638,10 +3714,9 @@ __webpack_require__.r(__webpack_exports__);
       stage: 1,
       // 단계별 보여지는 화면
       old_station_name: "",
+      // 수정하기전 정류장 이름
       station_name: "",
-      // 정류장 이름
-      station_num: "",
-      // 선택한 정류장
+      // 수정 후 정류장 이름
       lat: "",
       // 위도
       lon: "",
@@ -3681,9 +3756,7 @@ __webpack_require__.r(__webpack_exports__);
           draggable: false // 지도 이동 막기
 
         };
-        var map = new kakao.maps.Map(container, options);
-        this.map = map;
-        this.map_stage = 2;
+        this.map = new kakao.maps.Map(container, options);
       } // 여러 개 마커 생성하기
 
 
@@ -3699,31 +3772,29 @@ __webpack_require__.r(__webpack_exports__);
             content: "<div style='text-align:center; margin-left:5px; color:#18a2b8'>" + _this2.data[i].station_name + "</div>"
           }); // 마우스 오버 이벤트
 
-          kakao.maps.event.addListener(marker, "mouseover", _this2.makeOverListener(map, marker, infowindow));
+          kakao.maps.event.addListener(marker, "mouseover", _this2.makeOverListener(_this2.map, marker, infowindow));
           kakao.maps.event.addListener(marker, "mouseout", _this2.makeOutListener(infowindow));
           marker.setMap(_this2.map);
 
           _this2.markers.push(marker);
 
-          kakao.maps.event.addListener(marker, "click", function () {
+          kakao.maps.event.addListener(_this2.markers[i], "click", function () {
             _this2.stage = 2; // 정류장 클릭 후 수정 페이지 이동
 
-            if (_this2.click == 0) {
-              _this2.click += 1;
-              _this2.old_station_name = _this2.data[i].station_name;
-              _this2.station_name = _this2.data[i].station_name;
-              _this2.station_num = i;
-              _this2.lat = _this2.data[i].station_lat; // 위도
+            _this2.markers[i].setDraggable(true);
 
-              _this2.lon = _this2.data[i].station_lon; // 경도
+            _this2.old_station_name = _this2.data[i].station_name;
+            _this2.station_name = _this2.data[i].station_name;
+            _this2.lat = _this2.data[i].station_lat; // 위도
 
-              marker.setDraggable(true);
-            }
+            _this2.lon = _this2.data[i].station_lon; // 경도
+
+            _this2.click += 1;
           });
-          kakao.maps.event.addListener(marker, "dragend", function () {
-            _this2.lat = marker.getPosition().Ha;
-            _this2.lon = marker.getPosition().Ga;
-            console.log(_this2.lat, _this2.lng);
+          kakao.maps.event.addListener(_this2.markers[i], "dragend", function () {
+            _this2.lat = _this2.markers[i].getPosition().Ha;
+            _this2.lon = _this2.markers[i].getPosition().Ga;
+            console.log(_this2.lat, _this2.lon);
           });
         };
 
@@ -3734,49 +3805,47 @@ __webpack_require__.r(__webpack_exports__);
         }
       }
     },
-    stn_delete: function stn_delete() {
+    stn_delete: function stn_delete(station_name) {
       var _this3 = this;
 
-      Axios["delete"]("/api/dlvy/management/station/".concat(this.old_station_name)).then(function (res) {
-        _this3.markers[_this3.station_num].setMap(null);
+      Axios["delete"]("/api/dlvy/management/station/".concat(station_name)).then(function (res) {
+        _this3.data = res.data.station_all;
 
         _this3.initialize();
-
-        _this3.initMap();
       })["catch"](function (err) {
         console.log(err);
       });
     },
-    stn_update: function stn_update() {
-      Axios.post("/api/dlvy/management/station", {
-        id: 2,
-        old_station_name: this.old_station_name,
+    stn_update: function stn_update(station_name) {
+      var _this4 = this;
+
+      Axios.patch("/api/dlvy/management/station/".concat(station_name), {
         station_name: this.station_name,
         station_lat: this.lat,
         station_lon: this.lon
-      }).then(function (res) {})["catch"](function (err) {
+      }).then(function (res) {
+        _this4.stage == 1;
+        _this4.data = res.data.station_all;
+
+        _this4.initialize();
+      })["catch"](function (err) {
         console.log(err);
       });
     },
-    cancel: function cancel() {
-      Axios.post("/api/dlvy/management/station", {
-        id: 3
-      });
-    },
     initialize: function initialize() {
+      for (var i = 0; i < this.data.length; i++) {
+        this.markers[i].setMap(null);
+      }
+
       this.map_stage = 2, // 맵 한번만 생성
       this.stage = 1, // 단계별 보여지는 화면
       this.station_name = "", // 정류장 이름
       this.lat = "", // 위도
-      this.lng = "", // 경도
-      this.data = "", // 정류장 데이터
+      this.lon = "", // 경도
       this.markers = [], // 마커 표시
-      this.old_station_name = "";
-      this.click = 0;
-      this.map = "";
-    },
-    map_click: function map_click() {
-      if (this.stage == 2) this.initMap();
+      this.old_station_name = "", // 전단계 정류장 이름
+      this.click == 0;
+      this.initMap();
     }
   }
 });
@@ -67133,190 +67202,201 @@ var render = function() {
         "b-container",
         { staticClass: "ld-over", attrs: { fluid: "" } },
         [
-          _c("router-view"),
-          _vm._v(" "),
           _c(
-            "b-card",
-            {
-              staticClass: "mb-2",
-              staticStyle: {
-                width: "215px",
-                height: "600px",
-                position: "absolute",
-                top: "0",
-                left: "20",
-                "z-index": "10",
-                "margin-top": "100px"
-              },
-              attrs: {
-                header: "카테고리",
-                "border-variant": "info",
-                align: "center"
-              }
-            },
+            "b-row",
             [
               _c(
-                "b-form-group",
+                "b-col",
                 [
                   _c(
-                    "b-container",
+                    "b-card",
+                    {
+                      staticClass: "mb-2",
+                      staticStyle: {
+                        width: "215px",
+                        height: "600px",
+                        position: "absolute",
+                        top: "0",
+                        left: "20",
+                        "z-index": "10"
+                      },
+                      attrs: {
+                        header: "카테고리",
+                        "border-variant": "info",
+                        align: "center"
+                      }
+                    },
                     [
                       _c(
-                        "b-col",
-                        { attrs: { sm: "12", align: "center" } },
+                        "b-form-group",
                         [
-                          _c("b-row", [_c("h5", [_vm._v("정류장")])]),
-                          _vm._v(" "),
                           _c(
-                            "b-row",
+                            "b-container",
                             [
                               _c(
-                                "b-card-text",
-                                {
-                                  staticStyle: { cursor: "pointer" },
-                                  attrs: { variant: "link" },
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.station_create()
-                                    }
-                                  }
-                                },
-                                [_vm._v("  등록하기")]
-                              )
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "b-row",
-                            [
-                              _c(
-                                "b-card-text",
-                                {
-                                  staticStyle: { cursor: "pointer" },
-                                  attrs: { variant: "link" },
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.station_update()
-                                    }
-                                  }
-                                },
-                                [_vm._v("  수정/삭제")]
-                              ),
-                              _vm._v(" "),
-                              _c("br")
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c("b-row", [_c("h5", [_vm._v("경로")])]),
-                          _vm._v(" "),
-                          _c(
-                            "b-row",
-                            [
-                              _c(
-                                "b-card-text",
-                                {
-                                  staticStyle: { cursor: "pointer" },
-                                  attrs: { variant: "link" },
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.path_create()
-                                    }
-                                  }
-                                },
-                                [_vm._v("  등록하기")]
-                              )
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "b-row",
-                            [
-                              _c(
-                                "b-card-text",
-                                {
-                                  staticStyle: { cursor: "pointer" },
-                                  attrs: { variant: "link" },
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.path_update()
-                                    }
-                                  }
-                                },
-                                [_vm._v("  수정/삭제")]
-                              ),
-                              _vm._v(" "),
-                              _c("br")
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c("b-row", [_c("h5", [_vm._v("체크포인트")])]),
-                          _vm._v(" "),
-                          _c(
-                            "b-row",
-                            [
-                              _c(
-                                "b-card-text",
-                                {
-                                  staticStyle: { cursor: "pointer" },
-                                  attrs: { variant: "link" },
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.checkpoint_create()
-                                    }
-                                  }
-                                },
-                                [_vm._v("  등록하기")]
-                              )
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "b-row",
-                            [
-                              _c(
-                                "b-card-text",
-                                {
-                                  staticStyle: { cursor: "pointer" },
-                                  attrs: { variant: "link" },
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.checkpoint_update()
-                                    }
-                                  }
-                                },
-                                [_vm._v("  수정/삭제")]
-                              ),
-                              _vm._v(" "),
-                              _c("br")
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "b-row",
-                            [
-                              _c(
-                                "b-card-text",
-                                {
-                                  staticStyle: { cursor: "pointer" },
-                                  attrs: { variant: "link" },
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.rc()
-                                    }
-                                  }
-                                },
+                                "b-col",
+                                { attrs: { sm: "12", align: "center" } },
                                 [
-                                  _vm._v(
-                                    "\n                 \n                "
+                                  _c("b-row", [_c("h5", [_vm._v("정류장")])]),
+                                  _vm._v(" "),
+                                  _c(
+                                    "b-row",
+                                    [
+                                      _c(
+                                        "b-card-text",
+                                        {
+                                          staticStyle: { cursor: "pointer" },
+                                          attrs: { variant: "link" },
+                                          on: {
+                                            click: function($event) {
+                                              return _vm.station_create()
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("  등록하기")]
+                                      )
+                                    ],
+                                    1
                                   ),
-                                  _c("h5", [_vm._v("RC카")])
-                                ]
+                                  _vm._v(" "),
+                                  _c(
+                                    "b-row",
+                                    [
+                                      _c(
+                                        "b-card-text",
+                                        {
+                                          staticStyle: { cursor: "pointer" },
+                                          attrs: { variant: "link" },
+                                          on: {
+                                            click: function($event) {
+                                              return _vm.station_update()
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("  수정/삭제")]
+                                      ),
+                                      _vm._v(" "),
+                                      _c("br")
+                                    ],
+                                    1
+                                  ),
+                                  _vm._v(" "),
+                                  _c("b-row", [_c("h5", [_vm._v("경로")])]),
+                                  _vm._v(" "),
+                                  _c(
+                                    "b-row",
+                                    [
+                                      _c(
+                                        "b-card-text",
+                                        {
+                                          staticStyle: { cursor: "pointer" },
+                                          attrs: { variant: "link" },
+                                          on: {
+                                            click: function($event) {
+                                              return _vm.path_create()
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("  등록하기")]
+                                      )
+                                    ],
+                                    1
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "b-row",
+                                    [
+                                      _c(
+                                        "b-card-text",
+                                        {
+                                          staticStyle: { cursor: "pointer" },
+                                          attrs: { variant: "link" },
+                                          on: {
+                                            click: function($event) {
+                                              return _vm.path_update()
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("  수정/삭제")]
+                                      ),
+                                      _vm._v(" "),
+                                      _c("br")
+                                    ],
+                                    1
+                                  ),
+                                  _vm._v(" "),
+                                  _c("b-row", [
+                                    _c("h5", [_vm._v("체크포인트")])
+                                  ]),
+                                  _vm._v(" "),
+                                  _c(
+                                    "b-row",
+                                    [
+                                      _c(
+                                        "b-card-text",
+                                        {
+                                          staticStyle: { cursor: "pointer" },
+                                          attrs: { variant: "link" },
+                                          on: {
+                                            click: function($event) {
+                                              return _vm.checkpoint_create()
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("  등록하기")]
+                                      )
+                                    ],
+                                    1
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "b-row",
+                                    [
+                                      _c(
+                                        "b-card-text",
+                                        {
+                                          staticStyle: { cursor: "pointer" },
+                                          attrs: { variant: "link" },
+                                          on: {
+                                            click: function($event) {
+                                              return _vm.checkpoint_update()
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("  수정/삭제")]
+                                      ),
+                                      _vm._v(" "),
+                                      _c("br")
+                                    ],
+                                    1
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "b-row",
+                                    [
+                                      _c(
+                                        "b-card-text",
+                                        {
+                                          staticStyle: { cursor: "pointer" },
+                                          attrs: { variant: "link" },
+                                          on: {
+                                            click: function($event) {
+                                              return _vm.rc()
+                                            }
+                                          }
+                                        },
+                                        [
+                                          _vm._v(
+                                            "\n                 \n                "
+                                          ),
+                                          _c("h5", [_vm._v("RC카")])
+                                        ]
+                                      )
+                                    ],
+                                    1
+                                  )
+                                ],
+                                1
                               )
                             ],
                             1
@@ -67326,10 +67406,16 @@ var render = function() {
                       )
                     ],
                     1
-                  )
+                  ),
+                  _vm._v(" "),
+                  _vm.id == 1 ? _c("router-view") : _vm._e()
                 ],
                 1
-              )
+              ),
+              _vm._v(" "),
+              _vm.id == 2
+                ? _c("b-col", { attrs: { sm: "10" } }, [_c("router-view")], 1)
+                : _vm._e()
             ],
             1
           )
@@ -67363,20 +67449,11 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "page-container" }, [
-    _c("div", {
-      attrs: { id: "map" },
-      on: {
-        click: function($event) {
-          return _vm.map_click()
-        }
-      }
-    }),
+    _c("div", { attrs: { id: "map" } }),
     _vm._v(" "),
     _c("div", { attrs: { id: "manager" } }, [
       _vm.stage == 1
-        ? _c("div", [
-            _vm._v("지도에서 경로를 등록할 정류장을 두 개 클릭해주세요.")
-          ])
+        ? _c("div", [_vm._v("지도에서 등록할 체크포인트를 클릭해주세요.")])
         : _vm._e(),
       _vm._v(" "),
       _vm.stage == 2
@@ -67406,7 +67483,7 @@ var render = function() {
                       _c(
                         "b-button",
                         {
-                          attrs: { type: "submit", variant: "primary" },
+                          attrs: { type: "button", variant: "primary" },
                           on: {
                             click: function($event) {
                               return _vm.chk_create()
@@ -67419,10 +67496,10 @@ var render = function() {
                       _c(
                         "b-button",
                         {
-                          attrs: { type: "submit" },
+                          attrs: { type: "button" },
                           on: {
                             click: function($event) {
-                              return _vm.cancel()
+                              return _vm.initialize()
                             }
                           }
                         },
@@ -67464,14 +67541,7 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "page-container" }, [
-    _c("div", {
-      attrs: { id: "map" },
-      on: {
-        click: function($event) {
-          return _vm.map_click()
-        }
-      }
-    }),
+    _c("div", { attrs: { id: "map" } }),
     _vm._v(" "),
     _c("div", { attrs: { id: "manager" } }, [
       _vm.stage == 1
@@ -67507,7 +67577,7 @@ var render = function() {
                       _c(
                         "b-button",
                         {
-                          attrs: { type: "submit", variant: "primary" },
+                          attrs: { type: "button", variant: "primary" },
                           on: {
                             click: function($event) {
                               return _vm.chk_update()
@@ -67520,7 +67590,7 @@ var render = function() {
                       _c(
                         "b-button",
                         {
-                          attrs: { variant: "danger", type: "submit" },
+                          attrs: { variant: "danger", type: "button" },
                           on: {
                             click: function($event) {
                               return _vm.chk_delete()
@@ -67533,10 +67603,10 @@ var render = function() {
                       _c(
                         "b-button",
                         {
-                          attrs: { type: "submit" },
+                          attrs: { type: "button" },
                           on: {
                             click: function($event) {
-                              return _vm.cancel()
+                              return _vm.initialize()
                             }
                           }
                         },
@@ -67726,143 +67796,190 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("b-col", { attrs: { align: "right" } }, [
-    _vm._v("\n  " + _vm._s(_vm.data) + "\n  "),
-    _c(
-      "table",
-      { staticStyle: { margin: "auto" }, attrs: { border: "2" } },
-      [
-        _c("tr", [
-          _c("td", [_vm._v("car_num")]),
-          _vm._v(" "),
-          _c("td", [_vm._v("car_name")]),
-          _vm._v(" "),
-          _c("td", [_vm._v("수정")]),
-          _vm._v(" "),
-          _c("td", [_vm._v("삭제")])
-        ]),
-        _vm._v(" "),
-        _vm._l(_vm.data, function(item) {
-          return _c("tr", { key: item.index }, [
-            item.car_num == ""
-              ? _c("td", [
-                  _c("input", {
-                    directives: [
-                      {
-                        name: "model",
-                        rawName: "v-model",
+  return _c(
+    "b-col",
+    { attrs: { align: "right" } },
+    [
+      _c("b-table", {
+        attrs: {
+          "show-empty": "",
+          fields: _vm.fields,
+          items: _vm.items,
+          "per-page": _vm.perPage,
+          "current-page": _vm.currentPage
+        },
+        scopedSlots: _vm._u([
+          {
+            key: "cell(car_num)",
+            fn: function(data) {
+              return [
+                _vm._v(
+                  "\n        " +
+                    _vm._s(data.item.car_num == "" ? "" : data.value) +
+                    " "
+                ),
+                data.item.car_num == ""
+                  ? _c("b-form-input", {
+                      attrs: {
+                        placeholder: _vm.update_car_num
+                          ? _vm.update_car_num
+                          : "RC카 제품번호"
+                      },
+                      model: {
                         value: _vm.car_num,
+                        callback: function($$v) {
+                          _vm.car_num = $$v
+                        },
                         expression: "car_num"
                       }
-                    ],
-                    attrs: { type: "text", required: "" },
-                    domProps: { value: _vm.car_num },
-                    on: {
-                      input: function($event) {
-                        if ($event.target.composing) {
-                          return
-                        }
-                        _vm.car_num = $event.target.value
-                      }
-                    }
-                  })
-                ])
-              : _vm._e(),
-            _vm._v(" "),
-            (item.car_num == "" || _vm.update == item.car_num
-            ? true
-            : false)
-              ? _c("td", [
-                  _c("input", {
-                    directives: [
-                      {
-                        name: "model",
-                        rawName: "v-model",
-                        value: _vm.car_name,
-                        expression: "car_name"
-                      }
-                    ],
-                    attrs: { type: "text", required: "" },
-                    domProps: { value: _vm.car_name },
-                    on: {
-                      input: function($event) {
-                        if ($event.target.composing) {
-                          return
-                        }
-                        _vm.car_name = $event.target.value
-                      }
-                    }
-                  })
-                ])
-              : _vm._e(),
-            _vm._v(" "),
-            item.car_num != "" && _vm.update != item.car_num
-              ? _c("td", [_vm._v(_vm._s(item.car_num))])
-              : _vm._e(),
-            _vm._v(" "),
-            item.car_num != "" && _vm.update != item.car_num
-              ? _c("td", [_vm._v(_vm._s(item.car_name))])
-              : _vm._e(),
-            _vm._v(" "),
-            _c("td", [
-              _vm.create_id == 1
-                ? _c(
-                    "button",
-                    {
-                      on: {
-                        click: function($event) {
-                          return _vm.rc_update(item.car_num)
-                        }
-                      }
-                    },
-                    [_vm._v("수정")]
-                  )
-                : _vm._e()
-            ]),
-            _vm._v(" "),
-            _c("td", [
-              _c(
-                "button",
-                {
-                  on: {
-                    click: function($event) {
-                      _vm.create_id == 1 && _vm.update_id == 1
-                        ? _vm.rc_delete(_vm.items.indexOf(item))
-                        : _vm.cancel()
-                    }
-                  }
-                },
-                [
-                  _vm._v(
-                    _vm._s(
-                      _vm.create_id == 1 && _vm.update_id == 1 ? "삭제" : "취소"
-                    )
-                  )
-                ]
-              )
-            ])
-          ])
-        })
-      ],
-      2
-    ),
-    _vm._v(" "),
-    _c("br"),
-    _vm._v(" "),
-    _vm.update_id == 1
-      ? _c(
-          "button",
-          {
-            on: {
-              click: function($event) {
-                return _vm.rc_create()
-              }
+                    })
+                  : _vm._e()
+              ]
             }
           },
-          [_vm._v("등록")]
-        )
-      : _vm._e()
-  ])
+          {
+            key: "cell(car_name)",
+            fn: function(data) {
+              return [
+                _vm._v(
+                  "\n        " +
+                    _vm._s(
+                      data.item.car_name == _vm.update_car_name ||
+                        data.item.car_name == ""
+                        ? ""
+                        : data.value
+                    ) +
+                    " "
+                ),
+                data.item.car_name == _vm.update_car_name ||
+                data.item.car_name == ""
+                  ? _c("b-form-input", {
+                      attrs: {
+                        placeholder: _vm.update_car_name
+                          ? _vm.update_car_name
+                          : "RC카 이름"
+                      },
+                      model: {
+                        value: _vm.car_name,
+                        callback: function($$v) {
+                          _vm.car_name = $$v
+                        },
+                        expression: "car_name"
+                      }
+                    })
+                  : _vm._e()
+              ]
+            }
+          },
+          {
+            key: "cell(update)",
+            fn: function(data) {
+              return [
+                _vm.create_id != 2 && _vm.update_id != 2
+                  ? _c(
+                      "b-button",
+                      {
+                        attrs: { type: "button", variant: "primary" },
+                        on: {
+                          click: function($event) {
+                            return _vm.updateclick(data.item)
+                          }
+                        }
+                      },
+                      [_vm._v("수정")]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.create_id != 2 && data.item.car_num == _vm.update_car_num
+                  ? _c(
+                      "b-button",
+                      {
+                        attrs: { type: "button", variant: "primary" },
+                        on: {
+                          click: function($event) {
+                            return _vm.updateclick(data.item)
+                          }
+                        }
+                      },
+                      [_vm._v("수정 완료")]
+                    )
+                  : _vm._e()
+              ]
+            }
+          },
+          {
+            key: "cell(delete)",
+            fn: function(data) {
+              return [
+                _vm.create_id != 2 && _vm.update_id != 2
+                  ? _c(
+                      "b-button",
+                      {
+                        attrs: { type: "button", variant: "danger" },
+                        on: {
+                          click: function($event) {
+                            return _vm.deleteclick(data.item.car_num)
+                          }
+                        }
+                      },
+                      [_vm._v("삭제")]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                (_vm.create_id == 2 || _vm.update_id == 2) &&
+                (data.item.car_num == "" ||
+                  data.item.car_num == _vm.update_car_num)
+                  ? _c(
+                      "b-button",
+                      {
+                        attrs: { type: "button" },
+                        on: {
+                          click: function($event) {
+                            return _vm.cancelclick()
+                          }
+                        }
+                      },
+                      [_vm._v("취소")]
+                    )
+                  : _vm._e()
+              ]
+            }
+          }
+        ])
+      }),
+      _vm._v(" "),
+      _c("b-pagination", {
+        attrs: {
+          "total-rows": _vm.rows,
+          "per-page": _vm.perPage,
+          align: "center"
+        },
+        model: {
+          value: _vm.currentPage,
+          callback: function($$v) {
+            _vm.currentPage = $$v
+          },
+          expression: "currentPage"
+        }
+      }),
+      _vm._v(" "),
+      _vm.update_id != 2
+        ? _c(
+            "b-button",
+            {
+              attrs: { type: "button", variant: "success" },
+              on: {
+                click: function($event) {
+                  return _vm.createclick()
+                }
+              }
+            },
+            [_vm._v(" " + _vm._s(_vm.create_id == 1 ? "등록" : "등록 완료"))]
+          )
+        : _vm._e()
+    ],
+    1
+  )
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -67887,14 +68004,8 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "page-container" }, [
-    _c("div", {
-      attrs: { id: "map" },
-      on: {
-        click: function($event) {
-          return _vm.map_click()
-        }
-      }
-    }),
+    _vm._v("]\n  "),
+    _c("div", { attrs: { id: "map" } }),
     _vm._v(" "),
     _c("div", { attrs: { id: "manager" } }, [
       _vm.stage == 1
@@ -67909,7 +68020,10 @@ var render = function() {
                 "b-form",
                 [
                   _c("b-form-input", {
-                    attrs: { placeholder: "정류장명을 입력해 주세요." },
+                    attrs: {
+                      placeholder: "정류장명을 입력해 주세요.",
+                      required: ""
+                    },
                     model: {
                       value: _vm.station_name,
                       callback: function($$v) {
@@ -67939,7 +68053,7 @@ var render = function() {
                       _c(
                         "b-button",
                         {
-                          attrs: { type: "submit", variant: "primary" },
+                          attrs: { type: "button", variant: "primary" },
                           on: {
                             click: function($event) {
                               return _vm.stn_create()
@@ -67952,8 +68066,12 @@ var render = function() {
                       _c(
                         "b-button",
                         {
-                          attrs: { type: "submit" },
-                          on: { click: _vm.cancel }
+                          attrs: { type: "button" },
+                          on: {
+                            click: function($event) {
+                              return _vm.initialize()
+                            }
+                          }
                         },
                         [_vm._v("취소하기")]
                       )
@@ -67993,14 +68111,7 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "page-container" }, [
-    _c("div", {
-      attrs: { id: "map" },
-      on: {
-        click: function($event) {
-          return _vm.map_click()
-        }
-      }
-    }),
+    _c("div", { attrs: { id: "map" } }),
     _vm._v(" "),
     _c("div", { attrs: { id: "manager" } }, [
       _vm.stage == 1
@@ -68049,10 +68160,10 @@ var render = function() {
                       _c(
                         "b-button",
                         {
-                          attrs: { type: "submit", variant: "primary" },
+                          attrs: { type: "button", variant: "primary" },
                           on: {
                             click: function($event) {
-                              return _vm.stn_update()
+                              return _vm.stn_update(_vm.old_station_name)
                             }
                           }
                         },
@@ -68062,10 +68173,10 @@ var render = function() {
                       _c(
                         "b-button",
                         {
-                          attrs: { variant: "danger", type: "submit" },
+                          attrs: { variant: "danger", type: "button" },
                           on: {
                             click: function($event) {
-                              return _vm.stn_delete()
+                              return _vm.stn_delete(_vm.old_station_name)
                             }
                           }
                         },
@@ -68075,10 +68186,10 @@ var render = function() {
                       _c(
                         "b-button",
                         {
-                          attrs: { type: "submit" },
+                          attrs: { type: "button" },
                           on: {
                             click: function($event) {
-                              return _vm.cancel()
+                              return _vm.initialize()
                             }
                           }
                         },

@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <div id="map" @click="map_click()"></div>
+    <div id="map"></div>
     <div id="manager">
       <div v-if="stage == 1">지도에서 수정/삭제할 체크포인트를 클릭해 주세요.</div>
       <div v-if="stage == 2">
@@ -14,9 +14,9 @@
             </div>
           </div>
           <b-button-group>
-            <b-button type="submit" variant="primary" @click="chk_update()">수정하기</b-button>
-            <b-button variant="danger" type="submit" @click="chk_delete()">삭제하기</b-button>
-            <b-button type="submit" @click="cancel()">취소하기</b-button>
+            <b-button type="button" variant="primary" @click="chk_update()">수정하기</b-button>
+            <b-button variant="danger" type="button" @click="chk_delete()">삭제하기</b-button>
+            <b-button type="button" @click="initialize()">취소하기</b-button>
           </b-button-group>
         </b-form>
       </div>
@@ -30,7 +30,7 @@ export default {
   mounted() {
     Axios.get('/api/dlvy/management/checkpoint')
     .then((res) => {
-      this.data = res.data.checkpoint
+      this.data = res.data.checkpoint_all
       this.initMap();
     }) 
   },
@@ -69,9 +69,7 @@ export default {
           level: 2, // 지도 확대
           draggable: false, // 지도 이동 막기
         };
-        var map = new kakao.maps.Map(container, options);
-        this.map = map;
-        this.map_stage = 2;
+        this.map = new kakao.maps.Map(container, options);
       }
 
       var imageSrc =
@@ -98,7 +96,7 @@ export default {
           kakao.maps.event.addListener(
             marker,
             "mouseover",
-            this.makeOverListener(map, marker, infowindow)
+            this.makeOverListener(this.map, marker, infowindow)
           );
           kakao.maps.event.addListener(
             marker,
@@ -108,61 +106,58 @@ export default {
           marker.setMap(this.map);
           this.markers.push(marker);
 
-          kakao.maps.event.addListener(marker, "click", () => {
+          kakao.maps.event.addListener(this.markers[i], "click", () => {
             this.stage = 2; // 정류장 클릭 후 수정 페이지 이동
-            if (this.click == 0) {
-              this.click += 1;
-              this.checkpoint_id = this.data[i].checkpoint_id;
-              this.lat = this.data[i].checkpoint_lat; // 위도
-              this.lon = this.data[i].checkpoint_lon; // 경도
-              marker.setDraggable(true);
-            }
+            this.markers[i].setDraggable(true);
+            this.checkpoint_id = this.data[i].checkpoint_id;
+            this.lat = this.data[i].checkpoint_lat; // 위도
+            this.lon = this.data[i].checkpoint_lon; // 경도
+            this.click += 1;
           });
 
-          kakao.maps.event.addListener(marker, "dragend", () => {
-            this.lat = marker.getPosition().Ha;
-            this.lon = marker.getPosition().Ga;
-            console.log(this.lat, this.lon);
+          kakao.maps.event.addListener(this.markers[i], "dragend", () => {
+            this.lat = this.markers[i].getPosition().Ha;
+            this.lon = this.markers[i].getPosition().Ga;
           });
         }
       }
     },
     chk_delete() {
       Axios.delete(`/api/dlvy/management/checkpoint/${this.checkpoint_id}`)
-      .then(res => {})
+      .then(res => {
+        this.data = res.data.checkpoint_all
+        this.initialize();
+      })
       .catch(err => {
         console.log(err)
       })
     },
     chk_update() {
-        console.log(this.lat);
       Axios.patch(`/api/dlvy/management/checkpoint/${this.checkpoint_id}`, {
         checkpoint_lat : this.lat,
         checkpoint_lon : this.lon
       })
-      .then(res => {})
+      .then(res => {
+        this.stage == 1
+        this.data = res.data.checkpoint_all
+        this.initialize()
+      })
       .catch(err => {
         console.log(err)
       })
     },
-    cancel() {
-      Axios.post("/api/dlvy/management/checkpoint", {
-        id : 3
-      })
-    },
     initialize() {
+      for (let i = 0; i < this.data.length; i++) {
+        this.markers[i].setMap(null)
+      }
       (this.map_stage = 2), // 맵 한번만 생성
         (this.stage = 1), // 단계별 보여지는 화면
-        (this.checkpoint_id = ""), // 정류장 이름
+        (this.checkpoint_id = ""), // 체크포인트 이름
         (this.lat = ""), // 위도
-        (this.lng = ""), // 경도
-        (this.data = ""), // 정류장 데이터
+        (this.lon = ""), // 경도
         (this.markers = []); // 마커 표시
       this.click = 0;
-      this.map = "";
-    },
-    map_click() {
-      if (this.stage == 2) this.initMap();
+      this.initMap();
     },
   },
 };

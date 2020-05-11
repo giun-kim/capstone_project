@@ -3,83 +3,60 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Car;
-
+use DB;
 class WebCarManagementController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+{   # RC카 관리 컨트롤러
+
+    // 페이지 로드
     public function index()
     {
-        return response()->json(['car'=>Car::get()]);
+        return response(['car_all'=> DB::table('car')->select('car_num','car_name')->get()]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    // 등록하기
     public function store(Request $request)
     {
-        //
+        debug("$request->car_num, $request->car_name");
+        DB::table('car')
+                        ->insert(
+                            ['car_num' => $request->car_num, 'car_name'=>$request->car_name, 'car_status'=>'운행 대기', 'car_lat'=>35.896157, 'car_lon'=>128.622522]
+                        );
+        debug('등록 완료');
+
+        return response(['car_all'=> DB::table('car')->select('car_num','car_name')->get()]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
+    //
+    // public function show($id)
+    // {
+    //     debug($id);
+    //     $car_info = DB::table('car')
+    //                     ->where('car_num', $id)
+    //                     ->first();
+    //     debug($car_info);
+    //     return response(['car__info'=>$car_info]);
+    // }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    // 수정하기
     public function update(Request $request, $id)
     {
-        //
-    }
+        debug("$id, $request->car_name");
+        DB::table('car')
+                        ->where('car_num', $id)
+                        ->update(['car_name' => $request->car_name]);
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
+        return response(['car_all'=> DB::table('car')->select('car_num','car_name')->get()]);  
+    }  
+
+    // 삭제하기
     public function destroy($id)
     {
-        //
+        debug($id);
+        DB::table('car')
+                        ->where('car_num',$id)
+                        ->delete();
+
+        return response(['car_all'=> DB::table('car')->select('car_num','car_name')->get()]);   
     }
 }

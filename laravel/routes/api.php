@@ -21,3 +21,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::resource('/dlvy/management/station', 'WebStationManagementController'); // 정류장 페이지
 Route::resource('/dlvy/management/checkpoint', 'WebCheckPointManagementController'); // 체크포인트 페이지
 Route::resource('/dlvy/management/car', 'WebCarManagementController'); // RC카 페이지
+Route::resource('/dlvy/management/path', 'WebPathManagementController'); // 경로 페이지

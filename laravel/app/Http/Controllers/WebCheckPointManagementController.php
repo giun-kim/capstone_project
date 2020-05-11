@@ -3,112 +3,48 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Checkpoint;
-
+use DB;
 class WebCheckPointManagementController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+{   # 채크포인트 관리 컨트롤러
+
+    // 페이지 로드
     public function index()
     {
-        return response()->json(['checkpoint'=>Checkpoint::get()]);
+        return response(['checkpoint_all' => DB::table('checkpoint')->get()]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    // 등록하기
     public function store(Request $request)
     {
-        $checkpoint = new Checkpoint();
-        if($request->id == 1) { // 등록
-            debug($request);
-            $checkpoint->checkpoint_lat = $request->checkpoint_lat;
-            $checkpoint->checkpoint_lon = $request->checkpoint_lon;
+        debug("$request->checkpoint_lat, $request->checkpoint_lon");
+        DB::table('checkpoint')
+                        ->insert(
+                            ['checkpoint_lat'=>$request->checkpoint_lat, 'checkpoint_lon'=>$request->checkpoint_lon ]
+                        );
+        debug('등록 완료');
 
-            $checkpoint->save();
-        } 
-
-        if($request->id == 3) { // 취소
-            return response()->json('cancel');
-        } else {
-            return response()->json(['checkpoint'=>checkpoint::get()]);
-        }
+        return response(['checkpoint_all' => DB::table('checkpoint')->get()]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    // 수정하기
     public function update(Request $request, $id)
     {
-        $checkpoints = new Checkpoint();
+        debug("$id, $request->checkpoint_lat, $request->checkpoint_lon");
+        DB::table('checkpoint')
+                        ->where('checkpoint_id', $id)
+                        ->update(['checkpoint_lat' => $request->checkpoint_lat, 'checkpoint_lon' => $request->checkpoint_lon]);
 
-        $checkpoint = $checkpoints->find($id);
-
-        debug($checkpoint);
-
-        $checkpoint->checkpoint_lat = $request->checkpoint_lat; // 정류장 위도
-        $checkpoint->checkpoint_lon = $request->checkpoint_lon; // 정류장 경도
-
-        $checkpoint->save();
-
-        return response()->json('success');
+        return response(['checkpoint_all' => DB::table('checkpoint')->get()]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    // 삭제하기
     public function destroy($id)
     {
-        $checkpoint = new Checkpoint();
-
-        $checkpoint->where('checkpoint_id', $id)->delete();
-
-        return response()->json('success');
+        debug($id);
+        DB::table('checkpoint')
+                        ->where('checkpoint_id',$id)
+                        ->delete();
+        
+        return response(['checkpoint_all' => DB::table('checkpoint')->get()]);
     }
 }

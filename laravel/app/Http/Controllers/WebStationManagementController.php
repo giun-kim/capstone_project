@@ -3,109 +3,47 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Station;
-
-class WebStationManagementController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+use DB;
+class WebStationManagementController extends Controller 
+{    # 정류장 관리 컨트롤러
+    
+    // 페이지 로드
     public function index()
     {
-        return response()->json(['station'=>Station::get()]);
+        return response(['station_all'=> DB::table('station')->get()]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    // 등록하기
     public function store(Request $request)
     {
-        $station = new Station();
-        if($request->id == 1) { // 등록
-            $station->station_name = $request->station_name;
-            $station->station_lat = $request->station_lat;
-            $station->station_lon = $request->station_lon;
-
-            $station->save();
-        } else if($request->id == 2) { // 수정
-            debug($request->station_name);
-            $station_update = $station->where('station_name', $request->old_station_name)->first();// 배열 형태
-            $station_update->station_name = $request->station_name; // 정류장 이름
-            $station_update->station_lat = $request->station_lat; // 정류장 위도
-            $station_update->station_lon = $request->station_lon; // 정류장 경도
-
-            $station_update->save();
-        }
-
-        if($request->id == 3) { // 취소
-            return response()->json('cancel');
-        } else {
-            return response()->json(['station'=>Station::get()]);
-        }
+        debug("$request->station_name, $request->station_lat, $request->station_lon");
+        DB::table('station')
+                        ->insert(
+                            ['station_name' => $request->station_name, 'station_lat'=>$request->station_lat, 'station_lon'=>$request->station_lon ]
+                        );
+        debug('등록 완료');
+        return response(['station_all'=> DB::table('station')->get()]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    // 수정하기
     public function update(Request $request, $id)
     {
-        //
+        debug("$id, $request->station_name, $request->station_lat, $request->station_lon");
+        DB::table('station')
+                        ->where('station_name', $id)
+                        ->update(['station_name'=>$request->station_name, 'station_lat' => $request->station_lat, 'station_lon' => $request->station_lon]);
+
+        return response(['station_all'=> DB::table('station')->get()]);  
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    // 삭제하기
     public function destroy($id)
     {
-        $station = new Station();
-
-        $station->where('station_name', $id)->delete();
-
-        return response()->json('success');
+        debug($id);
+        DB::table('station')
+                        ->where('station_name',$id)
+                        ->delete();
+        
+        return response(['station_all'=> DB::table('station')->get()]);  
     }
 }
