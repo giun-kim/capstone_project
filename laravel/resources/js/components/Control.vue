@@ -186,7 +186,7 @@ export default {
     this.map = new kakao.maps.Map(this.container, this.mapOptions);
     var stationMarker = new kakao.maps.MarkerImage('/image/station.png', new kakao.maps.Size(20,25))
     
-    Axios.get('http://7bf68bef.ngrok.io/api/dlvy/control')    //첫 페이지 로딩
+    Axios.get('http://64f5912e.ngrok.io/api/dlvy/control')    //첫 페이지 로딩
     .then((response) => {
       this.proceeding_rc = response.data.proceeding_rc;
       this.waiting_rc = response.data.waiting_rc;
@@ -233,7 +233,7 @@ export default {
           this.receiver_phone = '';
           this.start_time = '';
           this.end_time = '';
-          Axios.get('http://7bf68bef.ngrok.io/api/dlvy/control/show/' + marker.getTitle())
+          Axios.get('http://64f5912e.ngrok.io/api/dlvy/control/show/' + marker.getTitle())
           .then((response) => {
             console.log(response)
             if(response.data.car_status == "운행 대기"){

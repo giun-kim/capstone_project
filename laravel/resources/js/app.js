@@ -16,6 +16,12 @@ import Control from './components/Control';
 import Statistics from './components/Statistics';
 import Manage from './components/Manage';
 
+import VCalendar from 'v-calendar';
+
+Vue.use(VCalendar,{
+    componentPrefix:'vc'
+});
+
 Vue.use(BootstrapVue);
 
 const router = new VueRouter({

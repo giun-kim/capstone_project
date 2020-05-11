@@ -7,7 +7,6 @@ html, body{
     height : 100%;
 }
 </style>
-
 <script
       type="text/javascript"
       src="//dapi.kakao.com/v2/maps/sdk.js?appkey=3072054af20a38676e15753395ad31d2&libraries=services,clusterer,drawing"
