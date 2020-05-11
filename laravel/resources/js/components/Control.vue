@@ -193,7 +193,6 @@ export default {
       this.error_rc = response.data.error_rc;
       this.entire_rc = this.proceeding_rc + this.waiting_rc;
       this.operation_rate = Math.floor((this.proceeding_rc / this.entire_rc) * 100);
-
       this.entire_call = response.data.entire_call;
       this.complete_call = response.data.complete_call;
       this.persent = Math.floor((this.complete_call / this.entire_call) * 100);
@@ -256,7 +255,6 @@ export default {
               this.end_point = response.data.dlvy_end_point.station_name;
               this.end_point_lat = response.data.dlvy_end_point.station_lat;
               this.end_point_lon = response.data.dlvy_end_point.station_lon;
-
               if(this.rc_status == "호출중"){
                 this.start_time = response.data.dlvy_status.dlvy_call_start;
                   //RC카 위치와 출발지와의 거리 계산 하여 예상 소요 시간 구하기
@@ -291,7 +289,6 @@ export default {
 #test{
   float : right;
 }
-
 .left_container{
   float : left;
   width : 35%;
@@ -300,7 +297,6 @@ export default {
   margin-top : 50px;
   /* background-color : #E6E6E6; */
 }
-
 .right_map{
   float : right;
   width : 55%;
@@ -309,12 +305,10 @@ export default {
   margin-top : 50px;
   background-color : #BDBDBD;
 }
-
 #map{
   width : 100%;
   height : 400px;
 }
-
 .right_dlvy_info{
   float : right;
   width : 55%;
@@ -324,7 +318,6 @@ export default {
   background-color : #BDBDBD;
   float : left;
 }
-
 #dlvy_info_table{
   text-align : center;
   width : 20%;
@@ -344,7 +337,6 @@ export default {
   width : 100%;
   height : 170px;
 }
-
 #rc_status{
   width : 90%;
   height : 110px;
@@ -352,12 +344,10 @@ export default {
   margin-top : 2%;
   background-color : #BDBDBD;
 }
-
 .status_list{
   padding : 0;
   width : 100%;
 }
-
 .status_list_item{
   list-style : none;
   float : left;
@@ -365,7 +355,6 @@ export default {
   width : 20%;
   text-align : center;
 }
-
 #dlvy_status{
   width : 50%;
   height : 260px;
@@ -374,20 +363,17 @@ export default {
   margin-top : 2%;
   background-color : #BDBDBD;
 }
-
 #doughnut_chart{
   width : 150px;
   height : 150px;
   float : left;
   margin-top : 10%;
 }
-
 #dlvy_status_summary{
   width : 40%;
   float: right;
   text-align: center;
 }
-
 #cancel_waiting{
   width : 35%;
   height : 260px;
@@ -409,12 +395,10 @@ export default {
   margin-top : 2%;
   background-color : #BDBDBD;
 }
-
 #rank_bldg_summary{
   width : 100%;
   text-align: center;
 }
-
 #avg_waiting_time{
   width : 35%;
   height : 160px;
@@ -423,12 +407,10 @@ export default {
   margin-top : 2%;
   background-color : #BDBDBD;
 }
-
 #avg_waiting_time_summary{
   margin-top : 20%;
   text-align : center;
 }
-
 #avg_waiting_time_summary strong{
   font-size: 3vh;
 }

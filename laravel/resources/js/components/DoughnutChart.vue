@@ -105,7 +105,6 @@ export default {
     radians() {
       const degrees = (this.percent / 100) * 360;
       const value = degrees - 180; // Turn the circle 180 degrees counter clockwise
-
       return (value * Math.PI) / 180;
     },
     // If we reach full circle we need to complete the circle, this ties into the rounding error in X coordinate above
