@@ -50,10 +50,13 @@ Route::post('app/login', 'AppLoginController@login_check' );
 Route::get('dlvy/call', 'AppCallController@call');
 // 동명이인 체크
 Route::post('dlvy/check_user/{id}', 'AppCallController@check_user');
+// qr코드
+Route::get('dlvy/qrcode/{id}', 'AppCallController@qr_user_check');
 
-// 받는 배달
-Route::get('dlvy/senddlvy/{id}', 'AppDlvyInfoController@send_dlvy');
+
 // 보낸 배달
+Route::get('dlvy/senddlvy/{id}', 'AppDlvyInfoController@send_dlvy');
+// 받는 배달
 Route::get('dlvy/receivdlvy/{id}', 'AppDlvyInfoController@receiv_dlvy');
 // 완료된 배달
 Route::get('dlvy/completedlvy/{user_name}/{term}/{date_start}/{date_end}', 'AppDlvyCompleteController@completed_dlvy');
