@@ -11,7 +11,7 @@ export default {
     },methods: {
         test1(){
             console.log('페이지 로드')
-            Axios.get('/api/dlvy/call')
+            Axios.get('/api/dlvy/qrcode/200')
             .then(response=>{
                 console.log(response.data)
             })

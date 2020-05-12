@@ -27,5 +27,18 @@ class AppCallController extends Controller
         return response($same_user);
     }
 
+    // qr_code
+    public function qr_user_check($id){
+        $qr_user = DB::table('dlvy')
+                        ->select('dlvy_sender','dlvy_receiver')
+                        ->where('dlvy_num', $id)
+                        ->first();
+
+        return response()->json([
+            'qr_receiver' => $qr_user->dlvy_receiver,
+            'qr_sender' => $qr_user->dlvy_sender
+        ]);
+    }
+
 
 }

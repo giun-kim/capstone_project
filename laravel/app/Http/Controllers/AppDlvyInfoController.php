@@ -54,10 +54,12 @@ class AppDlvyInfoController extends Controller
                 }
             }
             return response()->json([
-                'dlvy_info'=> $dlvy_info,
-                'rc_gps' => $rc_gps,
-                'station_start' => $station_start,
-                'station_end' =>$station_end,
+                // 'test' => 'true'
+                'dlvy_info'=> $dlvy_info,   // 배달번호, 받는사람 이름, 배달 상태, 대기 순위(없으면 null)
+                'rc_gps' => $rc_gps,        // RC카 GPS 
+                'station_start' => $station_start, // 출발지, 출발지 gps
+                'station_end' =>$station_end,      // 도착지, 도착지 gps
+
             ]);        
         }
         else{
@@ -114,10 +116,10 @@ class AppDlvyInfoController extends Controller
                 }
             }
             return response()->json([
-                'dlvy_info'=> $dlvy_info,
-                'rc_gps' => $rc_gps,
-                'station_start' => $station_start,
-                'station_end' =>$station_end,
+                'dlvy_info'=> $dlvy_info,   // 배달번호, 받는사람 이름, 배달 상태, 대기 순위(없으면 null)
+                'rc_gps' => $rc_gps,        // RC카 GPS
+                'station_start' => $station_start,  // 출발지, 출발지 gps
+                'station_end' =>$station_end,       // 도착지, 도착지 gps
             ]);        
         }
         else{
