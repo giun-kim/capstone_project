@@ -59,4 +59,4 @@ Route::get('dlvy/senddlvy/{id}', 'AppDlvyInfoController@send_dlvy');
 // 받는 배달
 Route::get('dlvy/receivdlvy/{id}', 'AppDlvyInfoController@receiv_dlvy');
 // 완료된 배달
-Route::get('dlvy/completedlvy/{user_name}/{term}/{date_start}/{date_end}', 'AppDlvyCompleteController@completed_dlvy');
+Route::get('dlvy/completedlvy/{id}/{term}/{date_start}/{date_end}', 'AppDlvyCompleteController@completed_dlvy');

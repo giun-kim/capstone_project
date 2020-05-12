@@ -15,8 +15,8 @@ class AppDlvyCompleteController extends Controller
     // 상세조회 => input(시작날짜, 끝나는 날짜) 시작날짜부터 끝나는 날짜 까지 전체 완료 내역
 
 
-    public function completed_dlvy($user_name, $term='day', $date_start='0', $date_end='0'){
-        debug("$user_name, $term, $date_start, $date_end");
+    public function completed_dlvy($id, $term='day', $date_start='0', $date_end='0'){
+        debug("$id, $term, $date_start, $date_end");
         if($date_start == '0'){
             $date_start= date('Y-m-d');
             $date_end = date('Y-m-d');;
@@ -36,14 +36,14 @@ class AppDlvyCompleteController extends Controller
         debug($date_start, $date_end);
         $completed_send_dlvy = DB::table('dlvy')
                         ->select('dlvy_receiver', 'dlvy_start_point','dlvy_end_point', 'dlvy_status', 'dlvy_date')
-                        ->where('dlvy_sender', $user_name)
+                        ->where('dlvy_sender', $id)
                         ->where('dlvy_status', '완료')
                         ->whereBetween('dlvy_date', [$date_end, $date_start])
                         ->orderBy('dlvy_date', 'desc')
                         ->get();
         $completed_receive_dlvy = DB::table('dlvy')
                         ->select('dlvy_sender', 'dlvy_start_point','dlvy_end_point', 'dlvy_status', 'dlvy_date')
-                        ->where('dlvy_receiver', $user_name)
+                        ->where('dlvy_receiver', $id)
                         ->where('dlvy_status', '완료')
                         ->whereBetween('dlvy_date', [$date_end, $date_start])
                         ->orderBy('dlvy_date', 'desc')
