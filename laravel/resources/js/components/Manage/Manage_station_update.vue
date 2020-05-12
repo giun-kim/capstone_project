@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <div id="map" @click="map_click()"></div>
+    <div id="map"></div>
     <div id="manager">
       <div v-if="stage == 1">지도에서 수정/삭제할 정류장을 클릭해 주세요.</div>
       <div v-if="stage == 2">
@@ -19,13 +19,9 @@
             </div>
           </div>
           <b-button-group>
-            <b-button type="submit" variant="primary" @click="stn_update()"
-              >수정하기</b-button
-            >
-            <b-button variant="danger" type="submit" @click="stn_delete()"
-              >삭제하기</b-button
-            >
-            <b-button type="submit" @click="cancel()">취소하기</b-button>
+            <b-button type="button" variant="primary" @click="stn_update(old_station_name)">수정하기</b-button>
+            <b-button variant="danger" type="button" @click="stn_delete(old_station_name)">삭제하기</b-button>
+            <b-button type="button" @click="initialize()">취소하기</b-button>
           </b-button-group>
         </b-form>
       </div>
@@ -38,7 +34,7 @@ export default {
   mounted() {
     Axios.get('/api/dlvy/management/station')
     .then((res) => {
-      this.data = res.data.station
+      this.data = res.data.station_all
       this.initMap();
     }) 
   },
@@ -46,9 +42,8 @@ export default {
     return {
       map_stage: 1, // 맵 한번만 생성
       stage: 1, // 단계별 보여지는 화면
-      old_station_name: "",
-      station_name: "", // 정류장 이름
-      station_num: "", // 선택한 정류장
+      old_station_name: "", // 수정하기전 정류장 이름
+      station_name: "", // 수정 후 정류장 이름
       lat: "", // 위도
       lon: "", // 경도
       data: "", // 정류장 데이터
@@ -79,9 +74,7 @@ export default {
           level: 2, // 지도 확대
           draggable: false, // 지도 이동 막기
         };
-        var map = new kakao.maps.Map(container, options);
-        this.map = map;
-        this.map_stage = 2;
+        this.map = new kakao.maps.Map(container, options);
       }
 
       // 여러 개 마커 생성하기
@@ -103,7 +96,7 @@ export default {
           kakao.maps.event.addListener(
             marker,
             "mouseover",
-            this.makeOverListener(map, marker, infowindow)
+            this.makeOverListener(this.map, marker, infowindow)
           );
           kakao.maps.event.addListener(
             marker,
@@ -113,70 +106,62 @@ export default {
           marker.setMap(this.map);
           this.markers.push(marker);
 
-          kakao.maps.event.addListener(marker, "click", () => {
+          kakao.maps.event.addListener(this.markers[i], "click", () => {
             this.stage = 2; // 정류장 클릭 후 수정 페이지 이동
-            if (this.click == 0) {
-              this.click += 1;
-              this.old_station_name = this.data[i].station_name;
-              this.station_name = this.data[i].station_name;
-              this.station_num = i
-              this.lat = this.data[i].station_lat; // 위도
-              this.lon = this.data[i].station_lon; // 경도
-              marker.setDraggable(true);
-            }
+            this.markers[i].setDraggable(true);
+            this.old_station_name = this.data[i].station_name;
+            this.station_name = this.data[i].station_name;
+            this.lat = this.data[i].station_lat; // 위도
+            this.lon = this.data[i].station_lon; // 경도
+            this.click +=1
           });
 
-          kakao.maps.event.addListener(marker, "dragend", () => {
-            this.lat = marker.getPosition().Ha;
-            this.lon = marker.getPosition().Ga;
-            console.log(this.lat, this.lng);
+          kakao.maps.event.addListener(this.markers[i], "dragend", () => {
+            this.lat = this.markers[i].getPosition().Ha;
+            this.lon = this.markers[i].getPosition().Ga;
+            console.log(this.lat, this.lon);  
           });
         }
       }
     },
-    stn_delete() {
-      Axios.delete(`/api/dlvy/management/station/${this.old_station_name}`)
+    stn_delete(station_name) {
+      Axios.delete(`/api/dlvy/management/station/${station_name}`)
       .then(res => {
-        this.markers[this.station_num].setMap(null);
+        this.data = res.data.station_all
         this.initialize();
-        this.initMap();
       })
       .catch(err => {
         console.log(err)
       })
     },
-    stn_update() {
-      Axios.post("/api/dlvy/management/station", {
-        id : 2,
-        old_station_name : this.old_station_name,
+    stn_update(station_name) {
+      Axios.patch(`/api/dlvy/management/station/${station_name}`, {
         station_name : this.station_name,
         station_lat : this.lat,
         station_lon : this.lon
       })
-      .then(res => {})
+      .then(res => {
+        this.stage == 1
+        this.data = res.data.station_all
+        this.initialize()
+      })
       .catch(err => {
         console.log(err)
       })
     },
-    cancel() {
-      Axios.post("/api/dlvy/management/station", {
-        id : 3
-      })
-    },
     initialize() {
+      for (let i = 0; i < this.data.length; i++) {
+        this.markers[i].setMap(null)
+      }
       (this.map_stage = 2), // 맵 한번만 생성
         (this.stage = 1), // 단계별 보여지는 화면
         (this.station_name = ""), // 정류장 이름
         (this.lat = ""), // 위도
-        (this.lng = ""), // 경도
-        (this.data = ""), // 정류장 데이터
+        (this.lon = ""), // 경도
         (this.markers = []), // 마커 표시
-        (this.old_station_name = "");
-      this.click = 0;
-      this.map = "";
-    },
-    map_click() {
-      if (this.stage == 2) this.initMap();
+        (this.old_station_name = ""), // 전단계 정류장 이름
+      this.click == 0
+      this.initMap();
     },
   },
 };

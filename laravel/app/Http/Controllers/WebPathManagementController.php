@@ -3,10 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Station;
-use App\Checkpoint;
-use App\Path;
-use App\Path_check;
+use DB;
 
 class WebPathManagementController extends Controller
 {

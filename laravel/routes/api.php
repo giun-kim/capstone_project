@@ -57,3 +57,8 @@ Route::get('dlvy/senddlvy/{id}', 'AppDlvyInfoController@send_dlvy');
 Route::get('dlvy/receivdlvy/{id}', 'AppDlvyInfoController@receiv_dlvy');
 // 완료된 배달
 Route::get('dlvy/completedlvy/{user_name}/{term}/{date_start}/{date_end}', 'AppDlvyCompleteController@completed_dlvy');
+
+Route::resource('/dlvy/management/station', 'WebStationManagementController'); // 정류장 페이지
+Route::resource('/dlvy/management/checkpoint', 'WebCheckPointManagementController'); // 체크포인트 페이지
+Route::resource('/dlvy/management/car', 'WebCarManagementController'); // RC카 페이지
+Route::resource('/dlvy/management/path', 'WebPathManagementController'); // 경로 페이지

@@ -10,9 +10,7 @@
           <div>체크포인트 수 : {{ checkpoints.length }}</div>
           <div>총 거리 : {{ distance }} km</div>
           <b-button-group>
-            <b-button type="submit" variant="primary" @click="path_create()"
-              >등록하기</b-button
-            >
+            <b-button type="submit" variant="primary" @click="path_create()">등록하기</b-button>
             <b-button type="button" @click="cancel()">취소하기</b-button>
           </b-button-group>
         </b-form>
