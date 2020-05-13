@@ -2509,6 +2509,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "Manage",
   mounted: function mounted() {},
@@ -3008,9 +3012,12 @@ __webpack_require__.r(__webpack_exports__);
       station_stage: 1,
       // 정류장 클릭시
       checkpoint_num: 0,
+      // 오버레이 숫자표시
       overlay_data: [],
       // 모든 오버레이 데이터
-      distance: 0
+      distance: 0,
+      polylines: [],
+      linepath: []
     };
   },
   methods: {
@@ -3041,6 +3048,7 @@ __webpack_require__.r(__webpack_exports__);
         infowindow.close();
       };
     },
+    // 지도 생성 및 각종 이벤트
     initMap: function initMap() {
       var _this2 = this;
 
@@ -3110,6 +3118,7 @@ __webpack_require__.r(__webpack_exports__);
         _loop(_i);
       }
     },
+    // 정류장 오버레이
     station_custom_overlay: function station_custom_overlay() {
       if (this.station_stage == 2) {
         // 출발 정류장
@@ -3142,6 +3151,7 @@ __webpack_require__.r(__webpack_exports__);
         this.overlay_data.push(_customOverlay);
       }
     },
+    // 체크포인트 표시
     checkpoint_start: function checkpoint_start() {
       var _this3 = this;
 
@@ -3193,6 +3203,7 @@ __webpack_require__.r(__webpack_exports__);
         _loop2(i);
       }
     },
+    // 체크포인트 오버레이
     checkpoint_custom_overlay: function checkpoint_custom_overlay(num, i) {
       var content = "<div style='margin-bottom:36px;'>" + "  <span style='font-size:20px; font-weight:bold; color:red'>" + num + "</span>" + "</div>";
       var position = new kakao.maps.LatLng(this.checkpoint_all[i].checkpoint_lat, this.checkpoint_all[i].checkpoint_lon);
@@ -3214,31 +3225,71 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     check: function check() {
-      if (this.stage != 3) this.stage += 1;
+      if (this.checkpoint_markers_all.length > 0) {
+        if (this.stage != 3) this.stage += 1;
 
-      for (var i = 0; i < this.checkpoint_markers_all.length; i++) {
-        this.checkpoint_markers_all[i].setMap(null);
-      }
-
-      for (var _i2 = 0; _i2 < this.checkpoint_markers_click.length; _i2++) {
-        this.checkpoint_markers_click[_i2].setMap(this.map);
-      } //총 거리 계산방법
-
-
-      for (var _i3 = 0; _i3 < this.checkpoint_markers_clicknumber.length; _i3++) {
-        if (_i3 == 0) {
-          this.distance = this.distance + this.getDistance(this.station_all[this.station_start].station_lat, this.station_all[this.station_start].station_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon);
-          this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lon);
-          continue;
-        } else if (_i3 == this.checkpoint_markers_clicknumber.length - 1) {
-          this.distance = this.distance + this.getDistance(this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon);
-          continue;
+        for (var i = 0; i < this.checkpoint_markers_all.length; i++) {
+          this.checkpoint_markers_all[i].setMap(null);
         }
 
-        this.distance = this.distance + this.getDistance(this.checkpoint_all[this.station_end].station_lat, this.checkpoint_all[this.station_end].station_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon);
+        for (var _i2 = 0; _i2 < this.checkpoint_markers_click.length; _i2++) {
+          this.checkpoint_markers_click[_i2].setMap(this.map);
+        } //총 거리 계산방법
+
+
+        for (var _i3 = 0; _i3 < this.checkpoint_markers_clicknumber.length; _i3++) {
+          if (_i3 == 0) {
+            this.distance = this.distance + this.getDistance(this.station_all[this.station_start].station_lat, this.station_all[this.station_start].station_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon);
+            this.linepath.push(new kakao.maps.LatLng(this.station_all[this.station_start].station_lat, this.station_all[this.station_start].station_lon));
+            this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon));
+
+            if (this.checkpoint_markers_clicknumber.length == 1) {
+              this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon, this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon);
+              this.linepath.push(new kakao.maps.LatLng(this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon));
+            } else {
+              this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lon);
+              this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lon));
+            }
+
+            continue;
+          } else if (_i3 == this.checkpoint_markers_clicknumber.length - 1) {
+            this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon, this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon);
+            this.linepath.push(new kakao.maps.LatLng(this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon));
+            continue;
+          }
+
+          this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lon);
+          this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon));
+          this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lon));
+        }
+
+        console.log(this.linepath);
+        var polyline = new kakao.maps.Polyline({
+          path: this.linepath,
+          // 선을 구성하는 좌표배열 입니다
+          strokeWeight: 5,
+          // 선의 두께 입니다
+          strokeColor: '#FFAE00',
+          // 선의 색깔입니다
+          strokeOpacity: 0.7,
+          // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
+          strokeStyle: 'solid' // 선의 스타일입니다
+
+        });
+        polyline.setMap(this.map);
+        this.polylines.push(polyline);
+        console.log(this.polylines);
+        this.distance = this.distance.toFixed(3) * 1000;
       }
     },
+    path_create: function path_create() {
+      Axios.post('/api/dlvy/management/path', {}).then(function (res) {})["catch"](function (err) {
+        console.log(err);
+      });
+    },
     initialize: function initialize() {
+      this.polylines[0].setMap(null);
+
       for (var z = 0; z < this.overlay_data.length; z++) {
         this.overlay_data[z].setMap(null);
       }
@@ -3252,7 +3303,7 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       this.stage = 1, // 단계별 보여지는 화면
-      this.station_markers = [], this.checkpoint_markers_all = [], this.checkpoint_markers_click = [], this.checkpoint_markers_clicked = [], this.station_start = "", this.station_end = "", this.station_stage = 1, this.checkpoint_num = 0, this.overlay_data = [], this.initMap();
+      this.station_markers = [], this.checkpoint_markers_all = [], this.checkpoint_markers_click = [], this.checkpoint_markers_clicked = [], this.station_start = "", this.station_end = "", this.station_stage = 1, this.checkpoint_num = 0, this.overlay_data = [], this.distance = 0, this.linepath = [], this.polylines = [], this.initMap();
     }
   }
 });
@@ -3284,37 +3335,359 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
-    this.initMap();
+    var _this = this;
+
+    Axios.get('/api/dlvy/management/path').then(function (res) {
+      _this.station_all = res.data.station_all;
+      _this.checkpoint_all = res.data.checkpoint_all;
+
+      _this.initMap();
+    });
   },
   data: function data() {
     return {
-      map_x: 35.896309,
-      map_y: 128.621917
+      stage: 2,
+      // 단계별 보여지는 화면
+      map_stage: 1,
+      // 맵 스테이지
+      station_all: "",
+      // 모든 정류장 데이터
+      checkpoint_all: "",
+      // 모든 체크포인트 데이터
+      path_one_all: "" // 모든 경로 데이터
+      //   station_start: "", // 출발 정류장
+      //   station_end: "", // 도착 정류장
+      //   station_markers: [], // 마커 저장
+      //   checkpoint_markers_all: [], // 전체 마커 저장
+      //   checkpoint_markers_click: [], // 클릭한 마커 저장(마커 데이터)
+      //   checkpoint_markers_clicked: [], // 클릭한 마커 클릭 금지(숫자)
+      //   checkpoint_markers_clicknumber: [],
+      //   station_stage: 1, // 정류장 클릭시
+      //   checkpoint_num: 0, // 오버레이 숫자표시
+      //   overlay_data: [], // 모든 오버레이 데이터
+      //   distance: 0,
+      //   polylines: [],
+      //   linepath: []
+
     };
   },
   methods: {
-    initMap: function initMap() {
-      var container = document.getElementById('map');
-      var options = {
-        center: new kakao.maps.LatLng(this.map_x, this.map_y),
-        level: 2
-      };
-      var map = new kakao.maps.Map(container, options);
-      this.map = map;
-      var marker = new kakao.maps.Marker({
-        position: ''
-      });
-      marker.setMap(map);
-      kakao.maps.event.addListener(map, 'click', function (mouseEvent) {
-        // 클릭한 위도, 경도 정보를 가져옵니다 
-        var latlng = mouseEvent.latLng; // 마커 위치를 클릭한 위치로 옮깁니다
+    //두 좌표간의 거리
+    getDistance: function getDistance(lat1, lon1, lat2, lon2) {
+      var R = 6371;
+      var dLat = this.deg2rad(lat2 - lat1);
+      var dLon = this.deg2rad(lon2 - lon1);
+      var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      var d = R * c; // Distance in km
 
-        marker.setPosition(latlng);
-        lat = latlng.getLat();
-        lng = latlng.getLng();
+      return d;
+    },
+    // 두 좌표간의 거리 계산 도움
+    deg2rad: function deg2rad(deg) {
+      return deg * (Math.PI / 180);
+    },
+    // 인포메이션
+    makeOverListener: function makeOverListener(map, marker, infowindow) {
+      return function () {
+        infowindow.open(map, marker);
+      };
+    },
+    // 인포윈도우 닫기
+    makeOutListener: function makeOutListener(infowindow) {
+      return function () {
+        infowindow.close();
+      };
+    },
+    // 지도 생성 및 각종 이벤트
+    initMap: function initMap() {
+      var _this2 = this;
+
+      if (this.map_stage == 1) {
+        var container = document.getElementById("map");
+        var options = {
+          center: new kakao.maps.LatLng(35.896309, 128.621917),
+          // 지도 중심 좌표
+          level: 2,
+          // 지도 확대
+          draggable: false // 지도 이동 막기
+
+        };
+        this.map = new kakao.maps.Map(container, options);
+        this.map_stage = 2;
+      }
+
+      for (var i = 0; i < this.checkpoint_all.length; i++) {
+        this.checkpoint_markers_clicked.push(1);
+      } //마커 이미지
+
+
+      var imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"; //station_all
+
+      var _loop = function _loop(_i) {
+        // 정류장 마커 생성
+        var marker = new kakao.maps.Marker({
+          position: new kakao.maps.LatLng(_this2.station_all[_i].station_lat, _this2.station_all[_i].station_lon) // 마커를 표시할 위치
+
+        }); // 정류장 인포 윈도우 생성
+
+        infowindow = new kakao.maps.InfoWindow({
+          content: "<div style='text-align:center; margin-left:5px; color:#18a2b8'>" + _this2.station_all[_i].station_name + "</div>"
+        });
+        marker.setMap(_this2.map);
+
+        _this2.station_markers.push(marker);
+
+        kakao.maps.event.addListener(_this2.station_markers[_i], "click", function () {
+          if (_this2.stage != 2) _this2.stage += 1; //   if (this.station_stage == 2) {
+          //     this.station_start = i
+          //     this.station_custom_overlay()
+          //   } else if (this.station_stage == 3) {
+          //     this.station_end = i
+          //     this.station_delete() // 클릭한 정류장 빼고 삭제
+          //     this.station_custom_overlay()
+          //     this.checkpoint_start()
+          //     this.stage = 2
+          //   }
+
+          Axios.get('/api/dlvy/management/path', {
+            station_name: _this2.station_all[_i].station_name
+          }).then(function (res) {
+            _this2.path_one_all = res.data.path_all; // 해당 정류장의 모든 경로
+          })["catch"](function (err) {
+            console.log(err);
+          });
+        }); // 마우스 오버 이벤트
+
+        kakao.maps.event.addListener(marker, "mouseover", _this2.makeOverListener(_this2.map, marker, infowindow));
+        kakao.maps.event.addListener(marker, "mouseout", _this2.makeOutListener(infowindow));
+      };
+
+      for (var _i = 0; _i < this.station_all.length; _i++) {
+        var infowindow;
+
+        _loop(_i);
+      }
+    },
+    // 정류장 오버레이
+    station_custom_overlay: function station_custom_overlay() {
+      if (this.station_stage == 2) {
+        // 출발 정류장
+        // 커스텀 오버레이(위 출발표시)
+        var content = "<div style='margin-bottom:36px;'>" + "  <span style='font-size:20px; font-weight:bold; color:red'>출발</span>" + "</div>";
+        var customOverlay = new kakao.maps.CustomOverlay({
+          position: new kakao.maps.LatLng(this.station_all[this.station_start].station_lat, this.station_all[this.station_start].station_lon),
+          content: content,
+          yAnchor: 1 // y좌표 위치
+
+        });
+        customOverlay.setMap(this.map);
+        this.overlay_data.push(customOverlay);
+      }
+
+      if (this.station_stage == 3) {
+        // 도착 정류장
+        // 커스텀 오버레이(위 도착표시)
+        var _content = "<div style='margin-bottom:36px;'>" + "  <span style='font-size:20px; font-weight:bold; color:red'>도착</span>" + "</div>";
+
+        var _customOverlay = new kakao.maps.CustomOverlay({
+          position: new kakao.maps.LatLng(this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon),
+          content: _content,
+          yAnchor: 1 // y좌표 위치
+
+        });
+
+        _customOverlay.setMap(this.map);
+
+        this.overlay_data.push(_customOverlay);
+      }
+    },
+    // 체크포인트 표시
+    checkpoint_start: function checkpoint_start() {
+      var _this3 = this;
+
+      var imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
+
+      var _loop2 = function _loop2(i) {
+        imageSize = new kakao.maps.Size(24, 35);
+        markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize); // 마커를 생성합니다
+
+        var marker = new kakao.maps.Marker({
+          position: new kakao.maps.LatLng(_this3.checkpoint_all[i].checkpoint_lat, _this3.checkpoint_all[i].checkpoint_lon),
+          // 마커를 표시할 위치
+          image: markerImage
+        }); // 인포 윈도우 생성
+
+        infowindow = new kakao.maps.InfoWindow({
+          content: "<div style='text-align:center; margin-left:5px; color:#18a2b8'>" + _this3.checkpoint_all[i].checkpoint_id + "</div>"
+        });
+        marker.setMap(_this3.map);
+
+        _this3.checkpoint_markers_all.push(marker); // 체크포인트 클릭 이벤트
+
+
+        kakao.maps.event.addListener(_this3.checkpoint_markers_all[i], "click", function () {
+          console.log(_this3.checkpoint_markers_click);
+
+          if (_this3.checkpoint_markers_clicked[i] == 1) {
+            _this3.checkpoint_markers_clicknumber.push(i);
+
+            _this3.checkpoint_markers_clicked[i] += 1; // 클릭 방지
+
+            _this3.checkpoint_num += 1; // 오버레이 숫자 표시
+
+            _this3.checkpoint_custom_overlay(_this3.checkpoint_num, i);
+
+            _this3.checkpoint_markers_click.push(marker);
+          }
+        }); // 마우스 오버 이벤트
+
+        kakao.maps.event.addListener(marker, "mouseover", _this3.makeOverListener(_this3.map, marker, infowindow));
+        kakao.maps.event.addListener(marker, "mouseout", _this3.makeOutListener(infowindow));
+      };
+
+      for (var i = 0; i < this.checkpoint_all.length; i++) {
+        var imageSize;
+        var markerImage;
+        var infowindow;
+
+        _loop2(i);
+      }
+    },
+    // 체크포인트 오버레이
+    checkpoint_custom_overlay: function checkpoint_custom_overlay(num, i) {
+      var content = "<div style='margin-bottom:36px;'>" + "  <span style='font-size:20px; font-weight:bold; color:red'>" + num + "</span>" + "</div>";
+      var position = new kakao.maps.LatLng(this.checkpoint_all[i].checkpoint_lat, this.checkpoint_all[i].checkpoint_lon);
+      var customOverlay = new kakao.maps.CustomOverlay({
+        position: position,
+        content: content,
+        yAnchor: 1
       });
+      customOverlay.setMap(this.map);
+      this.overlay_data.push(customOverlay);
+    },
+    station_delete: function station_delete() {
+      // 두 정류장을 클릭 했을 경우
+      console.log(this.station_markers);
+
+      for (var i = 0; i < this.station_markers.length; i++) {
+        if (this.station_start == i || this.station_end == i) continue;
+        this.station_markers[i].setMap(null);
+      }
+    },
+    check: function check() {
+      if (this.checkpoint_markers_all.length > 0) {
+        if (this.stage != 3) this.stage += 1;
+
+        for (var i = 0; i < this.checkpoint_markers_all.length; i++) {
+          this.checkpoint_markers_all[i].setMap(null);
+        }
+
+        for (var _i2 = 0; _i2 < this.checkpoint_markers_click.length; _i2++) {
+          this.checkpoint_markers_click[_i2].setMap(this.map);
+        } //총 거리 계산방법
+
+
+        for (var _i3 = 0; _i3 < this.checkpoint_markers_clicknumber.length; _i3++) {
+          if (_i3 == 0) {
+            this.distance = this.distance + this.getDistance(this.station_all[this.station_start].station_lat, this.station_all[this.station_start].station_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon);
+            this.linepath.push(new kakao.maps.LatLng(this.station_all[this.station_start].station_lat, this.station_all[this.station_start].station_lon));
+            this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon));
+
+            if (this.checkpoint_markers_clicknumber.length == 1) {
+              this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon, this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon);
+              this.linepath.push(new kakao.maps.LatLng(this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon));
+            } else {
+              this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lon);
+              this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lon));
+            }
+
+            continue;
+          } else if (_i3 == this.checkpoint_markers_clicknumber.length - 1) {
+            this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon, this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon);
+            this.linepath.push(new kakao.maps.LatLng(this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon));
+            continue;
+          }
+
+          this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lon);
+          this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon));
+          this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lon));
+        }
+
+        console.log(this.linepath);
+        var polyline = new kakao.maps.Polyline({
+          path: this.linepath,
+          // 선을 구성하는 좌표배열 입니다
+          strokeWeight: 5,
+          // 선의 두께 입니다
+          strokeColor: '#FFAE00',
+          // 선의 색깔입니다
+          strokeOpacity: 0.7,
+          // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
+          strokeStyle: 'solid' // 선의 스타일입니다
+
+        });
+        polyline.setMap(this.map);
+        this.polylines.push(polyline);
+        console.log(this.polylines);
+        this.distance = this.distance.toFixed(3) * 1000;
+      }
+    },
+    path_create: function path_create() {
+      Axios.post('/api/dlvy/management/path', {}).then(function (res) {})["catch"](function (err) {
+        console.log(err);
+      });
+    },
+    initialize: function initialize() {
+      this.polylines[0].setMap(null);
+
+      for (var z = 0; z < this.overlay_data.length; z++) {
+        this.overlay_data[z].setMap(null);
+      }
+
+      for (var x = 0; x < this.checkpoint_markers_click.length; x++) {
+        this.checkpoint_markers_click[x].setMap(null);
+      }
+
+      for (var y = 0; y < this.station_markers.length; y++) {
+        this.station_markers[y].setMap(null);
+      }
+
+      this.stage = 1, // 단계별 보여지는 화면
+      this.station_markers = [], this.checkpoint_markers_all = [], this.checkpoint_markers_click = [], this.checkpoint_markers_clicked = [], this.station_start = "", this.station_end = "", this.station_stage = 1, this.checkpoint_num = 0, this.overlay_data = [], this.distance = 0, this.linepath = [], this.polylines = [], this.initMap();
     }
   }
 });
@@ -45012,7 +45385,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "\n#map[data-v-f0152410]{\n    width:65rem; \n    height:50rem;\n}\n", ""]);
+exports.push([module.i, "\n#map[data-v-f0152410] {\n  height: 600px;\n}\n#manager[data-v-f0152410] {\n  position: absolute;\n  top: 0;\n  right: 0;\n  z-index: 10;\n  background-color: white;\n  border: 1px solid #18a2b8;\n  padding: 10px;\n  text-align: center;\n}\n.page-container[data-v-f0152410] {\n  position: relative;\n}\n", ""]);
 
 // exports
 
@@ -67271,7 +67644,7 @@ var render = function() {
                                             }
                                           }
                                         },
-                                        [_vm._v("  등록하기")]
+                                        [_vm._v("   등록하기")]
                                       )
                                     ],
                                     1
@@ -67291,7 +67664,7 @@ var render = function() {
                                             }
                                           }
                                         },
-                                        [_vm._v("  수정/삭제")]
+                                        [_vm._v("   수정/삭제")]
                                       ),
                                       _vm._v(" "),
                                       _c("br")
@@ -67304,48 +67677,12 @@ var render = function() {
                                   _c(
                                     "b-row",
                                     [
-                                      _c(
-                                        "b-card-text",
-                                        {
-                                          staticStyle: { cursor: "pointer" },
-                                          attrs: { variant: "link" },
-                                          on: {
-                                            click: function($event) {
-                                              return _vm.path_create()
-                                            }
-                                          }
-                                        },
-                                        [_vm._v("  등록하기")]
-                                      )
+                                      _c("b-card-text", [
+                                        _vm._v("1.체크포인트 설정")
+                                      ])
                                     ],
                                     1
                                   ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "b-row",
-                                    [
-                                      _c(
-                                        "b-card-text",
-                                        {
-                                          staticStyle: { cursor: "pointer" },
-                                          attrs: { variant: "link" },
-                                          on: {
-                                            click: function($event) {
-                                              return _vm.path_update()
-                                            }
-                                          }
-                                        },
-                                        [_vm._v("  수정/삭제")]
-                                      ),
-                                      _vm._v(" "),
-                                      _c("br")
-                                    ],
-                                    1
-                                  ),
-                                  _vm._v(" "),
-                                  _c("b-row", [
-                                    _c("h5", [_vm._v("체크포인트")])
-                                  ]),
                                   _vm._v(" "),
                                   _c(
                                     "b-row",
@@ -67361,7 +67698,7 @@ var render = function() {
                                             }
                                           }
                                         },
-                                        [_vm._v("  등록하기")]
+                                        [_vm._v("   등록하기")]
                                       )
                                     ],
                                     1
@@ -67381,7 +67718,57 @@ var render = function() {
                                             }
                                           }
                                         },
-                                        [_vm._v("  수정/삭제")]
+                                        [_vm._v("   수정/삭제")]
+                                      ),
+                                      _vm._v(" "),
+                                      _c("br")
+                                    ],
+                                    1
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "b-row",
+                                    [
+                                      _c("b-card-text", [_vm._v("2.경로 설정")])
+                                    ],
+                                    1
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "b-row",
+                                    [
+                                      _c(
+                                        "b-card-text",
+                                        {
+                                          staticStyle: { cursor: "pointer" },
+                                          attrs: { variant: "link" },
+                                          on: {
+                                            click: function($event) {
+                                              return _vm.path_create()
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("   등록하기")]
+                                      )
+                                    ],
+                                    1
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "b-row",
+                                    [
+                                      _c(
+                                        "b-card-text",
+                                        {
+                                          staticStyle: { cursor: "pointer" },
+                                          attrs: { variant: "link" },
+                                          on: {
+                                            click: function($event) {
+                                              return _vm.path_update()
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("   수정/삭제")]
                                       ),
                                       _vm._v(" "),
                                       _c("br")
@@ -67403,12 +67790,7 @@ var render = function() {
                                             }
                                           }
                                         },
-                                        [
-                                          _vm._v(
-                                            "\n                 \n                "
-                                          ),
-                                          _c("h5", [_vm._v("RC카")])
-                                        ]
+                                        [_c("h5", [_vm._v("RC카")])]
                                       )
                                     ],
                                     1
@@ -67715,7 +68097,9 @@ var render = function() {
                     _vm._v("체크포인트 수 : " + _vm._s(_vm.checkpoint_num))
                   ]),
                   _vm._v(" "),
-                  _c("div", [_vm._v("총 거리 : " + _vm._s(_vm.distance))]),
+                  _c("div", [
+                    _vm._v("총 거리 : " + _vm._s(_vm.distance) + " m")
+                  ]),
                   _vm._v(" "),
                   _c(
                     "b-button-group",
@@ -67780,31 +68164,143 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    [
+  return _c("div", { staticClass: "page-container" }, [
+    _c("div", { attrs: { id: "map" } }),
+    _vm._v(" "),
+    _c("div", { attrs: { id: "manager" } }, [
+      _vm.stage == 1
+        ? _c("div", [_vm._v("경로를 수정/삭제할 정류장을 클릭해 주세요.")])
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.stage == 2
+        ? _c("div", [_vm._v("수정/삭제를 원하는 경로를 클릭해 주세요.")])
+        : _vm._e(),
+      _vm._v(" "),
       _c(
-        "b-container",
+        "div",
+        {
+          directives: [
+            {
+              name: "show",
+              rawName: "v-show",
+              value: _vm.stage == 2,
+              expression: "stage == 2"
+            }
+          ],
+          staticStyle: {
+            "border-top": "1px solid #18a2b8",
+            "margin-top": "10px"
+          }
+        },
         [
           _c(
-            "b-row",
+            "div",
+            { staticStyle: { "margin-top": "10px", "margin-bottom": "10px" } },
+            [_vm._v("현재 등록된 경로")]
+          ),
+          _vm._v(" "),
+          _c(
+            "b-list-group",
             [
-              _c("b-col", { attrs: { cols: "3" } }, [
-                _vm._v("\n                path 수정하기\n            ")
-              ]),
-              _vm._v(" "),
-              _c("b-col", { attrs: { cols: "7" } }, [
-                _c("div", { attrs: { id: "map" } })
+              _c("b-list-group-item", [
+                _c("h5", [
+                  _vm._v(
+                    "\n              정류장_1 →\n              정류장_2\n          "
+                  )
+                ]),
+                _vm._v(" "),
+                _c("h6", [_vm._v("체크포인트 수 : 3")]),
+                _vm._v(" "),
+                _c("h6", [_vm._v("거리 : 300m")]),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  {
+                    staticStyle: { "margin-top": "10px", "margin-bottom": "0" }
+                  },
+                  [
+                    _c(
+                      "b-button",
+                      {
+                        staticStyle: { "margin-bottom": "10px" },
+                        attrs: { variant: "info", type: "button" },
+                        on: {
+                          click: function($event) {
+                            return _vm.modify()
+                          }
+                        }
+                      },
+                      [_vm._v("\n              수정/삭제")]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "b-button",
+                      {
+                        attrs: { type: "button", variant: "primary" },
+                        on: {
+                          click: function($event) {
+                            return _vm.path_create()
+                          }
+                        }
+                      },
+                      [_vm._v("등록하기")]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "b-button",
+                      {
+                        attrs: { type: "button" },
+                        on: {
+                          click: function($event) {
+                            return _vm.initialize()
+                          }
+                        }
+                      },
+                      [_vm._v("취소하기")]
+                    )
+                  ],
+                  1
+                )
               ])
             ],
             1
           )
         ],
         1
-      )
-    ],
-    1
-  )
+      ),
+      _vm._v(" "),
+      _vm.stage == 3
+        ? _c(
+            "div",
+            [
+              _c(
+                "b-form",
+                [
+                  _vm._v(
+                    "\n        " +
+                      _vm._s(_vm.station_all[_vm.station_start].station_name) +
+                      " - " +
+                      _vm._s(_vm.station_all[_vm.station_end].station_name) +
+                      "\n        "
+                  ),
+                  _c("div", [
+                    _vm._v("체크포인트 수 : " + _vm._s(_vm.checkpoint_num))
+                  ]),
+                  _vm._v(" "),
+                  _c("div", [
+                    _vm._v("총 거리 : " + _vm._s(_vm.distance) + " m")
+                  ]),
+                  _vm._v(" "),
+                  _c("b-button-group")
+                ],
+                1
+              )
+            ],
+            1
+          )
+        : _vm._e()
+    ])
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true

@@ -8,7 +8,7 @@
         <b-form>
           {{station_all[station_start].station_name}} - {{station_all[station_end].station_name}}
           <div>체크포인트 수 : {{ checkpoint_num }}</div>
-          <div>총 거리 : {{ distance }}</div>
+          <div>총 거리 : {{ distance }} m</div>
           <b-button-group>
             <b-button type="button" variant="primary" @click="path_create()">등록하기</b-button>
             <b-button type="button" @click="initialize()">취소하기</b-button>
@@ -43,9 +43,11 @@ export default {
       checkpoint_markers_clicked: [], // 클릭한 마커 클릭 금지(숫자)
       checkpoint_markers_clicknumber: [],
       station_stage: 1, // 정류장 클릭시
-      checkpoint_num: 0,
+      checkpoint_num: 0, // 오버레이 숫자표시
       overlay_data: [], // 모든 오버레이 데이터
-      distance: 0
+      distance: 0,
+      polylines: [],
+      linepath: []
     };
   },
   methods: {
@@ -83,6 +85,7 @@ export default {
         infowindow.close();
       };
     },
+    // 지도 생성 및 각종 이벤트
     initMap() {
       if(this.map_stage == 1) {
         var container = document.getElementById("map");
@@ -144,6 +147,7 @@ export default {
         );
       }
     },
+    // 정류장 오버레이
     station_custom_overlay() {
       if (this.station_stage == 2) { // 출발 정류장
         // 커스텀 오버레이(위 출발표시)
@@ -177,6 +181,7 @@ export default {
         this.overlay_data.push(customOverlay)
       }
     },
+    // 체크포인트 표시
     checkpoint_start() {
       var imageSrc =
         "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
@@ -223,6 +228,7 @@ export default {
         );
       }
     },
+    // 체크포인트 오버레이
     checkpoint_custom_overlay(num, i) {
         const content =
         "<div style='margin-bottom:36px;'>" +
@@ -252,33 +258,66 @@ export default {
       }
     },
     check() {
-      if(this.stage != 3)
-        this.stage +=1
-      for(let i = 0; i < this.checkpoint_markers_all.length; i++) {
-        this.checkpoint_markers_all[i].setMap(null)
-      }
-      for(let i = 0; i < this.checkpoint_markers_click.length; i++) {
-        this.checkpoint_markers_click[i].setMap(this.map)
-      }
-
-      //총 거리 계산방법
-      for(let i = 0; i < this.checkpoint_markers_clicknumber.length; i++) {
-        if(i == 0) {
-          this.distance = this.distance + this.getDistance(this.station_all[this.station_start].station_lat, this.station_all[this.station_start].station_lon, 
-          this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon)
-          this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon, 
-          this.checkpoint_all[this.checkpoint_markers_clicknumber[i+1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i+1]].checkpoint_lon)
-          continue
-        } else if(i == this.checkpoint_markers_clicknumber.length - 1) {
-          this.distance = this.distance + this.getDistance(this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon, 
-          this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon)
-          continue
+      if(this.checkpoint_markers_all.length > 0) {
+        if(this.stage != 3)
+          this.stage +=1
+        for(let i = 0; i < this.checkpoint_markers_all.length; i++) {
+          this.checkpoint_markers_all[i].setMap(null)
         }
-        this.distance = this.distance + this.getDistance(this.checkpoint_all[this.station_end].station_lat, this.checkpoint_all[this.station_end].station_lon, 
-        this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon)
+        for(let i = 0; i < this.checkpoint_markers_click.length; i++) {
+          this.checkpoint_markers_click[i].setMap(this.map)
+        }
+
+        //총 거리 계산방법
+        for(let i = 0; i < this.checkpoint_markers_clicknumber.length; i++) {
+          if(i == 0) {
+            this.distance = this.distance + this.getDistance(this.station_all[this.station_start].station_lat, this.station_all[this.station_start].station_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon)
+            this.linepath.push(new kakao.maps.LatLng(this.station_all[this.station_start].station_lat, this.station_all[this.station_start].station_lon))
+            this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon))
+            if(this.checkpoint_markers_clicknumber.length == 1) {
+              this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon, this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon)
+              this.linepath.push(new kakao.maps.LatLng(this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon))
+            } else {
+              this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[i+1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i+1]].checkpoint_lon)
+              this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[i+1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i+1]].checkpoint_lon))
+            }
+            continue
+          } else if(i == this.checkpoint_markers_clicknumber.length - 1) {
+            this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon, this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon)
+            this.linepath.push(new kakao.maps.LatLng(this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon))
+            continue
+          }
+          this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[i+1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i+1]].checkpoint_lon)
+          this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon))
+          this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[i+1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i+1]].checkpoint_lon))
+        }
+        console.log(this.linepath)
+        const polyline = new kakao.maps.Polyline({
+            path: this.linepath, // 선을 구성하는 좌표배열 입니다
+            strokeWeight: 5, // 선의 두께 입니다
+            strokeColor: '#FFAE00', // 선의 색깔입니다
+            strokeOpacity: 0.7, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
+            strokeStyle: 'solid' // 선의 스타일입니다
+        });
+        polyline.setMap(this.map)
+        this.polylines.push(polyline)
+        console.log(this.polylines)
+        this.distance = this.distance.toFixed(3) * 1000
       }
     },
+    path_create() {
+      Axios.post('/api/dlvy/management/path', {
+
+      })
+      .then(res => {
+
+      })
+      .catch(err => {
+        console.log(err)
+      })
+    },
     initialize() {
+      this.polylines[0].setMap(null)
       for(let z = 0; z < this.overlay_data.length; z++) {
         this.overlay_data[z].setMap(null)
       }
@@ -299,6 +338,9 @@ export default {
       (this.station_stage = 1),
       (this.checkpoint_num = 0),
       (this.overlay_data = []),
+      (this.distance = 0),
+      (this.linepath = []),
+      (this.polylines = []),
       (this.initMap());
     }
   },
