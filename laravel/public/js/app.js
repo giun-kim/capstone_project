@@ -3004,10 +3004,13 @@ __webpack_require__.r(__webpack_exports__);
       // 클릭한 마커 저장(마커 데이터)
       checkpoint_markers_clicked: [],
       // 클릭한 마커 클릭 금지(숫자)
+      checkpoint_markers_clicknumber: [],
       station_stage: 1,
       // 정류장 클릭시
       checkpoint_num: 0,
-      overlay_data: []
+      overlay_data: [],
+      // 모든 오버레이 데이터
+      distance: 0
     };
   },
   methods: {
@@ -3086,7 +3089,8 @@ __webpack_require__.r(__webpack_exports__);
           } else if (_this2.station_stage == 3) {
             _this2.station_end = _i;
 
-            _this2.station_delete();
+            _this2.station_delete(); // 클릭한 정류장 빼고 삭제
+
 
             _this2.station_custom_overlay();
 
@@ -3165,8 +3169,11 @@ __webpack_require__.r(__webpack_exports__);
           console.log(_this3.checkpoint_markers_click);
 
           if (_this3.checkpoint_markers_clicked[i] == 1) {
-            _this3.checkpoint_markers_clicked[i] += 1;
-            _this3.checkpoint_num += 1;
+            _this3.checkpoint_markers_clicknumber.push(i);
+
+            _this3.checkpoint_markers_clicked[i] += 1; // 클릭 방지
+
+            _this3.checkpoint_num += 1; // 오버레이 숫자 표시
 
             _this3.checkpoint_custom_overlay(_this3.checkpoint_num, i);
 
@@ -3215,6 +3222,20 @@ __webpack_require__.r(__webpack_exports__);
 
       for (var _i2 = 0; _i2 < this.checkpoint_markers_click.length; _i2++) {
         this.checkpoint_markers_click[_i2].setMap(this.map);
+      } //총 거리 계산방법
+
+
+      for (var _i3 = 0; _i3 < this.checkpoint_markers_clicknumber.length; _i3++) {
+        if (_i3 == 0) {
+          this.distance = this.distance + this.getDistance(this.station_all[this.station_start].station_lat, this.station_all[this.station_start].station_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon);
+          this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lon);
+          continue;
+        } else if (_i3 == this.checkpoint_markers_clicknumber.length - 1) {
+          this.distance = this.distance + this.getDistance(this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon);
+          continue;
+        }
+
+        this.distance = this.distance + this.getDistance(this.checkpoint_all[this.station_end].station_lat, this.checkpoint_all[this.station_end].station_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon);
       }
     },
     initialize: function initialize() {
@@ -67694,7 +67715,7 @@ var render = function() {
                     _vm._v("체크포인트 수 : " + _vm._s(_vm.checkpoint_num))
                   ]),
                   _vm._v(" "),
-                  _c("div", [_vm._v("총 거리 : 1.8 km")]),
+                  _c("div", [_vm._v("총 거리 : " + _vm._s(_vm.distance))]),
                   _vm._v(" "),
                   _c(
                     "b-button-group",

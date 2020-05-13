@@ -8,7 +8,7 @@
         <b-form>
           {{station_all[station_start].station_name}} - {{station_all[station_end].station_name}}
           <div>체크포인트 수 : {{ checkpoint_num }}</div>
-          <div>총 거리 : 1.8 km</div>
+          <div>총 거리 : {{ distance }}</div>
           <b-button-group>
             <b-button type="button" variant="primary" @click="path_create()">등록하기</b-button>
             <b-button type="button" @click="initialize()">취소하기</b-button>
@@ -41,9 +41,11 @@ export default {
       checkpoint_markers_all: [], // 전체 마커 저장
       checkpoint_markers_click: [], // 클릭한 마커 저장(마커 데이터)
       checkpoint_markers_clicked: [], // 클릭한 마커 클릭 금지(숫자)
+      checkpoint_markers_clicknumber: [],
       station_stage: 1, // 정류장 클릭시
       checkpoint_num: 0,
-      overlay_data: [],
+      overlay_data: [], // 모든 오버레이 데이터
+      distance: 0
     };
   },
   methods: {
@@ -123,7 +125,7 @@ export default {
             this.station_custom_overlay()
           } else if (this.station_stage == 3) {
             this.station_end = i
-            this.station_delete()
+            this.station_delete() // 클릭한 정류장 빼고 삭제
             this.station_custom_overlay()
             this.checkpoint_start()
             this.stage = 2
@@ -200,8 +202,9 @@ export default {
         kakao.maps.event.addListener(this.checkpoint_markers_all[i], "click", () => {
           console.log(this.checkpoint_markers_click)
           if(this.checkpoint_markers_clicked[i] == 1) {
-            this.checkpoint_markers_clicked[i] += 1
-            this.checkpoint_num += 1
+            this.checkpoint_markers_clicknumber.push(i)
+            this.checkpoint_markers_clicked[i] += 1 // 클릭 방지
+            this.checkpoint_num += 1 // 오버레이 숫자 표시
             this.checkpoint_custom_overlay(this.checkpoint_num, i)
             this.checkpoint_markers_click.push(marker)
           }
@@ -256,6 +259,23 @@ export default {
       }
       for(let i = 0; i < this.checkpoint_markers_click.length; i++) {
         this.checkpoint_markers_click[i].setMap(this.map)
+      }
+
+      //총 거리 계산방법
+      for(let i = 0; i < this.checkpoint_markers_clicknumber.length; i++) {
+        if(i == 0) {
+          this.distance = this.distance + this.getDistance(this.station_all[this.station_start].station_lat, this.station_all[this.station_start].station_lon, 
+          this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon)
+          this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon, 
+          this.checkpoint_all[this.checkpoint_markers_clicknumber[i+1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i+1]].checkpoint_lon)
+          continue
+        } else if(i == this.checkpoint_markers_clicknumber.length - 1) {
+          this.distance = this.distance + this.getDistance(this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon, 
+          this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon)
+          continue
+        }
+        this.distance = this.distance + this.getDistance(this.checkpoint_all[this.station_end].station_lat, this.checkpoint_all[this.station_end].station_lon, 
+        this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon)
       }
     },
     initialize() {
