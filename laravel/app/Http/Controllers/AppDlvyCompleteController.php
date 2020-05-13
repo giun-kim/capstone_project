@@ -46,7 +46,7 @@ class AppDlvyCompleteController extends Controller
                             ->where('dlvy_receiver', $id)
                             ->where('dlvy_status', '완료')
                             ->orderBy('dlvy_date', 'desc')
-                            ->get();
+                            ->get(); 
             debug($completed_send_dlvy, $completed_receive_dlvy);
         }else{    
             $completed_send_dlvy = DB::table('dlvy')
@@ -65,10 +65,29 @@ class AppDlvyCompleteController extends Controller
                             ->get();
             
         }
+        $completed_receiver_name = array();
+        $completed_sender_name = array();
+        for($i=0; $i<count($completed_send_dlvy); $i++){
+            $completed_receiver_name[$i] = DB::table('user')
+                            ->where('user_id', $completed_send_dlvy[$i]->dlvy_receiver)
+                            ->value('user_name');
+                
+        }
+        
+        for($i=0; $i<count($completed_receive_dlvy); $i++){
+            debug('asdf');
+            $completed_sender_name[$i] = DB::table('user')
+                            ->where('user_id', $completed_receive_dlvy[$i]->dlvy_sender)
+                            ->value('user_name');
+        }
 
         return response()->json([
             'completed_send_dlvy' => $completed_send_dlvy,
+            'completed_receiver_name' => $completed_receiver_name,
             'completed_receive_dlvy' => $completed_receive_dlvy,
+            'completed_sender_name'=>$completed_sender_name,
+            
+            
         ]);
     }
 }
