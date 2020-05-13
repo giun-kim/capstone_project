@@ -1,5 +1,5 @@
 <template>
-  <div class="page-container">]
+  <div class="page-container">
     <div id="map"></div>
     <div id="manager">
       <div v-if="stage == 1">지도에서 원하는 위치를 클릭해 주세요.</div>

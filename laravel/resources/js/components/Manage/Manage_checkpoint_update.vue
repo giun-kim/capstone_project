@@ -125,8 +125,9 @@ export default {
     chk_delete() {
       Axios.delete(`/api/dlvy/management/checkpoint/${this.checkpoint_id}`)
       .then(res => {
-        this.data = res.data.checkpoint_all
         this.initialize();
+        this.data = res.data.checkpoint_all
+        this.initMap();
       })
       .catch(err => {
         console.log(err)
@@ -139,8 +140,9 @@ export default {
       })
       .then(res => {
         this.stage == 1
-        this.data = res.data.checkpoint_all
         this.initialize()
+        this.data = res.data.checkpoint_all
+        this.initMap();
       })
       .catch(err => {
         console.log(err)
@@ -157,7 +159,6 @@ export default {
         (this.lon = ""), // 경도
         (this.markers = []); // 마커 표시
       this.click = 0;
-      this.initMap();
     },
   },
 };

@@ -119,7 +119,6 @@ export default {
           kakao.maps.event.addListener(this.markers[i], "dragend", () => {
             this.lat = this.markers[i].getPosition().Ha;
             this.lon = this.markers[i].getPosition().Ga;
-            console.log(this.lat, this.lon);  
           });
         }
       }
@@ -127,8 +126,9 @@ export default {
     stn_delete(station_name) {
       Axios.delete(`/api/dlvy/management/station/${station_name}`)
       .then(res => {
-        this.data = res.data.station_all
         this.initialize();
+        this.data = res.data.station_all
+        this.initMap();
       })
       .catch(err => {
         console.log(err)
@@ -141,15 +141,17 @@ export default {
         station_lon : this.lon
       })
       .then(res => {
-        this.stage == 1
-        this.data = res.data.station_all
+        this.stage = 1
         this.initialize()
+        this.data = res.data.station_all
+        this.initMap();
       })
       .catch(err => {
         console.log(err)
       })
     },
     initialize() {
+      console.log(this.markers)
       for (let i = 0; i < this.data.length; i++) {
         this.markers[i].setMap(null)
       }
@@ -161,7 +163,6 @@ export default {
         (this.markers = []), // 마커 표시
         (this.old_station_name = ""), // 전단계 정류장 이름
       this.click == 0
-      this.initMap();
     },
   },
 };
