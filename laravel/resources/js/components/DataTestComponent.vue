@@ -17,27 +17,27 @@ export default {
     },methods: {
         test1(){
             console.log('등록')
-            Axios.post('/api/dlvy/management/path',{path_start_point:'연서관', path_end_point:'본관', checkpoint_id:[3, 4, 7, 6]} )
+            Axios.post('/api/dlvy/management/path',{path_start_point:'연서관', path_end_point:'본관', checkpoint_id:[9, 6, 39, 7]} )
             .then(response=>{
                 console.log(response.data)
             })
         },
          test2(){
             console.log('수정')
-            Axios.patch('/api/dlvy/management/path/id',{station_name:'test3',  station_lat:35.1111, station_lon:128.2222})
+            Axios.patch('/api/dlvy/management/path/24',{checkpoint_id:[3, 7, 4, 6]})
             .then(response=>{
                 console.log(response.data)
             })
         },
          test3(){
             console.log('삭제')
-            Axios.delete('/api/dlvy/management/path/14')
+            Axios.delete('/api/dlvy/management/checkpoint/6')
             .then(response=>{
                 console.log(response.data)
             })
         }, test4(){
             console.log('페이지 로드')
-            Axios.get('/api/dlvy/management/path')
+            Axios.get('/api/dlvy/control')
             .then(response=>{
                 console.log(response.data)
             })
@@ -51,7 +51,7 @@ export default {
         },
         test6(){
             console.log('리스트 클릭')
-            Axios.get('/api/dlvy/management/path/16')
+            Axios.get('/api/dlvy/management/pathcheck/20')
             .then(response=>{
                 console.log(response.data)
             })

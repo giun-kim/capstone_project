@@ -26,6 +26,17 @@ class WebStationManagementController extends Controller
         return response(['station_all'=> DB::table('station')->get()]);
     }
 
+    // // 정류장 마커 클릭
+    // public function show($id)
+    // {
+    //     debug($id);
+    //     $station_info = DB::table('station')
+    //                     ->where('station_name', $id)
+    //                     ->first();
+    //     debug($station_info);
+    //     return response(['station_info'=>$station_info]);
+    // }
+
     // 수정하기
     public function update(Request $request, $id)
     {

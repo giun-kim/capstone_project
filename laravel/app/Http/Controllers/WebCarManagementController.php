@@ -19,7 +19,7 @@ class WebCarManagementController extends Controller
         debug("$request->car_num, $request->car_name");
         DB::table('car')
                         ->insert(
-                            ['car_num' => $request->car_num, 'car_name'=>$request->car_name, 'car_status'=>'운행 대기', 'car_lat'=>35.896157, 'car_lon'=>128.622522]
+                            ['car_num' => $request->car_num, 'car_name'=>$request->car_name, 'car_status'=>'배달대기', 'car_lat'=>35.896157, 'car_lon'=>128.622522]
                         );
         debug('등록 완료');
 
