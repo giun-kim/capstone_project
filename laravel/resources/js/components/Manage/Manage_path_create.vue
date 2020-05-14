@@ -1,17 +1,17 @@
 <template>
   <div class="page-container">
-    <div id="map" @click="map_click()"></div>
+    <div id="map"></div>
     <div id="manager">
-      <div v-if="stage == 1">출발 정류장을 클릭해 주세요.</div>
-      <div v-if="stage == 2">도착 정류장을 클릭해 주세요.</div>
-      <div v-if="stage == 3">체크포인트를 클릭해 주세요.</div>
-      <div v-if="stage == 4">
+      <div v-if="stage == 1">경로를 등록할 두 정류장을 클릭해 주세요.</div>
+      <div v-if="stage == 2">체크포인트 클릭 후 확인 버튼 클릭해 주세요. <br> <b-button type="button" variant="primary" @click="check()">확인</b-button></div>
+      <div v-if="stage == 3">
         <b-form>
-          <div>체크포인트 수 : {{ checkpoints.length }}</div>
-          <div>총 거리 : {{ distance }} km</div>
+          {{station_all[station_start].station_name}} - {{station_all[station_end].station_name}}
+          <div>체크포인트 수 : {{ checkpoint_num }}</div>
+          <div>총 거리 : {{ distance }} m</div>
           <b-button-group>
-            <b-button type="submit" variant="primary" @click="path_create()">등록하기</b-button>
-            <b-button type="button" @click="cancel()">취소하기</b-button>
+            <b-button type="button" variant="primary" @click="path_create()">등록하기</b-button>
+            <b-button type="button" @click="initialize()">취소하기</b-button>
           </b-button-group>
         </b-form>
       </div>
@@ -22,37 +22,36 @@
 <script>
 export default {
   mounted() {
-    Axios.get('/api/dlvy/management/path', {
-
+    Axios.get('/api/dlvy/management/path')
+    .then(res => {
+      this.station_all = res.data.station_all
+      this.checkpoint_all = res.data.checkpoint_all
+      this.initMap();
     })
-    this.initMap();
   },
   data() {
     return {
       stage: 1, // 단계별 보여지는 화면
-      stn_name: "", // 정류장 이름
-      lat: "", // 위도
-      lng: "", // 경도
-      stn_data: "", // 정류장 데이터
-      cp_data: "", // 체크포인트 데이터
-      stn_length: "", // 정류장 데이터 길이(반복문)
-      cp_length: "", // 체크포인트 데이터 길이(반복문)
-      stn_markers: [], // 마커 저장
-      cp_markers: [], // 마커 저장
-      map: "", // 맵 저장
-      click: 0,
-      // 2개의 정류장이 먼저 선택되야 하므로, 선택됬는지 여부를 알리는 깃발
-      stn_selected: false,
-      // 시작과 끝 스테이션
-      start_stn: "",
-      end_stn: "",
-      checkpoints: [], // 중간 체크포인트
+      map_stage: 1, // 맵 스테이지
+      station_all: "", // 모든 정류장 데이터
+      checkpoint_all: "", // 모든 체크포인트 데이터
+      station_start: "", // 출발 정류장
+      station_end: "", // 도착 정류장
+      station_markers: [], // 마커 저장
+      checkpoint_markers_all: [], // 전체 마커 저장
+      checkpoint_markers_click: [], // 클릭한 마커 저장(마커 데이터)
+      checkpoint_markers_clicked: [], // 클릭한 마커 클릭 금지(숫자)
+      checkpoint_markers_clicknumber: [],
+      station_stage: 1, // 정류장 클릭시
+      checkpoint_num: 0, // 오버레이 숫자표시
+      overlay_data: [], // 모든 오버레이 데이터
       distance: 0,
+      polylines: [],
+      linepath: []
     };
   },
   methods: {
-
-    // 두 좌표간의 거리
+    //두 좌표간의 거리
     getDistance(lat1, lon1, lat2, lon2) {
       var R = 6371;
       var dLat = this.deg2rad(lat2 - lat1);
@@ -86,153 +85,60 @@ export default {
         infowindow.close();
       };
     },
-
+    // 지도 생성 및 각종 이벤트
     initMap() {
-      var container = document.getElementById("map");
-      var options = {
-        center: new kakao.maps.LatLng(35.896309, 128.621917), // 지도 중심 좌표
-        level: 2, // 지도 확대
-        draggable: false, // 지도 이동 막기
-      };
-      var map = new kakao.maps.Map(container, options);
-      this.map = map;
+      if(this.map_stage == 1) {
+        var container = document.getElementById("map");
+        var options = {
+          center: new kakao.maps.LatLng(35.896309, 128.621917), // 지도 중심 좌표
+          level: 2, // 지도 확대
+          draggable: false, // 지도 이동 막기
+        };
+        this.map = new kakao.maps.Map(container, options)
+        this.map_stage = 2
+      }
+      for(let i = 0; i < this.checkpoint_all.length; i++) {
+        this.checkpoint_markers_clicked.push(1)
+      }
+      //마커 이미지
       var imageSrc =
         "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
 
-      if (this.stage >= 2) { // 도착 정류장
-        // 커스텀 오버레이(위 출발표시)
-        var content =
-          "<div style='margin-bottom:36px;'>" +
-          "  <span style='font-size:20px; font-weight:bold; color:red'>출발</span>" +
-          "</div>";
-        var position = new kakao.maps.LatLng(
-          this.start_stn.lat,
-          this.start_stn.lng
-        );
-
-        var customOverlay1 = new kakao.maps.CustomOverlay({
-          map: map,
-          position: position,
-          content: content,
-          yAnchor: 1, // y좌표 위치
-        });
-      }
-      if (this.stage >= 3) { // 출발 정류장
-        // 커스텀 오버레이(위 도착표시)
-        var content =
-          "<div style='margin-bottom:36px;'>" +
-          "  <span style='font-size:20px; font-weight:bold; color:red'>도착</span>" +
-          "</div>";
-        var position = new kakao.maps.LatLng(
-          this.end_stn.lat,
-          this.end_stn.lng
-        );
-
-        var customOverlay2 = new kakao.maps.CustomOverlay({
-          map: map,
-          position: position,
-          content: content,
-          yAnchor: 1, // y좌표 위치
-        });
-
-        // cp overlay
-        for (let i = 0; i < this.checkpoints.length; i++) {
-          // 커스텀 오버레이
-          var content2 =
-            "<div style='margin-bottom:36px;'>" +
-            "  <span style='font-size:20px; font-weight:bold; color:red'>" +
-            (i + 1) +
-            "</span>" +
-            "</div>";
-          var position2 = new kakao.maps.LatLng(
-            this.checkpoints[i].lat,
-            this.checkpoints[i].lng
-          );
-
-          var customOverlay3 = new kakao.maps.CustomOverlay({
-            map: map,
-            position: position2,
-            content: content2,
-            yAnchor: 1,
-          });
-        }
-      }
-
-      // get distance
-      if (this.checkpoints.length == 0) {
-        this.distance = this.getDistance(
-          this.start_stn.lat,
-          this.start_stn.lng,
-          this.end_stn.lat,
-          this.end_stn.lng
-        );
-      } else {
-        let tmpDistance = this.getDistance(
-          this.start_stn.lat,
-          this.start_stn.lng,
-          this.checkpoints[0].lat,
-          this.checkpoints[0].lng
-        );
-        for (let j = 1; j < this.checkpoints.length; j++) {
-          tmpDistance += this.getDistance(
-            this.checkpoints[j - 1].lat,
-            this.checkpoints[j - 1].lng,
-            this.checkpoints[j].lat,
-            this.checkpoints[j].lng
-          );
-        }
-        tmpDistance += this.getDistance(
-          this.checkpoints[this.checkpoints.length - 1].lat,
-          this.checkpoints[this.checkpoints.length - 1].lng,
-          this.end_stn.lat,
-          this.end_stn.lng
-        );
-        this.distance = tmpDistance;
-      }
-
-      // stn
-      for (let i = 0; i < this.stn_data.length; i++) {
+      //station_all
+      for (let i = 0; i < this.station_all.length; i++) {
         // 마커를 생성합니다
         const marker = new kakao.maps.Marker({
-          position: this.stn_data[i].latlng, // 마커를 표시할 위치
-          title: this.stn_data[i].name, // 마커의 타이틀, 마커에 마우스를 올리면 타이틀이 표시됩니다.
+          position: new kakao.maps.LatLng(this.station_all[i].station_lat, this.station_all[i].station_lon), // 마커를 표시할 위치
         });
         // 인포 윈도우 생성
         var infowindow = new kakao.maps.InfoWindow({
           content:
             "<div style='text-align:center; margin-left:5px; color:#18a2b8'>" +
-            (this.stn_data[i].stn_name ? this.stn_data[i].stn_name : "") +
+            (this.station_all[i].station_name) +
             "</div>",
         });
         marker.setMap(this.map);
-        this.stn_markers.push(marker);
+        this.station_markers.push(marker);
 
-        kakao.maps.event.addListener(marker, "click", () => {
-          if (this.stage == 1) {
-            // 첫 스테이션
-            this.start_stn = {
-              stn_name: this.stn_data[i].stn_name,
-              stn_id: this.stn_data[i].stn_id,
-              lat: this.stn_data[i].latlng.Ha,
-              lng: this.stn_data[i].latlng.Ga,
-            };
-            this.stage = 2;
-          } else if (this.stage == 2) {
-            // 마지막 스테이션
-            this.end_stn = {
-              stn_name: this.stn_data[i].stn_name,
-              stn_id: this.stn_data[i].stn_id,
-              lat: this.stn_data[i].latlng.Ha,
-              lng: this.stn_data[i].latlng.Ga,
-            };
-            this.stage = 3;
+        kakao.maps.event.addListener(this.station_markers[i], "click", () => {
+          if(this.station_stage != 4)
+            this.station_stage += 1
+          if (this.station_stage == 2) {
+            this.station_start = i
+            this.station_custom_overlay()
+          } else if (this.station_stage == 3) {
+            this.station_end = i
+            this.station_delete() // 클릭한 정류장 빼고 삭제
+            this.station_custom_overlay()
+            this.checkpoint_start()
+            this.stage = 2
           }
         });
         // 마우스 오버 이벤트
         kakao.maps.event.addListener(
           marker,
           "mouseover",
-          this.makeOverListener(map, marker, infowindow)
+          this.makeOverListener(this.map, marker, infowindow)
         );
         kakao.maps.event.addListener(
           marker,
@@ -240,52 +146,80 @@ export default {
           this.makeOutListener(infowindow)
         );
       }
-      // cp
-      for (let i = 0; i < this.cp_data.length; i++) {
+    },
+    // 정류장 오버레이
+    station_custom_overlay() {
+      if (this.station_stage == 2) { // 출발 정류장
+        // 커스텀 오버레이(위 출발표시)
+        const content =
+          "<div style='margin-bottom:36px;'>" +
+          "  <span style='font-size:20px; font-weight:bold; color:red'>출발</span>" +
+          "</div>";
+
+        let customOverlay = new kakao.maps.CustomOverlay({
+          position: new kakao.maps.LatLng(this.station_all[this.station_start].station_lat, this.station_all[this.station_start].station_lon),
+          content: content,
+          yAnchor: 1, // y좌표 위치
+        });
+
+        customOverlay.setMap(this.map)
+        this.overlay_data.push(customOverlay)
+      }
+      if (this.station_stage == 3) { // 도착 정류장
+        // 커스텀 오버레이(위 도착표시)
+        const content =
+          "<div style='margin-bottom:36px;'>" +
+          "  <span style='font-size:20px; font-weight:bold; color:red'>도착</span>" +
+          "</div>";
+
+        let customOverlay = new kakao.maps.CustomOverlay({
+          position: new kakao.maps.LatLng(this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon),
+          content: content,
+          yAnchor: 1, // y좌표 위치
+        });
+        customOverlay.setMap(this.map)
+        this.overlay_data.push(customOverlay)
+      }
+    },
+    // 체크포인트 표시
+    checkpoint_start() {
+      var imageSrc =
+        "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
+      for (let i = 0; i < this.checkpoint_all.length; i++) {
         var imageSize = new kakao.maps.Size(24, 35);
         var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
         // 마커를 생성합니다
         const marker = new kakao.maps.Marker({
-          position: this.cp_data[i].latlng, // 마커를 표시할 위치
-          title: this.cp_data[i].name, // 마커의 타이틀, 마커에 마우스를 올리면 타이틀이 표시됩니다.
+          position: new kakao.maps.LatLng(this.checkpoint_all[i].checkpoint_lat, this.checkpoint_all[i].checkpoint_lon), // 마커를 표시할 위치
           image: markerImage,
         });
         // 인포 윈도우 생성
         var infowindow = new kakao.maps.InfoWindow({
           content:
             "<div style='text-align:center; margin-left:5px; color:#18a2b8'>" +
-            (this.cp_data[i].name ? this.cp_data[i].name : "") +
+            (this.checkpoint_all[i].checkpoint_id) +
             "</div>",
         });
         marker.setMap(this.map);
-        this.cp_markers.push(marker);
-        // console.log(marker)
+        this.checkpoint_markers_all.push(marker);
 
-        kakao.maps.event.addListener(marker, "click", () => {
-          //  체크포인트 설정
-          if (this.stage != 3) {
-            return;
+        // 체크포인트 클릭 이벤트
+        kakao.maps.event.addListener(this.checkpoint_markers_all[i], "click", () => {
+          console.log(this.checkpoint_markers_click)
+          if(this.checkpoint_markers_clicked[i] == 1) {
+            this.checkpoint_markers_clicknumber.push(i)
+            this.checkpoint_markers_clicked[i] += 1 // 클릭 방지
+            this.checkpoint_num += 1 // 오버레이 숫자 표시
+            this.checkpoint_custom_overlay(this.checkpoint_num, i)
+            this.checkpoint_markers_click.push(marker)
           }
-
-          // 현재 마커가 체크포인트 리스트 내에 없으면 등록
-          for (let j = 0; j < this.checkpoints.length; j++) {
-            if (this.checkpoints[j].id == this.cp_data[i].id) {
-              return;
-            }
-          }
-          this.checkpoints.push({
-            name: this.cp_data[i].name,
-            id: this.cp_data[i].id,
-            lat: this.cp_data[i].latlng.Ha,
-            lng: this.cp_data[i].latlng.Ga,
-          });
         });
-        // }
+
         // 마우스 오버 이벤트
         kakao.maps.event.addListener(
           marker,
           "mouseover",
-          this.makeOverListener(map, marker, infowindow)
+          this.makeOverListener(this.map, marker, infowindow)
         );
         kakao.maps.event.addListener(
           marker,
@@ -294,47 +228,121 @@ export default {
         );
       }
     },
-    path_create() {
-      const newId =
-        this.$store.state.paths.length != 0
-          ? this.$store.state.paths[this.$store.state.paths.length - 1].id + 1
-          : 1;
-      this.$store.commit("addPath", {
-        id: newId,
-        start: this.start_stn.stn_id,
-        end: this.end_stn.stn_id,
-        checkpoints: this.checkpoints,
-      });
-      this.initialize();
-      this.initMap();
-    },
+    // 체크포인트 오버레이
+    checkpoint_custom_overlay(num, i) {
+        const content =
+        "<div style='margin-bottom:36px;'>" +
+        "  <span style='font-size:20px; font-weight:bold; color:red'>" +
+        (num) +
+        "</span>" +
+        "</div>";
+        const position = new kakao.maps.LatLng(
+          this.checkpoint_all[i].checkpoint_lat,
+          this.checkpoint_all[i].checkpoint_lon
+        );
 
-    cancel() {
-      this.initialize();
-      this.initMap();
+        let customOverlay = new kakao.maps.CustomOverlay({
+          position: position,
+          content: content,
+          yAnchor: 1,
+        });
+        customOverlay.setMap(this.map)
+        this.overlay_data.push(customOverlay)
+    },
+    station_delete() { // 두 정류장을 클릭 했을 경우
+      console.log(this.station_markers)
+      for (let i = 0; i < this.station_markers.length; i++) {
+        if(this.station_start == i || this.station_end == i)
+          continue
+        this.station_markers[i].setMap(null)
+      }
+    },
+    check() {
+      if(this.checkpoint_markers_all.length > 0) {
+        if(this.stage != 3)
+          this.stage +=1
+        for(let i = 0; i < this.checkpoint_markers_all.length; i++) {
+          this.checkpoint_markers_all[i].setMap(null)
+        }
+        for(let i = 0; i < this.checkpoint_markers_click.length; i++) {
+          this.checkpoint_markers_click[i].setMap(this.map)
+        }
+
+        //총 거리 계산방법
+        for(let i = 0; i < this.checkpoint_markers_clicknumber.length; i++) {
+          if(i == 0) {
+            this.distance = this.distance + this.getDistance(this.station_all[this.station_start].station_lat, this.station_all[this.station_start].station_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon)
+            this.linepath.push(new kakao.maps.LatLng(this.station_all[this.station_start].station_lat, this.station_all[this.station_start].station_lon))
+            this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon))
+            if(this.checkpoint_markers_clicknumber.length == 1) {
+              this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon, this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon)
+              this.linepath.push(new kakao.maps.LatLng(this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon))
+            } else {
+              this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[i+1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i+1]].checkpoint_lon)
+              this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[i+1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i+1]].checkpoint_lon))
+            }
+            continue
+          } else if(i == this.checkpoint_markers_clicknumber.length - 1) {
+            this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon, this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon)
+            this.linepath.push(new kakao.maps.LatLng(this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon))
+            continue
+          }
+          this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[i+1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i+1]].checkpoint_lon)
+          this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i]].checkpoint_lon))
+          this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[i+1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[i+1]].checkpoint_lon))
+        }
+        console.log(this.linepath)
+        const polyline = new kakao.maps.Polyline({
+            path: this.linepath, // 선을 구성하는 좌표배열 입니다
+            strokeWeight: 5, // 선의 두께 입니다
+            strokeColor: '#FFAE00', // 선의 색깔입니다
+            strokeOpacity: 0.7, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
+            strokeStyle: 'solid' // 선의 스타일입니다
+        });
+        polyline.setMap(this.map)
+        this.polylines.push(polyline)
+        console.log(this.polylines)
+        this.distance = this.distance.toFixed(3) * 1000
+      }
+    },
+    path_create() {
+      Axios.post('/api/dlvy/management/path', {
+
+      })
+      .then(res => {
+
+      })
+      .catch(err => {
+        console.log(err)
+      })
     },
     initialize() {
+      this.polylines[0].setMap(null)
+      for(let z = 0; z < this.overlay_data.length; z++) {
+        this.overlay_data[z].setMap(null)
+      }
+      for(let x = 0; x < this.checkpoint_markers_click.length; x++) {
+        this.checkpoint_markers_click[x].setMap(null)
+      }
+      for(let y = 0; y < this.station_markers.length; y++) {
+        this.station_markers[y].setMap(null)
+      }
+     
       (this.stage = 1), // 단계별 보여지는 화면
-        (this.stn_name = ""), // 정류장 이름
-        (this.lat = ""), // 위도
-        (this.lng = ""), // 경도
-        (this.stn_data = this.$store.state.stations),
-        (this.stn_ength = this.$store.state.stations.length),
-        (this.cp_data = this.$store.state.checkpoints),
-        (this.cp_length = this.$store.state.checkpoints.length),
-        (this.stn_markers = []),
-        (this.cp_markers = []);
-      this.click = 0;
-      this.map = "";
-      this.stn_selected = false;
-      this.start_stn = "";
-      this.end_stn = "";
-      this.checkpoints = [];
-      this.distance = 0;
-    },
-    map_click() {
-      if (this.stage == 2 || this.stage == 3 || this.stage == 4) this.initMap();
-    },
+      (this.station_markers = []),
+      (this.checkpoint_markers_all = []),
+      (this.checkpoint_markers_click = []),
+      (this.checkpoint_markers_clicked = []),
+      (this.station_start = ""),
+      (this.station_end = ""),
+      (this.station_stage = 1),
+      (this.checkpoint_num = 0),
+      (this.overlay_data = []),
+      (this.distance = 0),
+      (this.linepath = []),
+      (this.polylines = []),
+      (this.initMap());
+    }
   },
 };
 </script>

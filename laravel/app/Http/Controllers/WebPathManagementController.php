@@ -15,7 +15,7 @@ class WebPathManagementController extends Controller
     public function index()
     {
         // 외래키를 어떻게 줄 것인지?
-        return response()->json(['Station'=>Station::with('path')]);
+        return response()->json(['station_all'=>DB::table('station')->get(), 'checkpoint_all'=>DB::table('checkpoint')->get()]);
     }
 
     /**

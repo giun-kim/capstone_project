@@ -17,56 +17,60 @@
                 <h5>정류장</h5>
               </b-row>
               <b-row>
-                <b-card-text style="cursor:pointer" variant="link" @click="station_create()">&nbsp; 등록하기</b-card-text>
+                <b-card-text style="cursor:pointer" variant="link" @click="station_create()">&nbsp;&nbsp; 등록하기</b-card-text>
               </b-row>
               <b-row>
                 <b-card-text
                   style="cursor:pointer"
                   variant="link"
                   @click="station_update()"
-                >&nbsp; 수정/삭제</b-card-text>
-                <br />
-              </b-row>
-              <b-row>
-                <h5>경로</h5>
-              </b-row>
-              <b-row>
-                <b-card-text
-                  style="cursor:pointer"
-                  variant="link"
-                  @click="path_create()"
-                >&nbsp; 등록하기</b-card-text>
-              </b-row>
-              <b-row>
-                <b-card-text
-                  style="cursor:pointer"
-                  variant="link"
-                  @click="path_update()"
-                >&nbsp; 수정/삭제</b-card-text>
+                >&nbsp;&nbsp; 수정/삭제</b-card-text>
                 <br />
               </b-row>
 
               <b-row>
-                <h5>체크포인트</h5>
+                <h5>경로</h5>
+              </b-row>
+              <b-row>
+                <b-card-text>1.체크포인트 설정</b-card-text>
               </b-row>
               <b-row>
                 <b-card-text
                   style="cursor:pointer"
                   variant="link"
                   @click="checkpoint_create()"
-                >&nbsp; 등록하기</b-card-text>
+                >&nbsp;&nbsp; 등록하기</b-card-text>
               </b-row>
               <b-row>
                 <b-card-text
                   style="cursor:pointer"
                   variant="link"
                   @click="checkpoint_update()"
-                >&nbsp; 수정/삭제</b-card-text>
+                >&nbsp;&nbsp; 수정/삭제</b-card-text>
                 <br />
               </b-row>
               <b-row>
+                <b-card-text>2.경로 설정</b-card-text>
+              </b-row>
+              <b-row>
+                <b-card-text
+                  style="cursor:pointer"
+                  variant="link"
+                  @click="path_create()"
+                >&nbsp;&nbsp; 등록하기</b-card-text>
+              </b-row>
+              <b-row>
+                <b-card-text
+                  style="cursor:pointer"
+                  variant="link"
+                  @click="path_update()"
+                >&nbsp;&nbsp; 수정/삭제</b-card-text>
+                <br />
+              </b-row>
+
+              
+              <b-row>
                 <b-card-text style="cursor:pointer" variant="link" @click="rc()">
-                  &nbsp;
                   <h5>RC카</h5>
                 </b-card-text>
               </b-row>

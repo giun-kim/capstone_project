@@ -16,8 +16,8 @@
       </template>
 
       <template v-slot:cell(update)="data">
-          <b-button type="button" @click="updateclick(data.item)" variant="primary" v-if="create_id != 2 && update_id != 2">수정</b-button>
-           <b-button type="button" @click="updateclick(data.item)" variant="primary" v-if="create_id != 2 && data.item.car_num == update_car_num">수정 완료</b-button>
+          <b-button type="button" @click="updateclick(data.item)" variant="info" v-if="create_id != 2 && update_id != 2">수정</b-button>
+           <b-button type="button" @click="updateclick(data.item)" variant="info" v-if="create_id != 2 && data.item.car_num == update_car_num">수정 완료</b-button>
       </template>
 
       <template v-slot:cell(delete)="data">
@@ -59,7 +59,7 @@
           label : 'update'
         },{
           key : 'delete',
-          label : 'delete'
+          label : ''
         }],
         items: [],
         create_id : 1, // 1: 등록전 2: 등록후 
