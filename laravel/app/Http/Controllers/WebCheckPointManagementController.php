@@ -52,10 +52,25 @@ class WebCheckPointManagementController extends Controller
     // 삭제하기
     public function destroy($id)
     {
-        debug($id);
+        $update_path_check = DB::table('path_check')
+                        ->select('path_check_id', 'sequence')
+                        ->where('check_id', $id)
+                        ->get();
+
+        for($i=0; $i<count($update_path_check); $i++){
+            $update_path_col_id = DB::table('path_check')
+                            ->where('path_check_id', (int)$update_path_check[$i]->path_check_id)
+                            ->value('path_col_id');
+            DB::table('path_check')
+                            ->where('path_col_id', $update_path_col_id)
+                            ->where('sequence', '>', (int)$update_path_check[$i]->sequence)
+                            ->decrement('sequence');
+            
+        }
         DB::table('checkpoint')
                         ->where('checkpoint_id',$id)
                         ->delete();
+        
         
         return response(['checkpoint_all' => DB::table('checkpoint')->get()]);
     }
