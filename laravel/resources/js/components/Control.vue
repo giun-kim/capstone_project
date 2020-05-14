@@ -125,6 +125,8 @@
 
 <script>
 import DoughnutChart from './DoughnutChart.vue'
+import io from 'socket.io-client';
+
 export default {
   components: {
     DoughnutChart
@@ -169,10 +171,19 @@ export default {
         end_point_lon : '',             //목적지 경도
         receiver_name : '',             //receiver 이름
         receiver_phone : '',            //receiver 전화번호
-        end_time : ''                   //예상완료시간
+        end_time : '',                   //예상완료시간
+        socket : io.connect('https://98a4904d.ngrok.io', {
+          port : 3000
+        })
     }
   },
   mounted(){
+
+    this.socket.on("call_count", (data) => {
+      this.entire_call = data[0].count;
+      this.persent = Math.floor((this.complete_call / this.entire_call) * 100);
+    });
+
     this.container = document.getElementById("map");
     this.mapOptions = {
       center: new kakao.maps.LatLng(this.map_x, this.map_y),
@@ -206,10 +217,10 @@ export default {
 
       this.avg_waiting_time = Math.floor(response.data.avg_waiting_time);
       this.avg_waiting_time_month_ago = Math.floor(response.data.avg_waiting_time_month_ago)
-      console.log(response.data)
 
       this.rc_list = response.data.map_car_status;
       this.station_list = response.data.station_info;
+      console.log(response.data);
 
       for(var i = 0; i < this.rc_list.length; i++){ //마커 등록 and 마커에 이벤트 달기
         const marker = new kakao.maps.Marker({

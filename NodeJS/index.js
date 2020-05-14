@@ -55,7 +55,6 @@ io.on('connection', (socket) => {
 
                 //db 저장 -> 비동기 순서
                 dlvy_call_db_insert(car_num, wait, waiting_num, sender_id, receiver_id, start_point, end_point);
-                
             }
             else if(rows.length == 0) { // 사용가능 x 일 때 대기 순위 리시버 전달
                 // 대기 순번 가져오기 +1 로 호출한 사용자 대기순번 표시
@@ -68,11 +67,9 @@ io.on('connection', (socket) => {
                     dlvy_call_db_insert(car_num, wait, waiting_num, sender_id, receiver_id, start_point, end_point);
                 });
             }
-        });
-
-        // 당일 콜수 web전달
-        connection.query(`select count(*) as count from dlvy where dlvy_date = curdate()`, (err, rows, fields) => {
-            // socket.emit("call_count", rows);
+            connection.query(`select count(*) as count from dlvy where dlvy_date = curdate()`, (err, rows, fields) => {
+                io.emit("call_count", rows);    //웹이랑 합치기 완료 근데 이 값 활요하지는 않음;비동기여서 그런가 값이 변경된게 안감.
+            });
         });
     });
 
@@ -93,7 +90,7 @@ io.on('connection', (socket) => {
                             wait_data.wait_cancel = rows.length; // 대기 취소
                             
                             // 대기 현황 web전달
-                            // socket.emit('wait_data', wait_data);
+                            // io.emit('wait_data', wait_data);
                         });
                     });
                 });
@@ -192,7 +189,7 @@ io.on('connection', (socket) => {
 
     // RC 배달 완료
     socket.on('dlvy_complete', (data) => { // 차번호, 배달번호
-
+        console.log("들오옴")
         // 작업상태-> 배달완료, 배달완료시간
         connection.query(`update dlvy set dlvy_status = "배달완료", dlvy_end = curtime() where dlvy_num=${data.dlvy_num}`, (err, rows, fields) => {
             if(err) console.log(err);
@@ -203,8 +200,6 @@ io.on('connection', (socket) => {
         connection.query(`select count(*) as count from dlvy where dlvy_date = curdate() and dlvy_status = "배달완료"`, (err, rows, fields) => {
             // socket.emit("complete_dlvy_count", rows);
         })
-
-        // 대기작업 찾기
         connection.query(`select dlvy_num from dlvy where dlvy_status = "대기중" and dlvy_date = curdate()`, (err, rows, fields) => {
             if(rows.length > 0){ // 대기작업 o,
                 // 작업완료 한 RC카 상태 호출중 변경
@@ -273,7 +268,7 @@ io.on('connection', (socket) => {
 
                     // rc 운행상태 전달
                     connection.query(`select car_status, count(*) as cnt from car group by car_status`, (err, rows, fields) => {
-                        socket.emit("rc_status", rows);
+                        // socket.emit("rc_status", rows);
                     });
                 })
             }

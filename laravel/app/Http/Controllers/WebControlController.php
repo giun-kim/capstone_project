@@ -58,10 +58,10 @@ class WebControlController extends Controller
                         ->count();
         # 당일 완료 수
         $complete_call = DB::table('dlvy')  
-                        ->select('dlvy_num')
-                        ->whereRaw('dlvy_date >= curdate()')
-                        ->where('dlvy_status','=',  '완료')
-                        ->count();
+            ->select('dlvy_num')
+            ->whereRaw('dlvy_date >= curdate()')
+            ->where('dlvy_status','=',  '배달완료')
+            ->count();
                         
         // 4. 대기 취소 현황       
                 #구현 완료
