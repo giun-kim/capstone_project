@@ -38,13 +38,13 @@ class AppDlvyCompleteController extends Controller
             $completed_send_dlvy = DB::table('dlvy')
                             ->select('dlvy_receiver', 'dlvy_start_point','dlvy_end_point', 'dlvy_status', 'dlvy_date')
                             ->where('dlvy_sender', $id)
-                            ->where('dlvy_status', '완료')
+                            ->where('dlvy_status', '배달완료')
                             ->orderBy('dlvy_date', 'desc')
                             ->get();
             $completed_receive_dlvy = DB::table('dlvy')
                             ->select('dlvy_sender', 'dlvy_start_point','dlvy_end_point', 'dlvy_status', 'dlvy_date')
                             ->where('dlvy_receiver', $id)
-                            ->where('dlvy_status', '완료')
+                            ->where('dlvy_status', '배달완료')
                             ->orderBy('dlvy_date', 'desc')
                             ->get(); 
             debug($completed_send_dlvy, $completed_receive_dlvy);
@@ -52,14 +52,14 @@ class AppDlvyCompleteController extends Controller
             $completed_send_dlvy = DB::table('dlvy')
                             ->select('dlvy_receiver', 'dlvy_start_point','dlvy_end_point', 'dlvy_status', 'dlvy_date')
                             ->where('dlvy_sender', $id)
-                            ->where('dlvy_status', '완료')
+                            ->where('dlvy_status', '배달완료')
                             ->whereBetween('dlvy_date', [$date_end, $date_start])
                             ->orderBy('dlvy_date', 'desc')
                             ->get();
             $completed_receive_dlvy = DB::table('dlvy')
                             ->select('dlvy_sender', 'dlvy_start_point','dlvy_end_point', 'dlvy_status', 'dlvy_date')
                             ->where('dlvy_receiver', $id)
-                            ->where('dlvy_status', '완료')
+                            ->where('dlvy_status', '배달완료')
                             ->whereBetween('dlvy_date', [$date_end, $date_start])
                             ->orderBy('dlvy_date', 'desc')
                             ->get();

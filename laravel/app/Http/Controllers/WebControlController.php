@@ -60,7 +60,7 @@ class WebControlController extends Controller
         $complete_call = DB::table('dlvy')  
                         ->select('dlvy_num')
                         ->whereRaw('dlvy_date >= curdate()')
-                        ->where('dlvy_status','=',  '완료')
+                        ->where('dlvy_status','=',  '배달완료')
                         ->count();
                         
         // 4. 대기 취소 현황       
