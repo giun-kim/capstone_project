@@ -40,7 +40,8 @@ Route::resource('dlvy/management/checkpoint', 'WebCheckPointManagementController
 // RC카 관리
 Route::resource('dlvy/management/car', 'WebCarManagementController');
 // 경로 관리
-
+Route::resource('dlvy/management/path', 'WebPathManagementController');
+Route::get('dlvy/management/pathcheck', 'WebPathManagementController@show_path_check');
 
 ///////////// APP /////////////
 // 로그인
