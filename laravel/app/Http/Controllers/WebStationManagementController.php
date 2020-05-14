@@ -10,6 +10,7 @@ class WebStationManagementController extends Controller
     // 페이지 로드
     public function index()
     {
+        debug(DB::table('station')->get());
         return response(['station_all'=> DB::table('station')->get()]);
     }
 

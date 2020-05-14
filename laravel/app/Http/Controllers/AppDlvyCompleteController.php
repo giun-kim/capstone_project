@@ -15,7 +15,7 @@ class AppDlvyCompleteController extends Controller
     // 상세조회 => input(시작날짜, 끝나는 날짜) 시작날짜부터 끝나는 날짜 까지 전체 완료 내역
 
 
-    public function completed_dlvy($id, $term='all', $date_start='0', $date_end='0'){
+    public function completed_dlvy($id, $term='default', $date_start='0', $date_end='0'){
         debug("$id, $term, $date_start, $date_end");
         if($date_start == '0'){
             $date_start= date('Y-m-d');

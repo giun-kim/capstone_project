@@ -12,6 +12,7 @@ class AppDlvyInfoController extends Controller
         debug('send');
         $send_data=array();
         $dlvy_info = array();
+        $dlvy_wait_num = array();
         $rc_gps =array();
         $station_start_gps = array();
         $station_end_gps = array();
@@ -36,11 +37,24 @@ class AppDlvyInfoController extends Controller
             
                 // 배달 번호, 받는 사람 이름, 배달 상태, 대기 순위
                 $dlvy_info_data = DB::table('dlvy')
-                            ->select('dlvy_num', 'dlvy_status', 'dlvy_wait_num')
+                            ->select('dlvy_num', 'dlvy_status')
                             ->where('dlvy_num',  $send_data[$i]->dlvy_num)
                             ->first();
                 $dlvy_info[$i] = $dlvy_info_data;
 
+                //대기 순번
+                if($dlvy_info_data->dlvy_status == "대기중"){
+                    $dlvy_wait_num_data = DB::table('dlvy')
+                                ->whereNotNull('dlvy_wait_start')
+                                ->whereRaw('dlvy_date >= curdate()')
+                                ->where('dlvy_status', '대기중')
+                                ->where('dlvy_num','<',$send_data[$i]->dlvy_num)
+                                ->count();
+                    $dlvy_wait_num[$i] = $dlvy_wait_num_data+1;
+                }else{
+                    $dlvy_wait_num[$i] = 0;
+                }
+                
                 // 받는 사람 이름
                 $user_name_data = DB::table('user')
                             ->where('user_id', $send_data[$i]->dlvy_receiver)
@@ -49,10 +63,18 @@ class AppDlvyInfoController extends Controller
                
                 // RC카 gps
                 $rc_gps_data = DB::table('car')
-                            ->select('car_lat', 'car_lon')
+                            ->select('car_num','car_lat', 'car_lon')
                             ->where('car_num', $send_data[$i]->dlvy_car_num)
                             ->first();
+                debug($rc_gps_data);
+                if(!$rc_gps_data){
+                    $rc_gps_data = array();
+                    $rc_gps_data['car_num']=0;
+                    $rc_gps_data['car_lat'] = 0;
+                    $rc_gps_data['car_lon'] = 0;
+                }
                 $rc_gps[$i] = $rc_gps_data;
+                
             
                 // 출발지, 출발지 gps
                 $station_start_data = DB::table('station')
@@ -68,9 +90,10 @@ class AppDlvyInfoController extends Controller
                 $station_end[$i] = $station_end_data;
             }
             debug("Data-Test");
-            debug($dlvy_info);
+            debug($dlvy_wait_num);
             return response()->json([
                 'dlvy_info'=> $dlvy_info,   // 배달번호, 받는사람 이름, 배달 상태, 대기 순위(없으면 null)
+                'dlvy_wait_num' => $dlvy_wait_num,  // 대기 순번
                 'user_name' => $user_name,  // 받는 사람 이름
                 'rc_gps' => $rc_gps,        // RC카 GPS 
                 'station_start' => $station_start, // 출발지, 출발지 gps
@@ -91,6 +114,7 @@ class AppDlvyInfoController extends Controller
         debug($id);
         $receive_data=array();
         $dlvy_info = array();
+        $dlvy_wait_num = array();
         $rc_gps =array();
         $station_start_gps = array();
         $station_end_gps = array();
@@ -113,10 +137,23 @@ class AppDlvyInfoController extends Controller
             for($i=0; $i<count($receive_data); $i++){
                 // 받는 사람 이름, 배달 상태, 대기 순위
                 $dlvy_info_data = DB::table('dlvy')
-                            ->select('dlvy_num', 'dlvy_status', 'dlvy_wait_num')
+                            ->select('dlvy_num', 'dlvy_status')
                             ->where('dlvy_num',  $receive_data[$i]->dlvy_num)
                             ->first();
                 $dlvy_info[$i] = $dlvy_info_data;
+
+                //대기 순번
+                if($dlvy_info_data->dlvy_status == "대기중"){
+                    $dlvy_wait_num_data = DB::table('dlvy')
+                                ->whereNotNull('dlvy_wait_start')
+                                ->whereRaw('dlvy_date >= curdate()')
+                                ->where('dlvy_status', '대기중')
+                                ->where('dlvy_num','<',$receive_data[$i]->dlvy_num)
+                                ->count();
+                    $dlvy_wait_num[$i] = $dlvy_wait_num_data+1;
+                }else{
+                    $dlvy_wait_num[$i] = 0;
+                }
 
                 //보내는 사람 이름
                 $user_name_data = DB::table('user')
@@ -126,9 +163,15 @@ class AppDlvyInfoController extends Controller
 
                 // RC카 gps
                 $rc_gps_data = DB::table('car')
-                            ->select('car_lat', 'car_lon')
+                            ->select('car_num','car_lat', 'car_lon')
                             ->where('car_num', $receive_data[$i]->dlvy_car_num)
                             ->first();
+                if(!$rc_gps_data){
+                    $rc_gps_data = array();
+                    $rc_gps_data['car_num']=0;
+                    $rc_gps_data['car_lat'] = 0;
+                    $rc_gps_data['car_lon'] = 0;
+                }
                 $rc_gps[$i] = $rc_gps_data;
                 
                 // 출발지, 출발지 gps
@@ -145,9 +188,9 @@ class AppDlvyInfoController extends Controller
                             ->first();
                 $station_end[$i] = $station_end_data;
             }
-            debug($user_name);
             return response()->json([
                 'dlvy_info'=> $dlvy_info,   // 배달번호, 받는사람 이름, 배달 상태, 대기 순위(없으면 null)
+                'dlvy_wait_num' => $dlvy_wait_num,  // 대기 순번
                 'user_name' => $user_name,  // 보내는 사람 이름
                 'rc_gps' => $rc_gps,        // RC카 GPS
                 'station_start' => $station_start,  // 출발지, 출발지 gps

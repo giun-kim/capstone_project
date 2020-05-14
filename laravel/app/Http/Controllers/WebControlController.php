@@ -90,6 +90,7 @@ class WebControlController extends Controller
                         ->select('station.station_name as station')
                         ->selectRaw('count(*) as call_count')
                         ->leftJoin('station', 'station.station_name', '=','dlvy.dlvy_start_point')
+                        ->whereNotNull('dlvy_start_point')
                         ->whereBetween('dlvy_date', [$last_week_start,$last_week_end])
                         ->groupBy('station')
                         ->orderBy('call_count', 'desc')

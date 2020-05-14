@@ -69,39 +69,64 @@ io.on('connection', (socket) => {
                 });
             }
         });
+
+        // 당일 콜수 web전달
+        connection.query(`select count(*) as count from dlvy where dlvy_date = curdate()`, (err, rows, fields) => {
+            // socket.emit("call_count", rows);
+        });
     });
 
     // 배달 수락 여부
     socket.on('accept', (data) => { // accept, wait, car_num, dlvy_num
         
-        var dlvy_data = new Object();
-        dlvy_data.dlvy_num = data.dlvy_num; // 작업번호
-
         if(data.accept == 'yes') { // 배달 수락 
             if(data.wait == 'no') { // 대기 없음
+
+                // 대기수락 , 대기현황 web 전달
+                var wait_data = new Object();
+
+                connection.query(`select dlvy_num from dlvy where dlvy_wait_time is not null and dlvy_date = curdate()`, (err, rows, fields) => {
+                    wait_data.wait_complete = rows.length; // 대기 완료
+                    connection.query(`select dlvy_num from dlvy where dlvy_status = "대기중" and dlvy_date = curdate()`, (err, rows, fields) => {
+                        wait_data.wait_now = rows.length; // 대기중
+                        connection.query(`select dlvy_num from dlvy where dlvy_status = "대기취소" and dlvy_date = curdate()`, (err, rows, fields) => {
+                            wait_data.wait_cancel = rows.length; // 대기 취소
+                            
+                            // 대기 현황 web전달
+                            // socket.emit('wait_data', wait_data);
+                        });
+                    });
+                });
+
+                // rc 운행상태 전달
+                connection.query(`select car_status, count(*) as cnt from car group by car_status`, (err, rows, fields) => {
+                    // socket.emit("rc_status", rows);
+                });
+                
+                var dlvy_data = new Object();
+                dlvy_data.dlvy_num = data.dlvy_num; // 작업번호
+                dlvy_data.car_num = data.car_num; // RC번호
 
                 // rc카에게 정보 전달, 체크포인트, 배달번호
                 connection.query(`select dlvy_start_point, dlvy_end_point from dlvy where dlvy_num = ${data.dlvy_num}`, (err, rows, fields) => {
                     // 출발지, 목적지로 체크포인트 순서대로 gps값 가져와서 rc카에 전달
                     connection.query(`SELECT c.checkpoint_lat, c.checkpoint_lon 
-                                      FROM path_check as pc left join checkpoint as c on pc.check_id = c.checkpoint_id 
-                                      where pc.path_col_id in 
+                                    FROM path_check as pc left join checkpoint as c on pc.check_id = c.checkpoint_id 
+                                    where pc.path_col_id in 
                                         ( select path_id from path where path_start_point = "${rows[0].dlvy_start_point}" and path_end_point = "${rows[0].dlvy_end_point}") 
-                                      order by sequence asc;`, (err, rows, fields) => {                        
+                                    order by sequence asc;`, (err, rows, fields) => {                        
                         
                         dlvy_data.gps = rows  // 검색된 gps들 담기
 
                         var jsonData = JSON.stringify(dlvy_data);
-                        console.log(jsonData)
 
-                        
-                        
-                        // 체크포인트, 배달번호 전달 ( 센더id, 리시버id는 보류)
-                        // socket.emit('dlvy_data', dlvy_data);
+                        // 체크포인트, 배달번호 전달 ( 센더id, 리시버id는 보류), car_num으로 작업rc카 분류
+                        // socket.emit('dlvy_start_data', dlvy_data);
                     });
-                });                
+                });    
+             
             }else { // 대기 있음
-
+                // 대기 수락 시 웹에 대기 수 전달
             }
         }else { // 배달 캔슬, 해당 배달 삭제하려면 배달 번호 잇어야됨
             if(data.wait == 'no') { // 배달 캔슬,  
@@ -156,7 +181,7 @@ io.on('connection', (socket) => {
             user = sender_token;
             title_msg = '자동차 도착';
             body_msg = '물품을 적재 해주십시오';
-        }else if(data.arrival == '목적지') { // 목적지 도착, 리시버, dlvy_end
+        }else if(data.arrival == '목적지') { // 목적지 도착, 리시버
             user = receiver_token;
             title_msg = '배달 도착';
             body_msg = '물품을 수령 해주십시오';
@@ -167,40 +192,161 @@ io.on('connection', (socket) => {
 
     // RC 배달 완료
     socket.on('dlvy_complete', (data) => { // 차번호, 배달번호
+
         // 작업상태-> 배달완료, 배달완료시간
         connection.query(`update dlvy set dlvy_status = "배달완료", dlvy_end = curtime() where dlvy_num=${data.dlvy_num}`, (err, rows, fields) => {
             if(err) console.log(err);
             else console.log('배달완료 변경, 배달완료 시간 저장 Successfully');
         });
 
-        // 대기작업 찾기
-        connection.query(`select dlvy_num from dlvy where dlvy_status = "대기중"`, (err, rows, fields) => {
-            if(rows.length > 0){ // 대기작업 o, 작업테이블 대기중-> 호출중, (호출시간, 대기한 시간) 저장, rc카 작업전달(accept 참조, 체크포인트도 전달)
+        // 실시간 배달현황, 완료 건수
+        connection.query(`select count(*) as count from dlvy where dlvy_date = curdate() and dlvy_status = "배달완료"`, (err, rows, fields) => {
+            // socket.emit("complete_dlvy_count", rows);
+        })
 
+        // 대기작업 찾기
+        connection.query(`select dlvy_num from dlvy where dlvy_status = "대기중" and dlvy_date = curdate()`, (err, rows, fields) => {
+            if(rows.length > 0){ // 대기작업 o,
+                // 작업완료 한 RC카 상태 호출중 변경
+                connection.query(`update car set car_status = "호출중" where car_num = ${data.car_num}`, (err, rows, fields) => {
+                    if(err) console.log(err);
+                    else console.log('RC카 상태 호출중 Successfully');
+                });
+                // 대기 작업 -> 작업 시작
+                connection.query(`update dlvy set dlvy_car_num = ${data.car_num}, dlvy_status = "호출중", dlvy_wait_time = timestampdiff(minute, dlvy_wait_start, curtime()), dlvy_call_start = curtime() where dlvy_num = ${rows[0].dlvy_num}`, (err, rows, fields) => {
+                    if(err) console.log(err);
+                    else console.log('작업 상태 대기중->호출중 Successfully');
+                });
+
+                var dlvy_data = new Object();
+                dlvy_data.dlvy_num = rows[0].dlvy_num; // 대기 중이었던 작업번호
+                dlvy_data.car_num = data.car_num; // 차번호
+
+                // rc카에게 정보 전달, 체크포인트, 배달번호
+                connection.query(`select dlvy_start_point, dlvy_end_point from dlvy where dlvy_num = ${rows[0].dlvy_num}`, (err, rows, fields) => {
+                    // 출발지, 목적지로 체크포인트 순서대로 gps값 가져와서 rc카에 전달
+                    connection.query(`SELECT c.checkpoint_lat, c.checkpoint_lon 
+                                    FROM path_check as pc left join checkpoint as c on pc.check_id = c.checkpoint_id 
+                                    where pc.path_col_id in 
+                                        ( select path_id from path where path_start_point = "${rows[0].dlvy_start_point}" and path_end_point = "${rows[0].dlvy_end_point}") 
+                                    order by sequence asc;`, (err, rows, fields) => {                        
+                        
+                        dlvy_data.gps = rows  // 검색된 gps들 담기
+
+                        var jsonData = JSON.stringify(dlvy_data);
+                        console.log(jsonData);
+                        
+                        // 체크포인트, 배달번호 전달 ( 센더id, 리시버id는 보류), car_num으로 작업rc카 분류
+                        // socket.emit('dlvy_start_data', dlvy_data);
+                    });
+                });   
+
+                // 대기중 작업 -> 대기 완료 대기 현황, 평균 대기시간 web전달 
+                var wait_data = new Object();
+                
+                // 대기현황
+                connection.query(`select dlvy_num from dlvy where dlvy_wait_time is not null and dlvy_date = curdate()`, (err, rows, fields) => {
+                    wait_data.wait_complete = rows.length; // 대기 완료
+                    connection.query(`select dlvy_num from dlvy where dlvy_status = "대기중" and dlvy_date = curdate()`, (err, rows, fields) => {
+                        wait_data.wait_now = rows.length; // 대기중
+                        connection.query(`select dlvy_num from dlvy where dlvy_status = "대기취소" and dlvy_date = curdate()`, (err, rows, fields) => {
+                            wait_data.wait_cancel = rows.length; // 대기 취소
+                            
+                            // 평균 대기시간 
+                            connection.query(`select floor(avg(dlvy_wait_time)) as time from dlvy where dlvy_date = curdate() group by dlvy_date`, (err, rows, fields) => {
+                                wait_data.wait_avg_time = rows[0].time;
+
+                                // web전달
+                                // socket.emit('wait_data', wait_data);
+                            });
+                        });
+                    });
+                });
+
+                // rc 운행상태 전달
+                connection.query(`select car_status, count(*) as cnt from car group by car_status`, (err, rows, fields) => {
+                    // socket.emit("rc_status", rows);
+                });
             }else if(rows.length == 0) { // 대기작업 x , 차상태 배달대기 변경 
                 connection.query(`update car set car_status = "배달대기" where car_num = ${data.car_num}`, (err, rows, fields) => {
                     if(err) console.log(err);
-                    else console.log('RC카 상태 배달대기 Successfully');
+
+                    // rc 운행상태 전달
+                    connection.query(`select car_status, count(*) as cnt from car group by car_status`, (err, rows, fields) => {
+                        socket.emit("rc_status", rows);
+                    });
                 })
             }
         });
-        
     });
 
     // 배달 대기 취소
-    socket.on('dlvy_wait_cancel', (data) => { // 대기취소 web전달
+    socket.on('dlvy_wait_cancel', (data) => { // 배달번호, 
 
-        
+        // 대기 현황 web전달
+        var wait_data = new Object();
+
+        connection.query(`select dlvy_num from dlvy where dlvy_wait_time is not null and dlvy_date = curdate()`, (err, rows, fields) => {
+            wait_data.wait_complete = rows.length; // 대기 완료
+            connection.query(`select dlvy_num from dlvy where dlvy_status = "대기중" and dlvy_date = curdate()`, (err, rows, fields) => {
+                wait_data.wait_now = rows.length; // 대기중
+                connection.query(`select dlvy_num from dlvy where dlvy_status = "대기취소" and dlvy_date = curdate()`, (err, rows, fields) => {
+                    wait_data.wait_cancel = rows.length; // 대기 취소
+                    
+                    
+                    // socket.emit('wait_data', wait_data);
+                });
+            });
+        });
+
     });
 
     // RC카 실시간 gps 정보
-    socket.on('rc_gps', (data) => { // rc카에서 보내는 실시간 gps -> db저장, 웹 전달
+    socket.on('rc_gps', (data) => { // 실시간 lat, lon , 차 번호 -> db저장, 웹 전달
 
+        var car_data = new Object();
+        car_data.car_num = data.car_num;
+        car_data.car_lat = data.car_lat;
+        car_data.car_lon = data.car_lon;
+
+        // lat, lon 저장
+        connection.query(`update car set car_lat = ${data.car_lat}, car_lon = ${data.car_lon} where car_num = ${data.car_num}`, (err, rows, fields) => {
+            if(err) console.log(err);
+            // 상태 , 차 번호, lat, lon을 web 전달
+            connection.query(`select car_status from car where car_num = ${data.car_num}`, (err, rows, data) => {
+                car_data.car_status = rows[0].car_status;
+    
+
+                var jsonData = JSON.stringify(car_data);
+                console.log(jsonData);
+                // socket.emit("car_data", car_data);
+            });
+        });
+           
     });
 
     // RC카 에러 정보
     socket.on('rc_error', (data) => { // rc카 id, 작업번호, 오류내역
 
+        // RC 상태변경, 오류내역
+        connection.query(`update car set car_status = "오류", car_error = "${data.err_msg}" where car_num = ${data.car_num}`, (err, rows, fields) => {
+            if(err) console.log(err);
+        });
+        // 해당 작업 상태 변경
+        connection.query(`update dlvy set dlvy_status = "오류", dlvy_error = "${data.err_msg}" where dlvy_num = ${data.dlvy_num}`, (err, rows, fields) => {
+            if(err) console.log(err);
+        });
+
+        var car_data = new Object();
+        car_data.car_num = data.car_num;
+        car_data.err_msg = data.err_msg;
+        car_data.dlvy_num = data.dlvy_num
+        // rc 운행상태, 오류 알림 전달
+        connection.query(`select car_status, count(*) as cnt from car group by car_status`, (err, rows, fields) => {
+            car_data.car_status = rows;
+        });
+        // web 전달
+        // socket.emit('car_err', car_data);
     });
 
 });
@@ -243,7 +389,7 @@ function dlvy_call_db_insert(car_num, wait, waiting_num, sender_id, receiver_id,
             //         body: "배달을 확인해 주세요",
             //     },
             //     data: { // 데이터
-            //         waiting_num: ''+waiting_num,
+            //         waiting_num: ''+waiting_num, 
             //         car_num: ''+car_num,
             //         dlvy_num: ''+insert_dlvy_num,
             //     },
