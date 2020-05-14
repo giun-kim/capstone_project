@@ -9,24 +9,24 @@
         style="border-top: 1px solid #18a2b8; margin-top: 10px"
       >
         <div style="margin-top:10px; margin-bottom: 10px">현재 등록된 경로</div>
-        <b-list-group >
+        <b-list-group v-for="path_one in imporary" :key="path_one.id">
           <b-list-group-item>
-            <h5>
-                정류장_1 →
-                정류장_2
+            <h5 style="cursor:pointer" @click="path_click(path_one.path_id)">
+                {{ path_one.path_start_point }} ↔ {{ path_one.path_end_point }}
             </h5>
+            <div v-if="path_one.path_id == path_check">
             <h6>체크포인트 수 : 3</h6>
             <h6>거리 : 300m</h6>
-            <div style="margin-top:10px; margin-bottom: 0">
-              <b-button
-                variant="info"
-                style="margin-bottom:10px"
-                type="button"
-                @click="modify()"
-              >
-                수정/삭제</b-button>
-                <b-button type="button" variant="primary" @click="path_create()">등록하기</b-button>
+              <div style="margin-top:10px; margin-bottom: 0">
+                <b-button
+                  variant="info"
+                  type="button"
+                  @click="path_update()"
+                >
+                  수정하기</b-button>
+                <b-button type="button" variant="danger" @click="path_delete()">삭제하기</b-button>
                 <b-button type="button" @click="initialize()">취소하기</b-button>
+              </div>
             </div>
           </b-list-group-item>
         </b-list-group>
@@ -57,14 +57,27 @@ export default {
   },
   data() {
     return {
-      stage: 2, // 단계별 보여지는 화면
+      map: "",
+      stage: 1, // 단계별 보여지는 화면
       map_stage: 1, // 맵 스테이지
       station_all: "", // 모든 정류장 데이터
       checkpoint_all: "", // 모든 체크포인트 데이터
       path_one_all: "", // 모든 경로 데이터
+      imporary: [
+        {
+          path_id: 1,
+          path_start_point: '본관',
+          path_end_point: '연서관'
+        },{
+          path_id: 2,
+          path_start_point: '본관',
+          path_end_point: '정문'
+        }
+      ],
+      path_check : "",
     //   station_start: "", // 출발 정류장
     //   station_end: "", // 도착 정류장
-    //   station_markers: [], // 마커 저장
+      station_markers: [], // 마커 저장
     //   checkpoint_markers_all: [], // 전체 마커 저장
     //   checkpoint_markers_click: [], // 클릭한 마커 저장(마커 데이터)
     //   checkpoint_markers_clicked: [], // 클릭한 마커 클릭 금지(숫자)
@@ -124,9 +137,9 @@ export default {
         this.map = new kakao.maps.Map(container, options)
         this.map_stage = 2
       }
-      for(let i = 0; i < this.checkpoint_all.length; i++) {
-        this.checkpoint_markers_clicked.push(1)
-      }
+      // for(let i = 0; i < this.checkpoint_all.length; i++) {
+      //   this.checkpoint_markers_clicked.push(1)
+      // }
       //마커 이미지
       var imageSrc =
         "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
@@ -347,6 +360,18 @@ export default {
       })
       .then(res => {
 
+      })
+      .catch(err => {
+        console.log(err)
+      })
+    },
+    path_click(path_one) {
+      this.path_check = path_one
+      Axios.get('/api/dlvy/management/path', {
+
+      })
+      .then(res => {
+        
       })
       .catch(err => {
         console.log(err)

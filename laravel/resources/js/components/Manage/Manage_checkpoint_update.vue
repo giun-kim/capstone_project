@@ -14,7 +14,7 @@
             </div>
           </div>
           <b-button-group>
-            <b-button type="button" variant="primary" @click="chk_update()">수정하기</b-button>
+            <b-button type="button" variant="info" @click="chk_update()">수정하기</b-button>
             <b-button variant="danger" type="button" @click="chk_delete()">삭제하기</b-button>
             <b-button type="button" @click="initialize()">취소하기</b-button>
           </b-button-group>

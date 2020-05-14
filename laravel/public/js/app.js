@@ -3379,7 +3379,8 @@ __webpack_require__.r(__webpack_exports__);
   },
   data: function data() {
     return {
-      stage: 2,
+      map: "",
+      stage: 1,
       // 단계별 보여지는 화면
       map_stage: 1,
       // 맵 스테이지
@@ -3387,10 +3388,21 @@ __webpack_require__.r(__webpack_exports__);
       // 모든 정류장 데이터
       checkpoint_all: "",
       // 모든 체크포인트 데이터
-      path_one_all: "" // 모든 경로 데이터
+      path_one_all: "",
+      // 모든 경로 데이터
+      imporary: [{
+        path_id: 1,
+        path_start_point: '본관',
+        path_end_point: '연서관'
+      }, {
+        path_id: 2,
+        path_start_point: '본관',
+        path_end_point: '정문'
+      }],
+      path_check: "",
       //   station_start: "", // 출발 정류장
       //   station_end: "", // 도착 정류장
-      //   station_markers: [], // 마커 저장
+      station_markers: [] // 마커 저장
       //   checkpoint_markers_all: [], // 전체 마커 저장
       //   checkpoint_markers_click: [], // 클릭한 마커 저장(마커 데이터)
       //   checkpoint_markers_clicked: [], // 클릭한 마커 클릭 금지(숫자)
@@ -3448,30 +3460,29 @@ __webpack_require__.r(__webpack_exports__);
         };
         this.map = new kakao.maps.Map(container, options);
         this.map_stage = 2;
-      }
-
-      for (var i = 0; i < this.checkpoint_all.length; i++) {
-        this.checkpoint_markers_clicked.push(1);
-      } //마커 이미지
+      } // for(let i = 0; i < this.checkpoint_all.length; i++) {
+      //   this.checkpoint_markers_clicked.push(1)
+      // }
+      //마커 이미지
 
 
       var imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"; //station_all
 
-      var _loop = function _loop(_i) {
+      var _loop = function _loop(i) {
         // 정류장 마커 생성
         var marker = new kakao.maps.Marker({
-          position: new kakao.maps.LatLng(_this2.station_all[_i].station_lat, _this2.station_all[_i].station_lon) // 마커를 표시할 위치
+          position: new kakao.maps.LatLng(_this2.station_all[i].station_lat, _this2.station_all[i].station_lon) // 마커를 표시할 위치
 
         }); // 정류장 인포 윈도우 생성
 
         infowindow = new kakao.maps.InfoWindow({
-          content: "<div style='text-align:center; margin-left:5px; color:#18a2b8'>" + _this2.station_all[_i].station_name + "</div>"
+          content: "<div style='text-align:center; margin-left:5px; color:#18a2b8'>" + _this2.station_all[i].station_name + "</div>"
         });
         marker.setMap(_this2.map);
 
         _this2.station_markers.push(marker);
 
-        kakao.maps.event.addListener(_this2.station_markers[_i], "click", function () {
+        kakao.maps.event.addListener(_this2.station_markers[i], "click", function () {
           if (_this2.stage != 2) _this2.stage += 1; //   if (this.station_stage == 2) {
           //     this.station_start = i
           //     this.station_custom_overlay()
@@ -3484,7 +3495,7 @@ __webpack_require__.r(__webpack_exports__);
           //   }
 
           Axios.get('/api/dlvy/management/path', {
-            station_name: _this2.station_all[_i].station_name
+            station_name: _this2.station_all[i].station_name
           }).then(function (res) {
             _this2.path_one_all = res.data.path_all; // 해당 정류장의 모든 경로
           })["catch"](function (err) {
@@ -3496,10 +3507,10 @@ __webpack_require__.r(__webpack_exports__);
         kakao.maps.event.addListener(marker, "mouseout", _this2.makeOutListener(infowindow));
       };
 
-      for (var _i = 0; _i < this.station_all.length; _i++) {
+      for (var i = 0; i < this.station_all.length; i++) {
         var infowindow;
 
-        _loop(_i);
+        _loop(i);
       }
     },
     // 정류장 오버레이
@@ -3616,35 +3627,35 @@ __webpack_require__.r(__webpack_exports__);
           this.checkpoint_markers_all[i].setMap(null);
         }
 
-        for (var _i2 = 0; _i2 < this.checkpoint_markers_click.length; _i2++) {
-          this.checkpoint_markers_click[_i2].setMap(this.map);
+        for (var _i = 0; _i < this.checkpoint_markers_click.length; _i++) {
+          this.checkpoint_markers_click[_i].setMap(this.map);
         } //총 거리 계산방법
 
 
-        for (var _i3 = 0; _i3 < this.checkpoint_markers_clicknumber.length; _i3++) {
-          if (_i3 == 0) {
-            this.distance = this.distance + this.getDistance(this.station_all[this.station_start].station_lat, this.station_all[this.station_start].station_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon);
+        for (var _i2 = 0; _i2 < this.checkpoint_markers_clicknumber.length; _i2++) {
+          if (_i2 == 0) {
+            this.distance = this.distance + this.getDistance(this.station_all[this.station_start].station_lat, this.station_all[this.station_start].station_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2]].checkpoint_lon);
             this.linepath.push(new kakao.maps.LatLng(this.station_all[this.station_start].station_lat, this.station_all[this.station_start].station_lon));
-            this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon));
+            this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2]].checkpoint_lon));
 
             if (this.checkpoint_markers_clicknumber.length == 1) {
-              this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon, this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon);
+              this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2]].checkpoint_lon, this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon);
               this.linepath.push(new kakao.maps.LatLng(this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon));
             } else {
-              this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lon);
-              this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lon));
+              this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2]].checkpoint_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2 + 1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2 + 1]].checkpoint_lon);
+              this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2 + 1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2 + 1]].checkpoint_lon));
             }
 
             continue;
-          } else if (_i3 == this.checkpoint_markers_clicknumber.length - 1) {
-            this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon, this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon);
+          } else if (_i2 == this.checkpoint_markers_clicknumber.length - 1) {
+            this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2]].checkpoint_lon, this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon);
             this.linepath.push(new kakao.maps.LatLng(this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon));
             continue;
           }
 
-          this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lon);
-          this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3]].checkpoint_lon));
-          this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i3 + 1]].checkpoint_lon));
+          this.distance = this.distance + this.getDistance(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2]].checkpoint_lon, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2 + 1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2 + 1]].checkpoint_lon);
+          this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2]].checkpoint_lon));
+          this.linepath.push(new kakao.maps.LatLng(this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2 + 1]].checkpoint_lat, this.checkpoint_all[this.checkpoint_markers_clicknumber[_i2 + 1]].checkpoint_lon));
         }
 
         console.log(this.linepath);
@@ -3668,6 +3679,12 @@ __webpack_require__.r(__webpack_exports__);
     },
     path_create: function path_create() {
       Axios.post('/api/dlvy/management/path', {}).then(function (res) {})["catch"](function (err) {
+        console.log(err);
+      });
+    },
+    path_click: function path_click(path_one) {
+      this.path_check = path_one;
+      Axios.get('/api/dlvy/management/path', {}).then(function (res) {})["catch"](function (err) {
         console.log(err);
       });
     },
@@ -3764,7 +3781,7 @@ __webpack_require__.r(__webpack_exports__);
         label: 'update'
       }, {
         key: 'delete',
-        label: 'delete'
+        label: ''
       }],
       items: [],
       create_id: 1,
@@ -67977,7 +67994,7 @@ var render = function() {
                       _c(
                         "b-button",
                         {
-                          attrs: { type: "button", variant: "primary" },
+                          attrs: { type: "button", variant: "info" },
                           on: {
                             click: function($event) {
                               return _vm.chk_update()
@@ -68199,74 +68216,98 @@ var render = function() {
             [_vm._v("현재 등록된 경로")]
           ),
           _vm._v(" "),
-          _c(
-            "b-list-group",
-            [
-              _c("b-list-group-item", [
-                _c("h5", [
-                  _vm._v(
-                    "\n              정류장_1 →\n              정류장_2\n          "
-                  )
-                ]),
-                _vm._v(" "),
-                _c("h6", [_vm._v("체크포인트 수 : 3")]),
-                _vm._v(" "),
-                _c("h6", [_vm._v("거리 : 300m")]),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  {
-                    staticStyle: { "margin-top": "10px", "margin-bottom": "0" }
-                  },
-                  [
-                    _c(
-                      "b-button",
-                      {
-                        staticStyle: { "margin-bottom": "10px" },
-                        attrs: { variant: "info", type: "button" },
-                        on: {
-                          click: function($event) {
-                            return _vm.modify()
-                          }
+          _vm._l(_vm.imporary, function(path_one) {
+            return _c(
+              "b-list-group",
+              { key: path_one.id },
+              [
+                _c("b-list-group-item", [
+                  _c(
+                    "h5",
+                    {
+                      staticStyle: { cursor: "pointer" },
+                      on: {
+                        click: function($event) {
+                          return _vm.path_click(path_one.path_id)
                         }
-                      },
-                      [_vm._v("\n              수정/삭제")]
-                    ),
-                    _vm._v(" "),
-                    _c(
-                      "b-button",
-                      {
-                        attrs: { type: "button", variant: "primary" },
-                        on: {
-                          click: function($event) {
-                            return _vm.path_create()
-                          }
-                        }
-                      },
-                      [_vm._v("등록하기")]
-                    ),
-                    _vm._v(" "),
-                    _c(
-                      "b-button",
-                      {
-                        attrs: { type: "button" },
-                        on: {
-                          click: function($event) {
-                            return _vm.initialize()
-                          }
-                        }
-                      },
-                      [_vm._v("취소하기")]
-                    )
-                  ],
-                  1
-                )
-              ])
-            ],
-            1
-          )
+                      }
+                    },
+                    [
+                      _vm._v(
+                        "\n              " +
+                          _vm._s(path_one.path_start_point) +
+                          " ↔ " +
+                          _vm._s(path_one.path_end_point) +
+                          "\n          "
+                      )
+                    ]
+                  ),
+                  _vm._v(" "),
+                  path_one.path_id == _vm.path_check
+                    ? _c("div", [
+                        _c("h6", [_vm._v("체크포인트 수 : 3")]),
+                        _vm._v(" "),
+                        _c("h6", [_vm._v("거리 : 300m")]),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          {
+                            staticStyle: {
+                              "margin-top": "10px",
+                              "margin-bottom": "0"
+                            }
+                          },
+                          [
+                            _c(
+                              "b-button",
+                              {
+                                attrs: { variant: "info", type: "button" },
+                                on: {
+                                  click: function($event) {
+                                    return _vm.path_update()
+                                  }
+                                }
+                              },
+                              [_vm._v("\n                수정하기")]
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "b-button",
+                              {
+                                attrs: { type: "button", variant: "danger" },
+                                on: {
+                                  click: function($event) {
+                                    return _vm.path_delete()
+                                  }
+                                }
+                              },
+                              [_vm._v("삭제하기")]
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "b-button",
+                              {
+                                attrs: { type: "button" },
+                                on: {
+                                  click: function($event) {
+                                    return _vm.initialize()
+                                  }
+                                }
+                              },
+                              [_vm._v("취소하기")]
+                            )
+                          ],
+                          1
+                        )
+                      ])
+                    : _vm._e()
+                ])
+              ],
+              1
+            )
+          })
         ],
-        1
+        2
       ),
       _vm._v(" "),
       _vm.stage == 3
@@ -68407,7 +68448,7 @@ var render = function() {
                   ? _c(
                       "b-button",
                       {
-                        attrs: { type: "button", variant: "primary" },
+                        attrs: { type: "button", variant: "info" },
                         on: {
                           click: function($event) {
                             return _vm.updateclick(data.item)
@@ -68422,7 +68463,7 @@ var render = function() {
                   ? _c(
                       "b-button",
                       {
-                        attrs: { type: "button", variant: "primary" },
+                        attrs: { type: "button", variant: "info" },
                         on: {
                           click: function($event) {
                             return _vm.updateclick(data.item)
@@ -68687,7 +68728,7 @@ var render = function() {
                       _c(
                         "b-button",
                         {
-                          attrs: { type: "button", variant: "primary" },
+                          attrs: { type: "button", variant: "info" },
                           on: {
                             click: function($event) {
                               return _vm.stn_update(_vm.old_station_name)
@@ -85130,8 +85171,8 @@ __webpack_require__.r(__webpack_exports__);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! D:\프로그래밍\github\auto_pilot\laravel\resources\js\app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! D:\프로그래밍\github\auto_pilot\laravel\resources\sass\app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! E:\프로그래밍\github\auto_pilot\laravel\resources\js\app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! E:\프로그래밍\github\auto_pilot\laravel\resources\sass\app.scss */"./resources/sass/app.scss");
 
 
 /***/ })

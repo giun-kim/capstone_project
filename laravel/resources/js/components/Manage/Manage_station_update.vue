@@ -19,7 +19,7 @@
             </div>
           </div>
           <b-button-group>
-            <b-button type="button" variant="primary" @click="stn_update(old_station_name)">수정하기</b-button>
+            <b-button type="button" variant="info" @click="stn_update(old_station_name)">수정하기</b-button>
             <b-button variant="danger" type="button" @click="stn_delete(old_station_name)">삭제하기</b-button>
             <b-button type="button" @click="initialize()">취소하기</b-button>
           </b-button-group>
