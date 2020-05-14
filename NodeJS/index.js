@@ -16,15 +16,15 @@ var connection = mysql.createConnection({
 connection.connect();
 
 // fcm 프로젝트 특정
-var serviceAccount = require('./capstone-car-firebase-adminsdk-zqm0k-767aef7e3b.json');
+// var serviceAccount = require('./capstone-car-firebase-adminsdk-zqm0k-767aef7e3b.json');
  
 // 해당 토큰으로 휴대폰에 설치된 앱을 특정함
 var sender_token = "fFlU9i_UTUaEMxMk8rT4HX:APA91bF1lQ9K8rTeCtdiI_0l24yc0P-n4tcwGcWlmQxWlmf_Y4qN1njVC7yk96_6gLqUvFyU3PcLrMivVeJdTCYL4wxmnmE_OxkdTTb1GwZtNz08v2KRZeDGjtM-5XXYPsR6KyrdrIJx";
 var receiver_token = "";
 
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-});
+// admin.initializeApp({
+//     credential: admin.credential.cert(serviceAccount)
+// });
 
 // 출발, 도착, 완료 알림
 var user; // 리시버, 센더
@@ -41,7 +41,7 @@ io.on('connection', (socket) => {
         var wait; // 대기 여부
         var waiting_num; // 대기 순번
         var car_num; 
-
+        
         // 사용대기인 rc카 검색
         connection.query('select car_num from car where car_status = "배달대기"', (err, rows, fields) => {
             if(err) console.log("err : " + err); // err 표시

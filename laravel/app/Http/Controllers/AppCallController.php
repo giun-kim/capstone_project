@@ -19,7 +19,7 @@ class AppCallController extends Controller
     public function check_user($id){
         debug($id);
         $same_user = DB::table('user')
-                        ->select('user_name','user_phone')
+                        ->select('user_id','user_name','user_phone')
                         ->where('user_name', $id)
                         ->get();
                         
