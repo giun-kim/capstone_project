@@ -17,6 +17,8 @@ class AppDlvyInfoController extends Controller
         $station_start_gps = array();
         $station_end_gps = array();
         $j =0;
+
+
         $send_info = DB::table('dlvy')
                         ->select('dlvy_num','dlvy_status','dlvy_receiver', 'dlvy_start_point', 'dlvy_end_point','dlvy_car_num')
                         ->where('dlvy_sender', $id)
@@ -32,6 +34,11 @@ class AppDlvyInfoController extends Controller
                 }
             }
             debug($send_data);
+            if(count($send_data)<=0){
+                return response()->json([
+                    'value' => 'null'
+                ]);
+            }
 
             for($i=0; $i<count($send_data); $i++){
             
@@ -133,6 +140,11 @@ class AppDlvyInfoController extends Controller
                     $receive_data[$j] = $receive_info[$i];
                     $j = $j+1;
                 }
+            }
+            if(count($receive_data)<=0){
+                return response()->json([
+                    'value' => 'null'
+                ]);
             }
             for($i=0; $i<count($receive_data); $i++){
                 // 받는 사람 이름, 배달 상태, 대기 순위
