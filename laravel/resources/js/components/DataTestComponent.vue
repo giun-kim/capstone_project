@@ -37,7 +37,7 @@ export default {
             })
         }, test4(){
             console.log('페이지 로드')
-            Axios.get('/api/dlvy/control')
+            Axios.get('/api/dlvy/senddlvy/jung')
             .then(response=>{
                 console.log(response.data)
             })
