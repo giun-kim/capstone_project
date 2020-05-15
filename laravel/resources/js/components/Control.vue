@@ -172,9 +172,10 @@ export default {
         receiver_name : '',             //receiver 이름
         receiver_phone : '',            //receiver 전화번호
         end_time : '',                   //예상완료시간
-        socket : io.connect('https://98a4904d.ngrok.io', {
+        socket : io.connect('https://119e3632.ngrok.io', {
           port : 3000
-        })
+        }),
+        marker : []
     }
   },
   mounted(){
@@ -182,6 +183,33 @@ export default {
     this.socket.on("call_count", (data) => {
       this.entire_call = data[0].count;
       this.persent = Math.floor((this.complete_call / this.entire_call) * 100);
+    });
+    this.socket.on("complete_dlvy_count", (data) => {
+      // console.log(data);
+      this.complete_call = data[0].count;
+      this.persent = Math.floor((this.complete_call / this.entire_call) * 100);
+    });
+    this.socket.on("rc_status", (data) => {           //배달 시작할 떄 바뀌는건 배달 수락이 있은 후여야 바뀌기 때문에 그 기능 완성 후 변하는거 확인 가능.
+      this.proceeding_rc = data[1].cnt + data[3].cnt;
+      this.waiting_rc = data[0].cnt;
+      this.error_rc = data[1].cnt;
+      this.entire_rc = this.proceeding_rc + this.waiting_rc + this.error_rc;
+      this.operation_rate = Math.floor((this.proceeding_rc / this.entire_rc) * 100);
+    });
+
+    this.socket.on("wait_data", (data) => {           //배달 시작할 떄 바뀌는건 배달 수락이 있은 후여야 바뀌기 때문에 그 기능 완성 후 변하는거 확인 가능.
+      console.log(data);
+    });
+    
+
+    this.socket.on("car_data", (data) => {
+      // console.log("들어옴")
+      var test = 0;
+      for(var i = 0 ; i < this.marker.length; i++){
+        if(this.marker[i].getTitle() == data.car_num){
+          this.marker[i].setPosition(new kakao.maps.LatLng(data.car_lat, data.car_lon));
+        } 
+      }
     });
 
     this.container = document.getElementById("map");
@@ -228,6 +256,7 @@ export default {
           position: new kakao.maps.LatLng(this.rc_list[i].car_lat, this.rc_list[i].car_lon), // 마커의 위치
           title : this.rc_list[i].car_num
         });
+        this.marker[i] = marker;
         kakao.maps.event.addListener(marker, 'click', () => {
           this.rc_name = '';
           this.rc_status = '';

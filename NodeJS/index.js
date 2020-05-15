@@ -16,15 +16,16 @@ var connection = mysql.createConnection({
 connection.connect();
 
 // fcm 프로젝트 특정
-// var serviceAccount = require('./capstone-car-firebase-adminsdk-zqm0k-767aef7e3b.json');
+var serviceAccount = require('./capstone-car-firebase-adminsdk-zqm0k-2248c7ebc5.json');
  
 // 해당 토큰으로 휴대폰에 설치된 앱을 특정함
-var sender_token = "fFlU9i_UTUaEMxMk8rT4HX:APA91bF1lQ9K8rTeCtdiI_0l24yc0P-n4tcwGcWlmQxWlmf_Y4qN1njVC7yk96_6gLqUvFyU3PcLrMivVeJdTCYL4wxmnmE_OxkdTTb1GwZtNz08v2KRZeDGjtM-5XXYPsR6KyrdrIJx";
-var receiver_token = "";
+var sender_token = "dm72fed-SP2KMfySosw8LB:APA91bHzRkNeULBGTZ39HGafWvZ3tqLktwQEm1Rfd8mP-rTHdxvPhlAcEqsBL7OAfQHd6ROTTiQvrD7e3b4D7m-VmHDoEZgMDg9peVWvqhD-shWd3Q3dMT_QiyZ3aQS0pjkPP9CbXBZy";
+var receiver_token = "dm72fed-SP2KMfySosw8LB:APA91bHzRkNeULBGTZ39HGafWvZ3tqLktwQEm1Rfd8mP-rTHdxvPhlAcEqsBL7OAfQHd6ROTTiQvrD7e3b4D7m-VmHDoEZgMDg9peVWvqhD-shWd3Q3dMT_QiyZ3aQS0pjkPP9CbXBZy";
+//receiver_token 지금은 sender_token이랑 똑같은거 써서 테스트 하는데 나중에 바꿔야됨
 
-// admin.initializeApp({
-//     credential: admin.credential.cert(serviceAccount)
-// });
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
 
 // 출발, 도착, 완료 알림
 var user; // 리시버, 센더
@@ -79,22 +80,6 @@ io.on('connection', (socket) => {
         if(data.accept == 'yes') { // 배달 수락 
             if(data.wait == 'no') { // 대기 없음
 
-                // 대기수락 , 대기현황 web 전달
-                var wait_data = new Object();
-
-                connection.query(`select dlvy_num from dlvy where dlvy_wait_time is not null and dlvy_date = curdate()`, (err, rows, fields) => {
-                    wait_data.wait_complete = rows.length; // 대기 완료
-                    connection.query(`select dlvy_num from dlvy where dlvy_status = "대기중" and dlvy_date = curdate()`, (err, rows, fields) => {
-                        wait_data.wait_now = rows.length; // 대기중
-                        connection.query(`select dlvy_num from dlvy where dlvy_status = "대기취소" and dlvy_date = curdate()`, (err, rows, fields) => {
-                            wait_data.wait_cancel = rows.length; // 대기 취소
-                            
-                            // 대기 현황 web전달
-                            // io.emit('wait_data', wait_data);
-                        });
-                    });
-                });
-
                 // rc 운행상태 전달
                 connection.query(`select car_status, count(*) as cnt from car group by car_status`, (err, rows, fields) => {
                     // socket.emit("rc_status", rows);
@@ -124,11 +109,26 @@ io.on('connection', (socket) => {
              
             }else { // 대기 있음
                 // 대기 수락 시 웹에 대기 수 전달
+                                // 대기수락 , 대기현황 web 전달
+                var wait_data = new Object();
+
+                    connection.query(`select dlvy_num from dlvy where dlvy_wait_time is not null and dlvy_date = curdate()`, (err, rows, fields) => {
+                        wait_data.wait_complete = rows.length; // 대기 완료
+                        connection.query(`select dlvy_num from dlvy where dlvy_status = "대기중" and dlvy_date = curdate()`, (err, rows, fields) => {
+                            wait_data.wait_now = rows.length; // 대기중
+                            connection.query(`select dlvy_num from dlvy where dlvy_status = "대기취소" and dlvy_date = curdate()`, (err, rows, fields) => {
+                                wait_data.wait_cancel = rows.length; // 대기 취소
+                                            
+                                // 대기 현황 web전달
+                                io.emit('wait_data', wait_data);
+                            });
+                        });
+                    });
             }
         }else { // 배달 캔슬, 해당 배달 삭제하려면 배달 번호 잇어야됨
             if(data.wait == 'no') { // 배달 캔슬,  
                 // rc카 상태 배달 대기로 변경
-                connection.query(`update car set car_status = '대기중' where (car_num = ${data.car_num})`, (err, rows, fields) => {
+                connection.query(`update car set car_status = '배달대기' where (car_num = ${data.car_num})`, (err, rows, fields) => {
                     if(err) console.log("err : " + err); // err 표시
                     else console.log('대기중 변경 Successfully');
                 })
@@ -189,16 +189,22 @@ io.on('connection', (socket) => {
 
     // RC 배달 완료
     socket.on('dlvy_complete', (data) => { // 차번호, 배달번호
-        console.log("들오옴")
         // 작업상태-> 배달완료, 배달완료시간
         connection.query(`update dlvy set dlvy_status = "배달완료", dlvy_end = curtime() where dlvy_num=${data.dlvy_num}`, (err, rows, fields) => {
             if(err) console.log(err);
             else console.log('배달완료 변경, 배달완료 시간 저장 Successfully');
         });
 
+        if(data.complete == "수령완료"){
+            user = sender_token;
+            title_msg = "배달 완료"
+            body_msg = "배달의 완료되었습니다."
+        }
+        notification_message(user, title_msg, body_msg);
+
         // 실시간 배달현황, 완료 건수
         connection.query(`select count(*) as count from dlvy where dlvy_date = curdate() and dlvy_status = "배달완료"`, (err, rows, fields) => {
-            // socket.emit("complete_dlvy_count", rows);
+            io.emit("complete_dlvy_count", rows);
         })
         connection.query(`select dlvy_num from dlvy where dlvy_status = "대기중" and dlvy_date = curdate()`, (err, rows, fields) => {
             if(rows.length > 0){ // 대기작업 o,
@@ -260,7 +266,7 @@ io.on('connection', (socket) => {
 
                 // rc 운행상태 전달
                 connection.query(`select car_status, count(*) as cnt from car group by car_status`, (err, rows, fields) => {
-                    // socket.emit("rc_status", rows);
+                    // io.emit("rc_status", rows);
                 });
             }else if(rows.length == 0) { // 대기작업 x , 차상태 배달대기 변경 
                 connection.query(`update car set car_status = "배달대기" where car_num = ${data.car_num}`, (err, rows, fields) => {
@@ -268,7 +274,7 @@ io.on('connection', (socket) => {
 
                     // rc 운행상태 전달
                     connection.query(`select car_status, count(*) as cnt from car group by car_status`, (err, rows, fields) => {
-                        // socket.emit("rc_status", rows);
+                        io.emit("rc_status", rows);
                     });
                 })
             }
@@ -303,7 +309,7 @@ io.on('connection', (socket) => {
         car_data.car_num = data.car_num;
         car_data.car_lat = data.car_lat;
         car_data.car_lon = data.car_lon;
-
+        console.log(car_data.car_num, car_data.car_lat, car_data.car_lon);
         // lat, lon 저장
         connection.query(`update car set car_lat = ${data.car_lat}, car_lon = ${data.car_lon} where car_num = ${data.car_num}`, (err, rows, fields) => {
             if(err) console.log(err);
@@ -314,7 +320,7 @@ io.on('connection', (socket) => {
 
                 var jsonData = JSON.stringify(car_data);
                 console.log(jsonData);
-                // socket.emit("car_data", car_data);
+                io.emit("car_data", car_data);
             });
         });
            
@@ -378,26 +384,26 @@ function dlvy_call_db_insert(car_num, wait, waiting_num, sender_id, receiver_id,
             console.log('insert_dlvy_num: ' +insert_dlvy_num);
 
             // fcm 메시지 보내기, waiting_num이 0이면 대기 x, 아니면 대기순번 포함 메시지 전달
-            // var fcm_message = {
-            //     notification: { // 알림 
-            //         title: "배달 수락",
-            //         body: "배달을 확인해 주세요",
-            //     },
-            //     data: { // 데이터
-            //         waiting_num: ''+waiting_num, 
-            //         car_num: ''+car_num,
-            //         dlvy_num: ''+insert_dlvy_num,
-            //     },
-            //     token: sender_token
-            // };
+            var fcm_message = {
+                notification: { // 알림 
+                    title: "배달 수락",
+                    body: "배달을 확인해 주세요",
+                },
+                data: { // 데이터
+                    waiting_num: ''+waiting_num, 
+                    car_num: ''+car_num,
+                    dlvy_num: ''+insert_dlvy_num,
+                },
+                token: sender_token
+            };
         
-            // admin.messaging().send(fcm_message)
-            //     .then((res) => {
-            //         console.log('Successfully sent message: ', res);
-            //     })
-            //     .catch((err) => {
-            //         console.log('Error sending message: ', err);
-            //     });
+            admin.messaging().send(fcm_message)
+                .then((res) => {
+                    console.log('Successfully sent message: ', res);
+                })
+                .catch((err) => {
+                    console.log('Error sending message: ', err);
+                });
         }
 
 
@@ -408,26 +414,26 @@ function dlvy_call_db_insert(car_num, wait, waiting_num, sender_id, receiver_id,
 // RC카 출발, 도착, 완료 알림 작업
 function notification_message(user, title_msg, body_msg) {
     // fcm 메시지 보내기
-    // var fcm_message = {
-    //     notification: { // 알림 
-    //         title: title_msg,
-    //         body: body_msg,
-    //     },
-    //     data: { // 데이터
-    //         waiting_num: ''+waiting_num,
-    //         car_num: ''+car_num,
-    //         dlvy_num: ''+insert_dlvy_num,
-    //     },
-    //     token: user
-    // };
+    var fcm_message = {
+        notification: { // 알림 
+            title: title_msg,
+            body: body_msg,
+        },
+        data: { // 데이터
+            // waiting_num: ''+waiting_num,
+            // car_num: ''+car_num,
+            // dlvy_num: ''+insert_dlvy_num,
+        },
+        token: user
+    };
 
-    // admin.messaging().send(fcm_message)
-    //     .then((res) => {
-    //         console.log('Successfully sent message: ', res);
-    //     })
-    //     .catch((err) => {
-    //         console.log('Error sending message: ', err);
-    //     });
+    admin.messaging().send(fcm_message)
+        .then((res) => {
+            console.log('Successfully sent message: ', res);
+        })
+        .catch((err) => {
+            console.log('Error sending message: ', err);
+        });
 }
 
 http.listen(3000, () => {
