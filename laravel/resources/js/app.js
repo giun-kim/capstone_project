@@ -24,13 +24,10 @@ import Manage_checkpoint_update from "./components/Manage/Manage_checkpoint_upda
 import Manage_rc from "./components/Manage/Manage_rc";
 
 import VCalendar from 'v-calendar';
-import VModal from 'vue-js-modal'
 
 Vue.use(VCalendar,{
     componentPrefix:'vc'
 });
-
-Vue.use(VModal, { dynamic: true })
 
 Vue.use(BootstrapVue);
 

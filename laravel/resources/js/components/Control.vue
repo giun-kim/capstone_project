@@ -176,7 +176,6 @@
 
 <script>
 import DoughnutChart from './DoughnutChart.vue';
-import Popup from './Modal.vue';
 import io from 'socket.io-client';
 
 export default {
