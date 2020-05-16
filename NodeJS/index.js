@@ -19,8 +19,8 @@ connection.connect();
 var serviceAccount = require('./capstone-car-firebase-adminsdk-zqm0k-2248c7ebc5.json');
  
 // 해당 토큰으로 휴대폰에 설치된 앱을 특정함
-var sender_token = "dm72fed-SP2KMfySosw8LB:APA91bHzRkNeULBGTZ39HGafWvZ3tqLktwQEm1Rfd8mP-rTHdxvPhlAcEqsBL7OAfQHd6ROTTiQvrD7e3b4D7m-VmHDoEZgMDg9peVWvqhD-shWd3Q3dMT_QiyZ3aQS0pjkPP9CbXBZy";
-var receiver_token = "dm72fed-SP2KMfySosw8LB:APA91bHzRkNeULBGTZ39HGafWvZ3tqLktwQEm1Rfd8mP-rTHdxvPhlAcEqsBL7OAfQHd6ROTTiQvrD7e3b4D7m-VmHDoEZgMDg9peVWvqhD-shWd3Q3dMT_QiyZ3aQS0pjkPP9CbXBZy";
+var sender_token = "dZJT4PPLTPymBw991UolCS:APA91bGTON456XG6imQSo3v2_x7qgIkMgiFo4h_kaAupPr7ZJBJoJt4ae5YTIrPrRx0o0BOThTqU-KEyfqG0ou44uMNmxF-JzFvqbvNwEzm0icb0hq-QjozTagMcur6KkZhwL4Mmz1DE";
+var receiver_token = "dZJT4PPLTPymBw991UolCS:APA91bGTON456XG6imQSo3v2_x7qgIkMgiFo4h_kaAupPr7ZJBJoJt4ae5YTIrPrRx0o0BOThTqU-KEyfqG0ou44uMNmxF-JzFvqbvNwEzm0icb0hq-QjozTagMcur6KkZhwL4Mmz1DE";
 //receiver_token 지금은 sender_token이랑 똑같은거 써서 테스트 하는데 나중에 바꿔야됨
 
 admin.initializeApp({
@@ -56,6 +56,10 @@ io.on('connection', (socket) => {
 
                 //db 저장 -> 비동기 순서
                 dlvy_call_db_insert(car_num, wait, waiting_num, sender_id, receiver_id, start_point, end_point);
+                connection.query(`select count(*) as count from dlvy where dlvy_date = curdate()`, (err, rows, fields) => {
+                    console.log(rows);
+                    io.emit("call_count", rows);    //웹이랑 합치기 완료 근데 이 값 활요하지는 않음;비동기여서 그런가 값이 변경된게 안감.
+                });
             }
             else if(rows.length == 0) { // 사용가능 x 일 때 대기 순위 리시버 전달
                 // 대기 순번 가져오기 +1 로 호출한 사용자 대기순번 표시
@@ -66,23 +70,39 @@ io.on('connection', (socket) => {
                     waiting_num = rows.length + 1;
                     //db 저장 -> 비동기 순서
                     dlvy_call_db_insert(car_num, wait, waiting_num, sender_id, receiver_id, start_point, end_point);
+                    connection.query(`select count(*) as count from dlvy where dlvy_date = curdate()`, (err, rows, fields) => {
+                        console.log(rows);
+                        io.emit("call_count", rows);    //웹이랑 합치기 완료 근데 이 값 활요하지는 않음;비동기여서 그런가 값이 변경된게 안감.
+                    });
                 });
             }
-            connection.query(`select count(*) as count from dlvy where dlvy_date = curdate()`, (err, rows, fields) => {
-                io.emit("call_count", rows);    //웹이랑 합치기 완료 근데 이 값 활요하지는 않음;비동기여서 그런가 값이 변경된게 안감.
-            });
         });
     });
 
     // 배달 수락 여부
     socket.on('accept', (data) => { // accept, wait, car_num, dlvy_num
-        
         if(data.accept == 'yes') { // 배달 수락 
             if(data.wait == 'no') { // 대기 없음
 
                 // rc 운행상태 전달
                 connection.query(`select car_status, count(*) as cnt from car group by car_status`, (err, rows, fields) => {
-                    // socket.emit("rc_status", rows);
+                    var dd = new Object();
+                    dd.call = 0;
+                    dd.dlvy = 0;
+                    dd.err = 0;
+                    dd.wait = 0;
+                    for(var i = 0; i < rows.length; i++){
+                        if(rows[i].car_status=="호출중"){
+                            dd.call = rows[i].cnt;
+                        }else if(rows[i].car_status == "배달중"){
+                            dd.dlvy = rows[i].cnt;
+                        }else if(rows[i].car_status == "배달대기"){
+                            dd.wait = rows[i].cnt;
+                        }else if(rows[i].car_status == "오류"){
+                            dd.err = rows[i].cnt;
+                        }
+                    }
+                    io.emit("rc_status", dd);
                 });
                 
                 var dlvy_data = new Object();
@@ -109,21 +129,21 @@ io.on('connection', (socket) => {
              
             }else { // 대기 있음
                 // 대기 수락 시 웹에 대기 수 전달
-                                // 대기수락 , 대기현황 web 전달
+                // 대기수락 , 대기현황 web 전달
                 var wait_data = new Object();
 
-                    connection.query(`select dlvy_num from dlvy where dlvy_wait_time is not null and dlvy_date = curdate()`, (err, rows, fields) => {
-                        wait_data.wait_complete = rows.length; // 대기 완료
-                        connection.query(`select dlvy_num from dlvy where dlvy_status = "대기중" and dlvy_date = curdate()`, (err, rows, fields) => {
-                            wait_data.wait_now = rows.length; // 대기중
-                            connection.query(`select dlvy_num from dlvy where dlvy_status = "대기취소" and dlvy_date = curdate()`, (err, rows, fields) => {
-                                wait_data.wait_cancel = rows.length; // 대기 취소
-                                            
-                                // 대기 현황 web전달
-                                io.emit('wait_data', wait_data);
-                            });
+                connection.query(`select dlvy_num from dlvy where dlvy_wait_time is not null and dlvy_date = curdate()`, (err, rows, fields) => {
+                    wait_data.wait_complete = rows.length; // 대기 완료
+                    connection.query(`select dlvy_num from dlvy where dlvy_status = "대기중" and dlvy_date = curdate()`, (err, rows, fields) => {
+                        wait_data.wait_now = rows.length; // 대기중
+                        connection.query(`select dlvy_num from dlvy where dlvy_status = "대기취소" and dlvy_date = curdate()`, (err, rows, fields) => {
+                            wait_data.wait_cancel = rows.length; // 대기 취소
+                            console.log(wait_data);
+                            // 대기 현황 web전달
+                            io.emit('wait_data', wait_data);
                         });
                     });
+                });
             }
         }else { // 배달 캔슬, 해당 배달 삭제하려면 배달 번호 잇어야됨
             if(data.wait == 'no') { // 배달 캔슬,  
@@ -258,7 +278,7 @@ io.on('connection', (socket) => {
                                 wait_data.wait_avg_time = rows[0].time;
 
                                 // web전달
-                                // socket.emit('wait_data', wait_data);
+                                io.emit('wait_data', wait_data);
                             });
                         });
                     });
@@ -266,7 +286,24 @@ io.on('connection', (socket) => {
 
                 // rc 운행상태 전달
                 connection.query(`select car_status, count(*) as cnt from car group by car_status`, (err, rows, fields) => {
-                    // io.emit("rc_status", rows);
+                    var dd = new Object();
+                    dd.call = 0;
+                    dd.dlvy = 0;
+                    dd.err = 0;
+                    dd.wait = 0;
+                    console.log(rows[0].cnt);
+                    for(var i = 0; i < rows.length; i++){
+                        if(rows[i].car_status=="호출중"){
+                            dd.call = rows[i].cnt;
+                        }else if(rows[i].car_status == "배달중"){
+                            dd.dlvy = rows[i].cnt;
+                        }else if(rows[i].car_status == "배달대기"){
+                            dd.wait = rows[i].cnt;
+                        }else if(rows[i].car_status == "오류"){
+                            dd.err = rows[i].cnt;
+                        }
+                    }
+                    io.emit("rc_status", dd);
                 });
             }else if(rows.length == 0) { // 대기작업 x , 차상태 배달대기 변경 
                 connection.query(`update car set car_status = "배달대기" where car_num = ${data.car_num}`, (err, rows, fields) => {
@@ -274,7 +311,24 @@ io.on('connection', (socket) => {
 
                     // rc 운행상태 전달
                     connection.query(`select car_status, count(*) as cnt from car group by car_status`, (err, rows, fields) => {
-                        io.emit("rc_status", rows);
+                        var dd = new Object();
+                        dd.call = 0;
+                        dd.dlvy = 0;
+                        dd.err = 0;
+                        dd.wait = 0;
+                        console.log(rows[0].cnt);
+                        for(var i = 0; i < rows.length; i++){
+                            if(rows[i].car_status=="호출중"){
+                                dd.call = rows[i].cnt;
+                            }else if(rows[i].car_status == "배달중"){
+                                dd.dlvy = rows[i].cnt;
+                            }else if(rows[i].car_status == "배달대기"){
+                                dd.wait = rows[i].cnt;
+                            }else if(rows[i].car_status == "오류"){
+                                dd.err = rows[i].cnt;
+                            }
+                        }
+                        io.emit("rc_status", dd);
                     });
                 })
             }
@@ -284,18 +338,20 @@ io.on('connection', (socket) => {
     // 배달 대기 취소
     socket.on('dlvy_wait_cancel', (data) => { // 배달번호, 
 
-        // 대기 현황 web전달
-        var wait_data = new Object();
-
-        connection.query(`select dlvy_num from dlvy where dlvy_wait_time is not null and dlvy_date = curdate()`, (err, rows, fields) => {
-            wait_data.wait_complete = rows.length; // 대기 완료
-            connection.query(`select dlvy_num from dlvy where dlvy_status = "대기중" and dlvy_date = curdate()`, (err, rows, fields) => {
-                wait_data.wait_now = rows.length; // 대기중
-                connection.query(`select dlvy_num from dlvy where dlvy_status = "대기취소" and dlvy_date = curdate()`, (err, rows, fields) => {
-                    wait_data.wait_cancel = rows.length; // 대기 취소
-                    
-                    
-                    // socket.emit('wait_data', wait_data);
+        connection.query(`update dlvy set dlvy_status = "대기취소" where (dlvy_num = ${data.dlvy_num})`, (err, rows, fields) => {
+            if(err) console.log(err);
+            // 대기 현황 web전달
+            var wait_data = new Object();
+            console.log("들어옴")
+            connection.query(`select dlvy_num from dlvy where dlvy_wait_time is not null and dlvy_date = curdate()`, (err, rows, fields) => {
+                wait_data.wait_complete = rows.length; // 대기 완료
+                connection.query(`select dlvy_num from dlvy where dlvy_status = "대기중" and dlvy_date = curdate()`, (err, rows, fields) => {
+                    wait_data.wait_now = rows.length; // 대기중
+                    connection.query(`select dlvy_num from dlvy where dlvy_status = "대기취소" and dlvy_date = curdate()`, (err, rows, fields) => {
+                        wait_data.wait_cancel = rows.length; // 대기 취소
+                                    
+                        io.emit('wait_data', wait_data);
+                    });
                 });
             });
         });
@@ -371,8 +427,8 @@ function dlvy_call_db_insert(car_num, wait, waiting_num, sender_id, receiver_id,
         });
     }else { // 바로 사용 x, 대기 있을 때
         // 배달상태(호출중), 출발지, 목적지, 센더id, 리시버id, 대기순번, 대기 시작 시간, 작업 날짜
-        sql = `insert into dlvy(dlvy_status, dlvy_start_point,  dlvy_end_point,   dlvy_sender,  dlvy_receiver,    dlvy_wait_num, dlvy_wait_start, dlvy_date) 
-                         values("대기중",    '${start_point}',  '${end_point}', '${sender_id}', '${receiver_id}', '${waiting_num}', curtime(),    curdate())`;
+        sql = `insert into dlvy(dlvy_status, dlvy_start_point,  dlvy_end_point,   dlvy_sender,  dlvy_receiver, dlvy_wait_start, dlvy_date) 
+                         values("대기중",    '${start_point}',  '${end_point}', '${sender_id}', '${receiver_id}', curtime(),    curdate())`;
     }
     // db 작업 저장하기
     connection.query(sql, (err, rows, fields) => {

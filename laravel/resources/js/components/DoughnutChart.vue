@@ -18,7 +18,7 @@
           :style="customTextStyle"
         ></div>
         <span v-else-if="visibleEmptyText" :class="classValue" :style="valueStyle">{{ emptyText }}</span>
-        <span v-else :class="classValue" :style="valueStyle">{{percent}}%</span>
+        <span style="margin-left:60px" v-else :class="classValue" :style="valueStyle">{{percent}}%</span>
       </template>
     </div>
   </div>
@@ -33,11 +33,11 @@ export default {
     },
     foregroundColor: {
       type: String,
-      default: "#000000"
+      default: "#1ABC9C"
     },
     backgroundColor: {
       type: String,
-      default: "#FFFFFF"
+      default: "#B9C3C7"
     },
     strokeWidth: {
       type: Number,

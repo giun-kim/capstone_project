@@ -69,7 +69,7 @@ class WebControlController extends Controller
         $complete_waiting = DB::table('dlvy')  
                         ->select('dlvy_num')
                         ->whereRaw('dlvy_date >= curdate()')
-                        ->where('dlvy_wait_time','>','0')
+                        ->whereNotNull('dlvy_wait_time')
                         ->count();
         $now_waiting = DB::table('dlvy')  
                         ->select('dlvy_num')

@@ -1,68 +1,95 @@
 <template>
+
   <div class="container">
     <div class="left_container">
         <div class=rc_status>
-          <h6>실시간운행상태</h6>
-          <ul class="status_list">
-            <li class = "status_list_item1">
-              <b-badge style="padding:10px;">{{entire_rc}}</b-badge><br>
-              <strong>전체</strong>  
-            </li>
-            <li class = "status_list_item2">
-              <b-badge style="padding:10px;">{{proceeding_rc}}</b-badge><br>
-              <strong>운행 중</strong> 
-            </li>
-            <li class = "status_list_item3">
-              <b-badge style="padding:10px;">{{waiting_rc}}</b-badge><br>
-              <strong>운행대기</strong> 
-            </li>
-            <li class = "status_list_item4">
-              <b-badge style="padding:10px;">{{error_rc}}</b-badge><br>
-              <strong>오류</strong>
-            </li>
-            <li class = "status_list_item5">
-              <b-badge style="padding:10px;">{{operation_rate}}%</b-badge><br>
-              <strong>가동률</strong>
-            </li>
-          </ul>
+          <div id="rc_status_header">실시간 운행상태</div>
+          <div class="status_list">
+            <div class = "status_list_item1">
+              <span>전체</span>
+              <strong><div>{{entire_rc}}</div></strong>
+            </div>
+            <div class = "status_list_item2">
+              <span>운행 중</span>
+              <strong><div>{{proceeding_rc}}</div></strong>
+            </div>
+            <div class = "status_list_item3">
+              <span>운행대기</span>
+              <strong><div>{{waiting_rc}}</div></strong>
+            </div>
+            <div class = "status_list_item4">
+              <span>오류</span>
+              <strong><div>{{error_rc}}</div></strong>
+            </div>
+            <div class = "status_list_item5">
+              <span>가동률</span>
+              <strong><div style="color:#1ABBA0;">{{operation_rate}}%</div></strong>
+            </div>
+          </div>
         </div>
         <div class="dlvy_status">
-          <h6>실시간 배달 현황</h6>
+          <div id="dlvy_status_header">실시간 배달 현황</div>
           <DoughnutChart id="doughnut_chart"
               :percent=persent
               :visibleValue="true"
               :entire_call=entire_call 
               :call_avg_month_ago=call_avg_month_ago
               :width="150"
-              :height="150" />
+              :height="130" />
             <div id="dlvy_status_summary">
-              <span><strong>전체 콜 수</strong></span>
-              <p style="height:5px">{{entire_call}}</p>
-              <span><strong>완료 건 수</strong></span><br>
-              <p style="height:5px">{{complete_call}}</p>
-              <span><strong>지난달 하루평균<br>콜 수</strong></span><br>
-              <p style="height:5px">{{call_avg_month_ago}}</p>
+              <table class= "dlvy_status_list">
+              <tbody>
+                <tr>
+                  <td>전체 콜 수</td>
+                  <td>{{entire_call}}</td>
+                </tr>
+                <tr>
+                  <td>완료 건 수</td>
+                  <td>{{complete_call}}</td>
+                </tr>
+                <tr>
+                  <td>지난 달 하루 평균 콜 수</td>
+                  <td>{{call_avg_month_ago}}</td>
+                </tr>
+              </tbody>
+              </table>
             </div>
         </div>
         <div class="cancel_waiting">
-            <h6>실시간 대기 취소 현황</h6>
+            <div id = "cancel_waiting_header">실시간 대기 취소 현황</div>
             <div id = "cancel_waiting_summary">
-            <strong>총 대기 수</strong><span>{{entire_waiting}} 건</span><br>
-            <strong>현재 대기 중</strong><span>{{now_waiting}} 건</span><br>
-            <strong>대기 취소 건 수</strong><span>{{canceled_waiting}} 건</span><br>
-            <strong>대기 취소율</strong><span>{{cancaled_waiting_rate}}%</span>
+              <table class="info_item1_list">
+              <tbody>
+                <tr>
+                  <strong><td>총 대기 수</td></strong>
+                  <td>{{entire_waiting}} 건</td>
+                </tr>
+                <tr>
+                  <strong><td>현재 대기 중</td></strong>
+                  <td>{{now_waiting}} 건</td>
+                </tr>
+                <tr>
+                  <strong><td>대기 취소 건 수</td></strong>
+                  <td>{{canceled_waiting}} 건</td>
+                </tr>
+                <tr>
+                 <strong><td>대기 취소율</td></strong>
+                  <td>{{cancaled_waiting_rate}}%</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
         <div class="rank_bldg">
-            <h6>지난 주 호출 건물 순위</h6>
-            <div id="rank_bldg_summary">
-            <strong>1위</strong><span>{{rank_bldg[0]}}</span><br>
-            <strong>2위</strong><span>{{rank_bldg[1]}}</span><br>
-            <strong>3위</strong><span>{{rank_bldg[2]}}</span>
+          <div id="rank_bldg_header">지난 주 호출 건물 순위</div>
+          <div id="rank_bldg_summary">
+                <strong>1위 </strong><span>{{rank_bldg[0]}}</span><br>
+                <strong>2위 </strong><span>{{rank_bldg[1]}}</span><br>
+                <strong>3위 </strong><span>{{rank_bldg[2]}}</span>
           </div>
         </div>
         <div class="avg_waiting_time">
-            <h6>실시간 평균 대기 시간</h6>
+            <div id="avg_waiting_time_header">실시간 평균 대기 시간</div>
             <div id="avg_waiting_time_summary">
             <strong>{{avg_waiting_time}}분/ {{avg_waiting_time_month_ago}}분</strong><br>
             <small>(당일 / 지난 달 하루 평균)</small>
@@ -75,47 +102,68 @@
           </div>
         </div>
         <div class="right_dlvy_info">
+          <div id="right_dlvy_info_header">운행 정보</div>
           <div id="info_item1">
-            <table border id="dlvy_info_table">
-            <tr>
-              <th>RC카 이름</th>
-              <td>{{rc_name}}</td>
-            </tr>
-            <tr>
-              <th>RC카 상태</th>
-              <td>{{rc_status}}</td>
-            </tr>
-            <tr>
-              <th>오류 내역</th>
-              <td>{{rc_error_info}}</td>
-            </tr>
-          </table>
+            <table class="info_item1_list">
+              <tbody>
+                <tr>
+                  <td>RC이름</td>
+                  <td>{{rc_name}}</td>
+                </tr>
+                <tr>
+                  <td>RC상태</td>
+                  <td>{{rc_status}}</td>
+                </tr>
+                <tr>
+                  <td>오류내역</td>
+                  <td>{{rc_error_info}}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
           <div id="info_item2">
-            <b-card
-              header="Sender"
-              header-tag="header"
-              style="max-width: 10rem margin:"
-              class="mb-2">
-              <b-card-text>
-                <small>출발 정류장 : {{start_point}}</small><br>
-                <small>이름 : {{sender_name}}</small><br>
-                <small>전화번호 : {{sender_phone}}</small><br>
-                <small>출발 시간 : {{start_time}}</small>
-              </b-card-text>
-            </b-card>
-            <b-card
-              header="Receiver"
-              header-tag="header"
-              style="max-width: 10rem;"
-              class="mb-2">
-              <b-card-text>
-                <small>도착 정류장 : {{end_point}}</small><br>
-                <small>이름 : {{receiver_name}}</small><br>
-                <small>전화번호 : {{receiver_phone}}</small><br>
-                <small>예상 도착 시간 : {{end_time}}</small>
-              </b-card-text>
-            </b-card>
+            <table class="info_item2_list">
+              <tbody>
+                <tr>
+                  <td>출발 정류장 :</td>
+                  <td>{{start_point}}</td>
+                </tr>
+                <tr>
+                  <td>이름 :</td>
+                  <td>{{sender_name}}</td>
+                </tr>
+                <tr>
+                  <td>전화번호 :</td>
+                  <td>{{sender_phone}}</td>
+                </tr>
+                 <tr>
+                  <td>출발 시간 :</td>
+                  <td>{{start_time}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="info_item3">
+            <table class="info_item3_list">
+              <tbody>
+                <tr>
+                  <td>도착 정류장 :</td>
+                  <td>{{end_point}}</td>
+                </tr>
+                <tr>
+                  <td>이름 :</td>
+                  <td>{{receiver_name}}</td>
+                </tr>
+                <tr>
+                  <td>전화번호 :</td>
+                  <td>{{receiver_phone}}</td>
+                </tr>
+                 <tr>
+                  <td>예상 도착 시간 :</td>
+                  <td>{{end_time}}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -172,14 +220,13 @@ export default {
         receiver_name : '',             //receiver 이름
         receiver_phone : '',            //receiver 전화번호
         end_time : '',                   //예상완료시간
-        socket : io.connect('https://119e3632.ngrok.io', {
+        socket : io.connect('https://d5bc27ae.ngrok.io', {
           port : 3000
         }),
         marker : []
     }
   },
   mounted(){
-
     this.socket.on("call_count", (data) => {
       this.entire_call = data[0].count;
       this.persent = Math.floor((this.complete_call / this.entire_call) * 100);
@@ -190,15 +237,21 @@ export default {
       this.persent = Math.floor((this.complete_call / this.entire_call) * 100);
     });
     this.socket.on("rc_status", (data) => {           //배달 시작할 떄 바뀌는건 배달 수락이 있은 후여야 바뀌기 때문에 그 기능 완성 후 변하는거 확인 가능.
-      this.proceeding_rc = data[1].cnt + data[3].cnt;
-      this.waiting_rc = data[0].cnt;
-      this.error_rc = data[1].cnt;
+      // console.log(data);
+      this.proceeding_rc = data.call + data.dlvy;
+      this.waiting_rc = data.wait;
+      this.error_rc = data.err;
       this.entire_rc = this.proceeding_rc + this.waiting_rc + this.error_rc;
       this.operation_rate = Math.floor((this.proceeding_rc / this.entire_rc) * 100);
     });
 
     this.socket.on("wait_data", (data) => {           //배달 시작할 떄 바뀌는건 배달 수락이 있은 후여야 바뀌기 때문에 그 기능 완성 후 변하는거 확인 가능.
       console.log(data);
+      this.now_waiting = data.wait_now;
+      this.complete_waiting = data.wait_complete;
+      this.canceled_waiting = data.wait_cancel;
+      this.entire_waiting = this.now_waiting + this.complete_waiting + this.canceled_waiting;
+      this.cancaled_waiting_rate = Math.floor((this.canceled_waiting / this.entire_waiting) * 100);
     });
     
 
@@ -358,147 +411,265 @@ export default {
 .container{
   display: flex;
   width: 100%;
-  height:700px;
-  max-width:1300px;
+  height:640px;
+  max-width:1500px;
   margin-top: 20px;
+  background-color: #F7F7F7;
+  color:#73879C;
 }
 .left_container{
   display: grid;
   grid-template-columns: 50% 50%;
-  grid-template-rows: 20% 50% 30%;
+  grid-template-rows: 20% 55% 25%;
   width: 40%;
   height: 100%;
   text-align: center;
 }
-.rc_status{
-  grid-column-start: 1;
-  grid-column-end: 3;
-  border-style: solid;
-  border-width: 6px;
-  border-color: cornflowerblue;
-  padding-top: 27px;
-  margin-bottom: 20px;
-}
+
 .right_container{
   display: grid;
   grid-template-columns:100%;
-  grid-template-rows: 70% 30%;
+  grid-template-rows: 65% 35%;
   width: 60%;
   height: 100%;
   margin-left: 20px;
 }
 
+.rc_status{
+  display: grid;
+  grid-column-start: 1;
+  grid-column-end: 3;
+  grid-template-rows: 25% 75%;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #E6E9ED;
+  background-color: #F7F7F7;
+  height: 100%;
+
+}
+#rc_status_header{
+  border-bottom:3px solid #E6E9ED;
+  padding: 5px;
+  margin-right: 2%;
+  margin-left: 2%;
+  text-align: start;
+  font-size: 1em;
+
+}
 .status_list{
-  padding : 0;
-  width : 100%;
+  display: flex;
+  margin-top: 10px;
+  margin-bottom: 20px;
 }
 
 .status_list_item1{
-  list-style : none;
-  float : left;
-  padding : 0;
-  width : 20%;
+  width : 100%;
   text-align : center;
-  background-color:seagreen;
-  color: white;
+  border-right:2px solid #ADB2B5;
+}
+
+.status_list_item1 div{
+font-size: 2em;
 }
 
 .status_list_item2{
-  list-style : none;
-  float : left;
-  padding : 0;
-  width : 20%;
+  width : 100%;
   text-align : center;
-  background-color: steelblue;
-  color: white;
+  border-right:2px solid #ADB2B5;
 }
 
+.status_list_item2 div{
+font-size: 2em;
+}
 .status_list_item3{
-  list-style : none;
-  float : left;
-  padding : 0;
-  width : 20%;
+  width : 100%;
   text-align : center;
-  background-color: teal;
-  color: white;
+  border-right:2px solid #ADB2B5;
+}
+.status_list_item3 div{
+font-size: 2em;
 }
 
 .status_list_item4{
-  list-style : none;
-  float : left;
-  padding : 0;
-  width : 20%;
+  width : 100%;
   text-align : center;
-  background-color: thistle;
-  color: white;
+  border-right:2px solid #ADB2B5;
+}
+.status_list_item4 div{
+font-size: 2em;
 }
 
 .status_list_item5{
-  list-style : none;
-  float : left;
-  padding : 0;
-  width : 20%;
+  width : 100%;
   text-align : center;
-  background-color: darkgrey;
-  color: white;
-}
 
+}
+.status_list_item5 div{
+font-size: 2em;
+}
 .dlvy_status{
   border-style: solid;
-  border-width: 6px;
-  border-color: cornflowerblue;
+  border-width: 2px;
+  border-color: #E6E9ED;
+  margin-top: 10px;
   margin-right: 20px;
   margin-bottom: 20px;
-  background-color:gainsboro;
+  background-color:white;
 }
 
 .cancel_waiting{
   border-style: solid;
-  border-width: 6px;
-  border-color: cornflowerblue;
+  border-width: 2px;
+  border-color: #E6E9ED;
+  margin-top: 10px;
   margin-bottom: 20px;
-  background-color:gainsboro;
+  background-color: white;
 }
 .rank_bldg{
   border-style: solid;
-  border-width: 6px;
-  border-color: cornflowerblue;
+  border-width: 2px;
+  border-color: #E6E9ED;
+  background-color: white;
   margin-right: 20px;
-  background-color: darkgrey;
 }
 
 .avg_waiting_time{
   border-style: solid;
-  border-width: 6px;
-  border-color: cornflowerblue;
-  background-color: darkgrey;
+  border-width: 2px;
+  border-color: #E6E9ED;
+  background-color: white;
 }
 
 .right_map{
   border-style: solid;
-  border-width: 1px;
-  border-color: gray;
+  border-width: 2px;
+  border-color: #E6E9ED;
   margin-bottom:15px;
 }
 
 .right_dlvy_info{
   display: grid;
-  grid-template-columns: 50% 50%;
+  grid-template-columns: 30% 35% 35%;
+  grid-template-rows: 20% 80%;
   border-style: solid;
-  border-width: 1px;
-  border-color: gray;
+  border-width: 2px;
+  border-color: #E6E9ED;
+  background-color: white;
 }
 
 #dlvy_info_table{
   margin-top: 70px;
+  margin-left: 30px;
 }
 #info_item1{
-  height:100%
+  margin-top: 15px;
+  margin-left: 15%;
 }
 
 #info_item2{
-  display: flex;
-  justify-content: space-between;
-  height:100%;
+  margin-top: 15px;
+
+}
+
+#info_item3{
+  margin-top: 15px;
+
+}
+#dlvy_status_header{
+  border-bottom:3px solid #E6E9ED;
+  padding: 10px;
+  margin-right: 2%;
+  margin-left: 2%;
+  text-align: start;
+  font-size: 1em;
+}
+#dlvy_status_summary{
+  margin-top: 10px;
+  width: 100%;
+  text-align: start;
+  margin-left: 10%;
+}
+
+#cancel_waiting_header{
+  border-bottom:3px solid #E6E9ED;
+  padding: 10px;
+  margin-right: 2%;
+  margin-left: 2%;
+  text-align: start;
+  font-size: 1em;
+}
+#cancel_waiting_summary{
+   margin-top: 50px;
+   margin-left: 25px;
+   font-size: 1.2em;
+   text-align: left;
+}
+#rank_bldg_summary{
+  margin-top: 10px;
+  margin-left: 20px;
+  font-size: 1.2em;
+  text-align: left;
+  
+ 
+}
+#rank_bldg_header{
+  border-bottom:3px solid #E6E9ED;
+  padding: 10px;
+  margin-right: 2%;
+  margin-left: 2%;
+  text-align: start;
+  font-size: 1em;
+}
+#avg_waiting_time_summary{
+  margin-top: 20px;
+  font-size: 1.3em;
+}
+#avg_waiting_time_header{
+  border-bottom:3px solid #E6E9ED;
+  padding: 10px;
+  margin-right: 2%;
+  margin-left: 2%;
+  text-align: start;
+  font-size: 1em;
+}
+
+#right_dlvy_info_header{
+  grid-column-start: 1;
+  grid-column-end: 4;
+  border-bottom:3px solid #E6E9ED;
+  padding: 10px;
+  margin-right: 2%;
+  margin-left: 2%;
+  text-align: start;
+  font-size: 1em;
+}
+
+.info_item1_list td {
+  padding: 10px;
+  line-height: 20px;
+  border-top: 1px solid #eeeeee;
+  font-size: 0.9em;
+}
+.info_item2_list td {
+  padding: 10px;
+  line-height: 20px;
+  border-top: 1px solid #eeeeee;
+  font-size: 0.9em;
+}
+.info_item3_list td {
+  padding: 10px;
+  line-height: 20px;
+  border-top: 1px solid #eeeeee;
+  font-size: 0.9em;
+}
+
+#doughnut_chart{
+margin-top: 30px;
+}
+.dlvy_status_list td {
+  padding: 10px;
+  line-height: 10px;
+  border-top: 1px solid #eeeeee;
+  font-size: 1em;
 }
 </style>
