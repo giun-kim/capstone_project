@@ -1,5 +1,4 @@
 <template>
-
   <div class="container">
     <div class="left_container">
         <div class=rc_status>
@@ -167,12 +166,17 @@
           </div>
         </div>
       </div>
-</div>
+      <b-modal id="modal-center" centered title="오류 발생!!">
+        <p class="my-4">{{err_rc_num}}번 RC카가 {{err_dlvy_num}}번 작업 도중 오류발생!!</p>
+        <p class="my-4">{{err_content}}</p>
+      </b-modal>
+  </div>
 </template>
 
 
 <script>
-import DoughnutChart from './DoughnutChart.vue'
+import DoughnutChart from './DoughnutChart.vue';
+import Popup from './Modal.vue';
 import io from 'socket.io-client';
 
 export default {
@@ -220,10 +224,13 @@ export default {
         receiver_name : '',             //receiver 이름
         receiver_phone : '',            //receiver 전화번호
         end_time : '',                   //예상완료시간
-        socket : io.connect('https://d5bc27ae.ngrok.io', {
+        socket : io.connect('https://6429bae9.ngrok.io', {
           port : 3000
         }),
-        marker : []
+        marker : [],
+        err_rc_num : '',
+        err_content : '',
+        err_dlvy_num : ''
     }
   },
   mounted(){
@@ -246,7 +253,6 @@ export default {
     });
 
     this.socket.on("wait_data", (data) => {           //배달 시작할 떄 바뀌는건 배달 수락이 있은 후여야 바뀌기 때문에 그 기능 완성 후 변하는거 확인 가능.
-      console.log(data);
       this.now_waiting = data.wait_now;
       this.complete_waiting = data.wait_complete;
       this.canceled_waiting = data.wait_cancel;
@@ -264,6 +270,18 @@ export default {
         } 
       }
     });
+
+    this.socket.on("car_err", (data) => {
+      this.proceeding_rc = data.call + data.dlvy;
+      this.waiting_rc = data.wait;
+      this.error_rc = data.err;
+      this.entire_rc = this.proceeding_rc + this.waiting_rc + this.error_rc;
+      this.operation_rate = Math.floor((this.proceeding_rc / this.entire_rc) * 100);
+      this.err_rc_num = data.car_num;
+      this.err_content = data.err_msg;
+      this.err_dlvy_num = data.dlvy_num;
+      this.$bvModal.show("modal-center");  //모달 키는 법
+    })
 
     this.container = document.getElementById("map");
     this.mapOptions = {
@@ -402,7 +420,7 @@ export default {
       var radians = (degrees * Math.PI)/180
 
       return radians;
-    }
+    },
   }
 }
 </script>

@@ -384,7 +384,7 @@ io.on('connection', (socket) => {
 
     // RC카 에러 정보
     socket.on('rc_error', (data) => { // rc카 id, 작업번호, 오류내역
-
+        console.log("들어옴")
         // RC 상태변경, 오류내역
         connection.query(`update car set car_status = "오류", car_error = "${data.err_msg}" where car_num = ${data.car_num}`, (err, rows, fields) => {
             if(err) console.log(err);
@@ -399,11 +399,27 @@ io.on('connection', (socket) => {
         car_data.err_msg = data.err_msg;
         car_data.dlvy_num = data.dlvy_num
         // rc 운행상태, 오류 알림 전달
+
         connection.query(`select car_status, count(*) as cnt from car group by car_status`, (err, rows, fields) => {
-            car_data.car_status = rows;
+            var dd = new Object();
+            car_data.call = 0;
+            car_data.dlvy = 0;
+            car_data.err = 0;
+            car_data.wait = 0;
+            for(var i = 0; i < rows.length; i++){
+                if(rows[i].car_status=="호출중"){
+                    car_data.call = rows[i].cnt;
+                }else if(rows[i].car_status == "배달중"){
+                    car_data.dlvy = rows[i].cnt;
+                }else if(rows[i].car_status == "배달대기"){
+                    car_data.wait = rows[i].cnt;
+                }else if(rows[i].car_status == "오류"){
+                    car_data.err = rows[i].cnt;
+                }
+            }
+            // web 전달
+            io.emit('car_err', car_data);
         });
-        // web 전달
-        // socket.emit('car_err', car_data);
     });
 
 });

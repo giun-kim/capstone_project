@@ -105,7 +105,7 @@ class WebControlController extends Controller
         # 당일 평균 대기 시간
         $avg_waiting_time = DB::table('dlvy')  
                         ->whereRaw('dlvy_date >= curdate()')
-                        ->where('dlvy_wait_time','>','0')
+                        ->whereNotNull('dlvy_wait_time')
                         ->avg('dlvy_wait_time');
         # 지난 달 대기 시간 합계
         $sum_waiting_time_month_ago = DB::table('dlvy')
