@@ -6,7 +6,7 @@
       <div v-if="stage == 2">체크포인트 클릭 후 확인 버튼 클릭해 주세요. <br> <b-button type="button" variant="primary" @click="check()">확인</b-button></div>
       <div v-if="stage == 3">
         <b-form>
-          {{station_all[station_start].station_name}} - {{station_all[station_end].station_name}}
+          {{station_all[station_start].station_name}} ↔ {{station_all[station_end].station_name}}
           <div>체크포인트 수 : {{ checkpoint_num }}</div>
           <div>총 거리 : {{ distance }} m</div>
           <b-button-group>
@@ -41,7 +41,8 @@ export default {
       checkpoint_markers_all: [], // 전체 마커 저장
       checkpoint_markers_click: [], // 클릭한 마커 저장(마커 데이터)
       checkpoint_markers_clicked: [], // 클릭한 마커 클릭 금지(숫자)
-      checkpoint_markers_clicknumber: [],
+      checkpoint_markers_clicknumber: [], //클릭한 마커 순서
+      checkpoint_markers_id: [],
       station_stage: 1, // 정류장 클릭시
       checkpoint_num: 0, // 오버레이 숫자표시
       overlay_data: [], // 모든 오버레이 데이터
@@ -208,6 +209,7 @@ export default {
           console.log(this.checkpoint_markers_click)
           if(this.checkpoint_markers_clicked[i] == 1) {
             this.checkpoint_markers_clicknumber.push(i)
+            this.checkpoint_markers_id.push(this.checkpoint_all[i].checkpoint_id)
             this.checkpoint_markers_clicked[i] += 1 // 클릭 방지
             this.checkpoint_num += 1 // 오버레이 숫자 표시
             this.checkpoint_custom_overlay(this.checkpoint_num, i)
@@ -268,6 +270,7 @@ export default {
           this.checkpoint_markers_click[i].setMap(this.map)
         }
 
+        this.linepath = []
         //총 거리 계산방법
         for(let i = 0; i < this.checkpoint_markers_clicknumber.length; i++) {
           if(i == 0) {
@@ -301,16 +304,17 @@ export default {
         });
         polyline.setMap(this.map)
         this.polylines.push(polyline)
-        console.log(this.polylines)
         this.distance = this.distance.toFixed(3) * 1000
       }
     },
     path_create() {
       Axios.post('/api/dlvy/management/path', {
-
+        checkpoint_id: this.checkpoint_markers_id,
+        path_start_point: this.station_all[this.station_start].station_name,
+        path_end_point: this.station_all[this.station_end].station_name,
       })
       .then(res => {
-
+        this.initialize()
       })
       .catch(err => {
         console.log(err)
@@ -328,20 +332,22 @@ export default {
         this.station_markers[y].setMap(null)
       }
      
-      (this.stage = 1), // 단계별 보여지는 화면
-      (this.station_markers = []),
-      (this.checkpoint_markers_all = []),
-      (this.checkpoint_markers_click = []),
-      (this.checkpoint_markers_clicked = []),
-      (this.station_start = ""),
-      (this.station_end = ""),
-      (this.station_stage = 1),
-      (this.checkpoint_num = 0),
-      (this.overlay_data = []),
-      (this.distance = 0),
-      (this.linepath = []),
-      (this.polylines = []),
-      (this.initMap());
+      this.stage = 1 // 단계별 보여지는 화면
+      this.station_markers = []
+      this.checkpoint_markers_all = []
+      this.checkpoint_markers_click = []
+      this.checkpoint_markers_clicked = []
+      this.checkpoint_markers_clicknumber = []
+      this.checkpoint_markers_id = []
+      this.station_start = ""
+      this.station_end = ""
+      this.station_stage = 1
+      this.checkpoint_num = 0
+      this.overlay_data = []
+      this.distance = 0
+      this.linepath = []
+      this.polylines = []
+      this.initMap()
     }
   },
 };

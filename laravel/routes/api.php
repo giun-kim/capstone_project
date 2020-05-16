@@ -18,7 +18,13 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::resource('/dlvy/management/station', 'WebStationManagementController'); // 정류장 페이지
-Route::resource('/dlvy/management/checkpoint', 'WebCheckPointManagementController'); // 체크포인트 페이지
-Route::resource('/dlvy/management/car', 'WebCarManagementController'); // RC카 페이지
-Route::resource('/dlvy/management/path', 'WebPathManagementController'); // 경로 페이지
+// 정류장 관리
+Route::resource('dlvy/management/station', 'WebStationManagementController');
+// 체크포인트 관리
+Route::resource('dlvy/management/checkpoint', 'WebCheckPointManagementController');
+// RC카 관리
+Route::resource('dlvy/management/car', 'WebCarManagementController');
+// 경로 관리
+Route::resource('dlvy/management/path', 'WebPathManagementController');
+Route::get('dlvy/management/pathcheck/{id}', 'WebPathManagementController@show_path_check');
+    
