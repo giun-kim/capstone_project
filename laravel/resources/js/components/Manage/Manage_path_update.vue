@@ -271,7 +271,14 @@ export default {
               this.checkpoint_sequence.push({ check_id : this.checkpoint_all[i].checkpoint_id, sequence : this.checkpoint_update_num + 1}) 
               this.checkpoint_custom_overlay(this.checkpoint_update_num) 
               this.checkpoint_num = this.checkpoint_update_num
-              this.check(this.checkpoint_num - 1,2)
+              for(let i = 0; i < this.polylines.length; i++) {
+                this.polylines[i].setMap(null)
+              } 
+              this.linepath = []
+              this.distance = 0
+              for(let i = 0; i < this.checkpoint_sequence.length; i++) {
+                this.check(i, 3)
+              }
             }
         });
 

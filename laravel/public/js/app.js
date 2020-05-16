@@ -3649,7 +3649,16 @@ __webpack_require__.r(__webpack_exports__);
 
             _this3.checkpoint_num = _this3.checkpoint_update_num;
 
-            _this3.check(_this3.checkpoint_num - 1, 2);
+            for (var _i4 = 0; _i4 < _this3.polylines.length; _i4++) {
+              _this3.polylines[_i4].setMap(null);
+            }
+
+            _this3.linepath = [];
+            _this3.distance = 0;
+
+            for (var _i5 = 0; _i5 < _this3.checkpoint_sequence.length; _i5++) {
+              _this3.check(_i5, 3);
+            }
           }
         }); // 마우스 오버 이벤트
 
@@ -3841,16 +3850,16 @@ __webpack_require__.r(__webpack_exports__);
         this.polylines[i].setMap(null);
       }
 
-      for (var _i4 = 0; _i4 < this.checkpoint_markers_all.length; _i4++) {
-        this.checkpoint_markers_all[_i4].setMap(null);
+      for (var _i6 = 0; _i6 < this.checkpoint_markers_all.length; _i6++) {
+        this.checkpoint_markers_all[_i6].setMap(null);
       }
 
-      for (var _i5 = 0; _i5 < this.station_markers.length; _i5++) {
-        this.station_markers[_i5].setMap(null);
+      for (var _i7 = 0; _i7 < this.station_markers.length; _i7++) {
+        this.station_markers[_i7].setMap(null);
       }
 
-      for (var _i6 = 0; _i6 < this.overlay_data.length; _i6++) {
-        this.overlay_data[_i6].setMap(null);
+      for (var _i8 = 0; _i8 < this.overlay_data.length; _i8++) {
+        this.overlay_data[_i8].setMap(null);
       }
 
       this.checkpoint_num = 0;
