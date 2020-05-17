@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use DB;
-
 class WebPathManagementController extends Controller
 {
     // 페이지 로드
@@ -31,6 +30,7 @@ class WebPathManagementController extends Controller
     // 등록하기
     public function store(Request $request)
     {
+        debug($request);
         // path 등록
         $path_id = DB::table('path')->insertGetId(
             ['path_start_point' => $request->path_start_point, 'path_end_point'=>$request->path_end_point],
