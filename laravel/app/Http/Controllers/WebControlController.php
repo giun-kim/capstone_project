@@ -120,8 +120,6 @@ class WebControlController extends Controller
         # 지난달 평균 대기 시간
         $avg_waiting_time_month_ago = $sum_waiting_time_month_ago / $count_waiting_time_month_ago;
         
-
-
         // 7. 지도 - 정류장, RC카 위치, 이름 표시
                 #구현완료
         $map_car_status = DB::table('car')
@@ -151,7 +149,7 @@ class WebControlController extends Controller
             'build_rank' => $build_rank, # 지난 주 호출 건물 순위 
             # 6번 실시간 평균 대기 시간
             'avg_waiting_time_month_ago' => $avg_waiting_time_month_ago, # 지난달 평균 대기 시간
-            'avg_waiting_time'=>$avg_waiting_time,    # 당일 평균 대기 시간
+            'avg_waiting_time' => $avg_waiting_time,    # 당일 평균 대기 시간
             # 7번 지도에 띄우는 거
             'map_car_status' => $map_car_status,    # 지도에 표시할 RC카 정보
             'station_info' => $station_info,       # 지도에 표시할 정류장 정보
@@ -222,12 +220,18 @@ class WebControlController extends Controller
                 'receiver_info'=>$receiver_info # receiver 정보 (유저 이름, 유저 전화번호)
             ]);
         }
-        elseif($car->car_status==="운행 대기"){
+        elseif($car->car_status==="배달대기"){
             return response()->json($car); # RC카 정보(아이디, 이름, 상태, 위도, 경도)
         }
         else{  
             return response()->json($car); # RC카 정보(아이디, 이름, 상태, 위도, 경도)
         }
-        
+    }
+
+    public function inquireRc(){
+        $car = DB::table('car')
+                        ->select('*')
+                        ->get();
+        return response()->json($car);
     }
 }

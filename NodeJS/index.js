@@ -401,7 +401,6 @@ io.on('connection', (socket) => {
         // rc 운행상태, 오류 알림 전달
 
         connection.query(`select car_status, count(*) as cnt from car group by car_status`, (err, rows, fields) => {
-            var dd = new Object();
             car_data.call = 0;
             car_data.dlvy = 0;
             car_data.err = 0;

@@ -73,7 +73,7 @@
                 </tr>
                 <tr>
                  <strong><td>대기 취소율</td></strong>
-                  <td>{{cancaled_waiting_rate}}%</td>
+                  <td>{{canceled_waiting_rate}}%</td>
                 </tr>
               </tbody>
             </table>
@@ -202,7 +202,7 @@ export default {
         complete_waiting : 0,            //대기 완료 건 수
         now_waiting : 0,                //현재 대기 중 건수
         canceled_waiting : 0,           //대기 취소 건 수
-        cancaled_waiting_rate : 0,      //대기 취소율
+        canceled_waiting_rate : 0,      //대기 취소율
         rank_bldg : [],                 //지난 주 호출 건물 순위 배열
         avg_waiting_time : 0,           //실시간 평균 대기 시간
         avg_waiting_time_month_ago : 0,  //저번달 하루 평균 대기 시간
@@ -223,13 +223,17 @@ export default {
         receiver_name : '',             //receiver 이름
         receiver_phone : '',            //receiver 전화번호
         end_time : '',                   //예상완료시간
-        socket : io.connect('https://6429bae9.ngrok.io', {
+        socket : io.connect('https://38df2120.ngrok.io', {
           port : 3000
         }),
         marker : [],
         err_rc_num : '',
         err_content : '',
-        err_dlvy_num : ''
+        err_dlvy_num : '',
+        stationMarker : new kakao.maps.MarkerImage('/image/station.png', new kakao.maps.Size(30,30)),
+        proceedingMarker : new kakao.maps.MarkerImage('/image/proceeding_rc.png', new kakao.maps.Size(30,30)),
+        freeMarker : new kakao.maps.MarkerImage('/image/free_rc.png', new kakao.maps.Size(30,30)),
+        errMarker : new kakao.maps.MarkerImage('/image/err_rc.png', new kakao.maps.Size(30,30))
     }
   },
   mounted(){
@@ -241,6 +245,7 @@ export default {
       // console.log(data);
       this.complete_call = data[0].count;
       this.persent = Math.floor((this.complete_call / this.entire_call) * 100);
+      this.changeMarkerImage();
     });
     this.socket.on("rc_status", (data) => {           //배달 시작할 떄 바뀌는건 배달 수락이 있은 후여야 바뀌기 때문에 그 기능 완성 후 변하는거 확인 가능.
       // console.log(data);
@@ -249,20 +254,23 @@ export default {
       this.error_rc = data.err;
       this.entire_rc = this.proceeding_rc + this.waiting_rc + this.error_rc;
       this.operation_rate = Math.floor((this.proceeding_rc / this.entire_rc) * 100);
+      this.changeMarkerImage();
     });
 
-    this.socket.on("wait_data", (data) => {           //배달 시작할 떄 바뀌는건 배달 수락이 있은 후여야 바뀌기 때문에 그 기능 완성 후 변하는거 확인 가능.
+    this.socket.on("wait_data", (data) => {
       this.now_waiting = data.wait_now;
       this.complete_waiting = data.wait_complete;
       this.canceled_waiting = data.wait_cancel;
       this.entire_waiting = this.now_waiting + this.complete_waiting + this.canceled_waiting;
-      this.cancaled_waiting_rate = Math.floor((this.canceled_waiting / this.entire_waiting) * 100);
+      if(this.entire_waiting != 0){
+        this.canceled_waiting_rate = Math.floor((this.canceled_waiting / this.entire_waiting) * 100);
+      }else{
+        this.canceled_waiting_rate = 0;
+      }
     });
     
 
     this.socket.on("car_data", (data) => {
-      // console.log("들어옴")
-      var test = 0;
       for(var i = 0 ; i < this.marker.length; i++){
         if(this.marker[i].getTitle() == data.car_num){
           this.marker[i].setPosition(new kakao.maps.LatLng(data.car_lat, data.car_lon));
@@ -280,6 +288,7 @@ export default {
       this.err_content = data.err_msg;
       this.err_dlvy_num = data.dlvy_num;
       this.$bvModal.show("modal-center");  //모달 키는 법
+      this.changeMarkerImage();
     })
 
     this.container = document.getElementById("map");
@@ -290,10 +299,10 @@ export default {
     };
 
     this.map = new kakao.maps.Map(this.container, this.mapOptions);
-    var stationMarker = new kakao.maps.MarkerImage('/image/station.png', new kakao.maps.Size(20,25))
-    
+
     Axios.get('/api/dlvy/control')    //첫 페이지 로딩
     .then((response) => {
+      console.log(response.data);
       this.proceeding_rc = response.data.proceeding_rc;
       this.waiting_rc = response.data.waiting_rc;
       this.error_rc = response.data.error_rc;
@@ -311,21 +320,31 @@ export default {
       this.canceled_waiting = response.data.canceled_waiting;
       
       this.entire_waiting = this.complete_waiting + this.now_waiting + this.canceled_waiting;
-      this.cancaled_waiting_rate = Math.floor((this.canceled_waiting / this.entire_waiting) * 100);
+      if(this.entire_waiting != 0){
+        this.canceled_waiting_rate = Math.floor((this.canceled_waiting / this.entire_waiting) * 100);
+      }else{
+        this.canceled_waiting_rate = 0;
+      }
 
       this.avg_waiting_time = Math.floor(response.data.avg_waiting_time);
       this.avg_waiting_time_month_ago = Math.floor(response.data.avg_waiting_time_month_ago)
 
-      this.rc_list = response.data.map_car_status;
+      this.rc_list = response.data.map_car_status;    //이거 주석하면 값 제대로 넘어옴. 근데 쓰면 제대로 안넘어옴. 뭔 개같은 경우지 이게?
+                                                      //컴퓨터 원격 해킹인가?? 어떻게 이럴 수가 있지? 내가 지금 꿈을 꾸고 있는건가?
       this.station_list = response.data.station_info;
-      console.log(response.data);
-
-      for(var i = 0; i < this.rc_list.length; i++){ //마커 등록 and 마커에 이벤트 달기
+      for(var i = 0; i < this.rc_list.length; i++){
         const marker = new kakao.maps.Marker({
           map: this.map, // 마커를 표시할 지도
           position: new kakao.maps.LatLng(this.rc_list[i].car_lat, this.rc_list[i].car_lon), // 마커의 위치
           title : this.rc_list[i].car_num
         });
+        if(this.rc_list[i].car_status == "배달중" || this.rc_list[i].car_status == "호출중"){
+            marker.setImage(this.proceedingMarker);
+        }else if(this.rc_list[i].car_status == "배달대기"){
+          marker.setImage(this.freeMarker);
+        }else if(this.rc_list[i].car_status == "오류"){
+          marker.setImage(this.errMarker);
+        }
         this.marker[i] = marker;
         kakao.maps.event.addListener(marker, 'click', () => {
           this.rc_name = '';
@@ -393,7 +412,7 @@ export default {
           map: this.map, // 마커를 표시할 지도
           position: new kakao.maps.LatLng(this.station_list[i].station_lat, this.station_list[i].station_lon), // 마커의 위치
           title : this.station_list[i].station_name,
-          image : stationMarker
+          image : this.stationMarker
         });
       }
     })
@@ -420,6 +439,24 @@ export default {
 
       return radians;
     },
+    changeMarkerImage(){
+      Axios.get('/api/dlvy/control/car')
+      .then((response) => {
+        this.rc_list = response.data;
+        for(var i = 0 ; i < this.rc_list.length; i++){
+          if(this.rc_list[i].car_status == "배달중" || this.rc_list[i].car_status == "호출중"){
+            this.marker[i].setImage(this.proceedingMarker);
+          }else if(this.rc_list[i].car_status == "배달대기"){
+            this.marker[i].setImage(this.freeMarker);
+          }else if(this.rc_list[i].car_status == "오류"){
+            this.marker[i].setImage(this.errMarker);
+          }
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+    }
   }
 }
 </script>
