@@ -286,7 +286,7 @@ class WebStatisticsController extends Controller
                                 ->where('dlvy_date', $day)
                                 ->first();
                 $date_info[$i] = $day;
-                $statis_info[$i] = $statis_data->count >0 ? $statis_data->sum / $statis_data->count : 0;          
+                $statis_info[$i] = $statis_data->count ? $statis_data->sum / $statis_data->count : 0;          
             }
         }elseif($term == 'week'){   # 주차별 평균 대기 시간
             for($i =0; $i <9; $i++)

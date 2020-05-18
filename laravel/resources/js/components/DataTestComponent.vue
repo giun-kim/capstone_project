@@ -51,7 +51,7 @@ export default {
         },
         test6(){
             console.log('리스트 클릭')
-            Axios.get('/api/dlvy/management/pathcheck/20')
+            Axios.get('/api/dlvy/completedlvy/test/all/0/0')
             .then(response=>{
                 console.log(response.data)
             })
