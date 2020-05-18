@@ -1,4 +1,5 @@
 <template>
+
   <div class="container">
     <div class="left_container">
         <div class=rc_status>
@@ -100,6 +101,14 @@
           <div id="map" style="width:100%;height:100%;">
           </div>
         </div>
+        <div class="map_info">
+          <div class="map_box1"></div>
+          <span style="margin-right:10px;">사용 중</span>
+          <div class="map_box2"></div>
+          <span style="margin-right:10px;">사용 가능</span>
+          <div class="map_box3"></div>
+          <span style="margin-right:10px;">오류</span>
+        </div>
         <div class="right_dlvy_info">
           <div id="right_dlvy_info_header">운행 정보</div>
           <div id="info_item1">
@@ -166,13 +175,8 @@
           </div>
         </div>
       </div>
-      <b-modal id="modal-center" centered title="오류 발생!!">
-        <p class="my-4">{{err_rc_num}}번 RC카가 {{err_dlvy_num}}번 작업 도중 오류발생!!</p>
-        <p class="my-4">{{err_content}}</p>
-      </b-modal>
-  </div>
+</div>
 </template>
-
 
 <script>
 import DoughnutChart from './DoughnutChart.vue';
@@ -223,7 +227,7 @@ export default {
         receiver_name : '',             //receiver 이름
         receiver_phone : '',            //receiver 전화번호
         end_time : '',                   //예상완료시간
-        socket : io.connect('https://38df2120.ngrok.io', {
+        socket : io.connect('https://da57448b.ngrok.io', {
           port : 3000
         }),
         marker : [],
@@ -239,12 +243,20 @@ export default {
   mounted(){
     this.socket.on("call_count", (data) => {
       this.entire_call = data[0].count;
-      this.persent = Math.floor((this.complete_call / this.entire_call) * 100);
+      if(this.entire_call != 0){
+        this.persent = Math.floor((this.complete_call / this.entire_call) * 100);
+      }else{
+        this.persent = 0;
+      }
     });
     this.socket.on("complete_dlvy_count", (data) => {
       // console.log(data);
       this.complete_call = data[0].count;
-      this.persent = Math.floor((this.complete_call / this.entire_call) * 100);
+      if(this.entire_call != 0){
+        this.persent = Math.floor((this.complete_call / this.entire_call) * 100);
+      }else{
+        this.persent = 0;
+      }
       this.changeMarkerImage();
     });
     this.socket.on("rc_status", (data) => {           //배달 시작할 떄 바뀌는건 배달 수락이 있은 후여야 바뀌기 때문에 그 기능 완성 후 변하는거 확인 가능.
@@ -310,7 +322,11 @@ export default {
       this.operation_rate = Math.floor((this.proceeding_rc / this.entire_rc) * 100);
       this.entire_call = response.data.entire_call;
       this.complete_call = response.data.complete_call;
-      this.persent = Math.floor((this.complete_call / this.entire_call) * 100);
+      if(this.entire_call != 0){
+        this.persent = Math.floor((this.complete_call / this.entire_call) * 100);
+      }else{
+        this.persent = 0;
+      }
       this.call_avg_month_ago = Math.floor(response.data.call_avg_month_ago);
 
       this.rank_bldg = response.data.build_rank;
@@ -483,7 +499,7 @@ export default {
 .right_container{
   display: grid;
   grid-template-columns:100%;
-  grid-template-rows: 65% 35%;
+  grid-template-rows: 61% 5% 33%;
   width: 60%;
   height: 100%;
   margin-left: 20px;
@@ -725,5 +741,34 @@ margin-top: 30px;
   line-height: 10px;
   border-top: 1px solid #eeeeee;
   font-size: 1em;
+}
+.map_info{
+display:flex;
+height:100%;
+justify-content: center;
+}
+
+.map_box1{
+  background-color:#F1C40F;
+  width:17px;
+  height:17px;
+  margin-right:10px;
+  margin-top:5px;
+}
+
+.map_box2{
+  background-color:#3598DB;
+  width:17px;
+  height:17px;
+  margin-right:10px;
+  margin-top:5px;
+}
+
+.map_box3{
+  background-color:#E84C3D;
+  width:17px;
+  height:17px;
+  margin-right:10px;
+  margin-top:5px;
 }
 </style>
