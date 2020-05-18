@@ -38,7 +38,7 @@ io.on('connection', (socket) => {
     // 센더 호출하기 클릭
     socket.on('dlvy_call', (data) => { // 센더id, 리시버id, 목적지 이름, 출발지 이름
 
-        var {sender_id, receiver_id, start_point, end_point} = data;
+        var {sender_id, receiver_id, start_point, end_point, sender_name} = data;
         var wait; // 대기 여부
         var waiting_num; // 대기 순번
         var car_num; 
@@ -55,7 +55,7 @@ io.on('connection', (socket) => {
                 waiting_num = 0;
 
                 //db 저장 -> 비동기 순서
-                dlvy_call_db_insert(car_num, wait, waiting_num, sender_id, receiver_id, start_point, end_point);
+                dlvy_call_db_insert(car_num, wait, waiting_num, sender_id, receiver_id, start_point, end_point, sender_name);
                 connection.query(`select count(*) as count from dlvy where dlvy_date = curdate()`, (err, rows, fields) => {
                     console.log(rows);
                     io.emit("call_count", rows);    //웹이랑 합치기 완료 근데 이 값 활요하지는 않음;비동기여서 그런가 값이 변경된게 안감.
@@ -69,7 +69,7 @@ io.on('connection', (socket) => {
                     wait = true;
                     waiting_num = rows.length + 1;
                     //db 저장 -> 비동기 순서
-                    dlvy_call_db_insert(car_num, wait, waiting_num, sender_id, receiver_id, start_point, end_point);
+                    dlvy_call_db_insert(car_num, wait, waiting_num, sender_id, receiver_id, start_point, end_point, sender_name);
                     connection.query(`select count(*) as count from dlvy where dlvy_date = curdate()`, (err, rows, fields) => {
                         console.log(rows);
                         io.emit("call_count", rows);    //웹이랑 합치기 완료 근데 이 값 활요하지는 않음;비동기여서 그런가 값이 변경된게 안감.
@@ -425,7 +425,7 @@ io.on('connection', (socket) => {
 
 // 함수
 
-function dlvy_call_db_insert(car_num, wait, waiting_num, sender_id, receiver_id, start_point, end_point) {
+function dlvy_call_db_insert(car_num, wait, waiting_num, sender_id, receiver_id, start_point, end_point, sender_name) {
     
     var sql = ''; // 작업 저장 sql문
     var insert_dlvy_num; // insertId 값 ( 새로 저장된 작업 번호)
@@ -464,6 +464,7 @@ function dlvy_call_db_insert(car_num, wait, waiting_num, sender_id, receiver_id,
                     waiting_num: ''+waiting_num, 
                     car_num: ''+car_num,
                     dlvy_num: ''+insert_dlvy_num,
+                    sender_name: ''+sender_name,
                 },
                 token: sender_token
             };

@@ -175,6 +175,10 @@
           </div>
         </div>
       </div>
+      <b-modal id="modal-center" centered title="오류 발생!!">
+        <p class="my-4">{{err_rc_num}}번 RC카가 {{err_dlvy_num}}번 작업 도중 오류발생!!</p>
+        <p class="my-4">{{err_content}}</p>
+      </b-modal>
 </div>
 </template>
 
