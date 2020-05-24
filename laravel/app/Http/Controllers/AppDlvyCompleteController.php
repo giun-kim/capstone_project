@@ -75,13 +75,13 @@ class AppDlvyCompleteController extends Controller
                             ->whereBetween('d.dlvy_date', [$date_end, $date_start])
                             ->orderBy('d.dlvy_date', 'desc')
                             ->get();
-            
+            debug($completed_send_dlvy, $completed_receive_dlvy);
         }
  
         $completed_dlvy = array();
         $re_count=0;
         $sen_count=0;
-
+        
         
         while(TRUE){
             if(isset($completed_receive_dlvy[$re_count]) && isset($completed_send_dlvy[$sen_count])){
@@ -99,7 +99,7 @@ class AppDlvyCompleteController extends Controller
                 $sen_count = $sen_count+1;
                 // $completed_dlvy[$count] = $completed_send_dlvy[$sen_count];
             }elseif(isset($completed_receive_dlvy[$re_count]) && !isset($completed_send_dlvy[$sen_count])){
-                array_push($completed_dlvy, $$completed_receive_dlvy[$re_count]);
+                array_push($completed_dlvy, $completed_receive_dlvy[$re_count]);
                 $re_count = $re_count+1;
                 // $completed_dlvy[$count] = $completed_receive_dlvy[$re_count];
             }elseif(!isset($completed_receive_dlvy[$re_count]) && !isset($completed_send_dlvy[$sen_count])){
