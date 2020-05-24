@@ -108,6 +108,8 @@
           <span style="margin-right:10px;">사용 가능</span>
           <div class="map_box3"></div>
           <span style="margin-right:10px;">오류</span>
+          <div class="map_box4"></div>
+          <span style="margin-right:10px;">정류장</span>
         </div>
         <div class="right_dlvy_info">
           <div id="right_dlvy_info_header">운행 정보</div>
@@ -176,11 +178,13 @@
         </div>
       </div>
       <b-modal id="modal-center" centered title="오류 발생!!">
-        <p class="my-4">{{err_rc_num}}번 RC카가 {{err_dlvy_num}}번 작업 도중 오류발생!!</p>
+        <!-- <p class="my-4">{{err_rc_num}}번 RC카가 {{err_dlvy_num}}번 작업 도중 오류발생!!</p> -->
+        <p class="my-4">{{err_rc_num}}번 RC카에서 오류발생!!</p>
         <p class="my-4">{{err_content}}</p>
       </b-modal>
 </div>
 </template>
+
 
 <script>
 import DoughnutChart from './DoughnutChart.vue';
@@ -231,7 +235,7 @@ export default {
         receiver_name : '',             //receiver 이름
         receiver_phone : '',            //receiver 전화번호
         end_time : '',                   //예상완료시간
-        socket : io.connect('https://da57448b.ngrok.io', {
+        socket : io.connect('https://bef5e596.ngrok.io', {
           port : 3000
         }),
         marker : [],
@@ -503,7 +507,7 @@ export default {
 .right_container{
   display: grid;
   grid-template-columns:100%;
-  grid-template-rows: 61% 5% 33%;
+  grid-template-rows: 61% 6% 33%;
   width: 60%;
   height: 100%;
   margin-left: 20px;
@@ -770,6 +774,14 @@ justify-content: center;
 
 .map_box3{
   background-color:#E84C3D;
+  width:17px;
+  height:17px;
+  margin-right:10px;
+  margin-top:5px;
+}
+
+.map_box4{
+  background-color:#00B181;
   width:17px;
   height:17px;
   margin-right:10px;

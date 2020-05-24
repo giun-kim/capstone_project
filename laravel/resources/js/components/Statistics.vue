@@ -1,46 +1,37 @@
 <template>
-    <div class="statistics">
-        <div class="categori">
-            <b-card
-                header="카테고리"
-                header-tag="header"
-                style="max-width: 20rem;text-align:center;"
-                class="mb-2">
-                <b-button class="button" @click="categori_change('complete')">
-                    배달 완료 건 수
-                </b-button>
-                <b-button class="button" @click="categori_change('waiting_status')">
-                    대기 완료 / 취소 건 수
-                </b-button>
-                <b-button class="button" @click="categori_change('waiting_time_avg')">
-                    평균 대기 시간
-                </b-button>
-            </b-card>
-        </div>
-        <div class="content">
-            <div class="title">
-                <h1>{{categori}}</h1>
+    <div class="container">
+        <div class="left_container">
+            <div class="left_container_item1">
+                <b-card
+                    header="카테고리"
+                    header-tag="header"
+                    style="max-width: 20rem;text-align:center;"
+                    class="mb-2">
+                    <b-button class="button" @click="categori_change('complete')">
+                        배달 완료 건 수
+                    </b-button>
+                    <b-button class="button" @click="categori_change('waiting_status')">
+                        대기 완료 / 취소 건 수
+                    </b-button>
+                    <b-button class="button" @click="categori_change('waiting_time_avg')">
+                        평균 대기 시간
+                    </b-button>
+                </b-card>
             </div>
-            <div class="mode_button">
+        </div>
+        <div class="right_container">
+            <div class="right_container_item0">
+                <h2>{{categori}}</h2>
+            </div>
+            <div class="right_container_item1">
                 <b-button @click="clicked('acc', term)" v-if="term != 'day' & categori != '평균 대기 시간'">
-                    누적
+                        누적
                 </b-button>
                 <b-button @click="clicked('avg', term)" v-if="term != 'day' & categori != '평균 대기 시간'">
-                    평균
+                        평균
                 </b-button>
-            </div>
-            <div class="term_button">
-                <b-button @click="clicked(mode, 'day')">
-                    일간
-                </b-button>
-                <b-button @click="clicked(mode, 'week')">
-                    주간
-                </b-button>
-                <b-button @click="clicked(mode, 'month')">
-                    월간
-                </b-button>
-            </div>
-            <div class="datepicker">
+                </div>
+            <div class="right_container_item2">
                 <vc-date-picker
                     v-if="term=='day'"
                     v-model="date"
@@ -64,8 +55,19 @@
                     v-model="selected_month"
                     />
             </div>
-            <div class = "chart">
-                <bar-chart
+            <div class="right_container_item3">
+                 <b-button @click="clicked(mode, 'day')">
+                    일간
+                </b-button>
+                <b-button @click="clicked(mode, 'week')">
+                    주간
+                </b-button>
+                <b-button @click="clicked(mode, 'month')">
+                    월간
+                </b-button>
+            </div>
+            <div class="right_container_item4">
+                 <bar-chart
                     :chart-data="datacollection"/>
             </div>
         </div>
@@ -468,57 +470,62 @@ import VueMonthlyPicker from 'vue-monthly-picker'
     }
 </script>
 
-<style>
+<style scoped>
 
-.categori{
-    width : 20%;
-    height : 60%;
-    margin-left : 5%;
-    margin-top : 5%;
-    float : left;
+.container{
+    display:grid;
+    grid-template-columns: 22% 78%;
+    width: 100%;
+    max-width:1500px;
 }
 
-.content{
-    float : right;
-    width : 70%;
-    height : 100%;
+.left_container_item1{
+    width: 70%;
+    margin-top: 55%;
 }
 
-.chart{
-    float : right;
-    width : 80%;
-    height : 50%;
-    margin-top : 5%;
-    margin-right : 10%;
+.right_container{
+    display:grid;
+    grid-template-columns: 30% 33% 37%;
+    grid-template-rows: 3% 14% 81%;
+}
+.right_container_item0{
+    display:grid;
+    grid-column-start: 1;
+    grid-column-end: 4;
+    justify-content:center;
+    margin-top: 30px;
+    margin-right: 130px;
+}
+.right_container_item1{
+    margin-top: 100px;
+    margin-left: 50%;
+}
+.right_container_item2{
+    margin-top: 80px;
+    width: 40%;
+    margin-left: 24%;
+}
+.right_container_item3{
+    margin-top: 100px;
+
+}
+
+.right_container_item4{
+    display: grid;
+    grid-column-start: 1;
+    grid-column-end: 4;
+    height: 50%;
+    margin-top: 5%;
+    width: 90%;
+  
 }
 
 .button{
     color : black;
     background-color : white;
     border : none;
-    margin-top : 5%
-}
-
-.title{
-    float : right;
-    margin-right : 45%;
-    margin-top : 2%
-}
-
-.mode_button{
-    margin-top : 10%;
-    margin-left : 10%;
-    display : inline-block;
-}
-
-.term_button{
-    float : right;
-    margin-left : 10%;
-    margin-right : 10%;
-}
-.datepicker{
-    float : right;
-    margin-right : 3%;
+    margin-top : 5%;
 }
 
 </style>
