@@ -1,7 +1,7 @@
 <template>
   <b-navbar type="dark" variant="dark" class="nav">
     <b-navbar-nav>
-      <b-nav-item to="/">バリバリ</b-nav-item>
+      <b-nav-item id="title" to="/">バリバリ</b-nav-item>
     </b-navbar-nav>
     <b-navbar-nav class="navbar-nav mx-auto" >
       <b-nav-item to="/" >관제</b-nav-item>
@@ -18,11 +18,17 @@ export default {
 
 <style scoped>
 .nav {
-font-size: 2em;
+font-size: 1.4em;
 margin-top: 0;
 margin-bottom : 0;
 }
 .nav-item{
-  margin-right : 80px;
+  margin-right : 100px;
 }
+
+#title{
+  margin-left: 20px;
+}
+
+
 </style>

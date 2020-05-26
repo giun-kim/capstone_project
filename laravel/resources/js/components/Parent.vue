@@ -7,9 +7,9 @@
 
 <script>
 import Navigation from './Navigation.vue'
-    export default {
-        components: {
-            'navigation' : Navigation
-        }
+export default {
+    components: {
+        'navigation' : Navigation
     }
+}
 </script>

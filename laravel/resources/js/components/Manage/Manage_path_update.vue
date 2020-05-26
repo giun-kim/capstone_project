@@ -118,9 +118,7 @@ export default {
         this.map = new kakao.maps.Map(container, options)
         this.map_stage = 2
       }
-      // for(let i = 0; i < this.checkpoint_all.length; i++) {
-      //   this.checkpoint_markers_clicked.push(1)
-      // }
+
       //마커 이미지
       var imageSrc =
         "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
@@ -166,40 +164,6 @@ export default {
           "mouseout",
           this.makeOutListener(infowindow)
         );
-      }
-    },
-    // 정류장 오버레이
-    station_custom_overlay() {
-      if (this.station_stage == 2) { // 출발 정류장
-        // 커스텀 오버레이(위 출발표시)
-        const content =
-          "<div style='margin-bottom:36px;'>" +
-          "  <span style='font-size:20px; font-weight:bold; color:red'>출발</span>" +
-          "</div>";
-
-        let customOverlay = new kakao.maps.CustomOverlay({
-          position: new kakao.maps.LatLng(this.station_all[this.station_start].station_lat, this.station_all[this.station_start].station_lon),
-          content: content,
-          yAnchor: 1, // y좌표 위치
-        });
-
-        customOverlay.setMap(this.map)
-        this.overlay_data.push(customOverlay)
-      }
-      if (this.station_stage == 3) { // 도착 정류장
-        // 커스텀 오버레이(위 도착표시)
-        const content =
-          "<div style='margin-bottom:36px;'>" +
-          "  <span style='font-size:20px; font-weight:bold; color:red'>도착</span>" +
-          "</div>";
-
-        let customOverlay = new kakao.maps.CustomOverlay({
-          position: new kakao.maps.LatLng(this.station_all[this.station_end].station_lat, this.station_all[this.station_end].station_lon),
-          content: content,
-          yAnchor: 1, // y좌표 위치
-        });
-        customOverlay.setMap(this.map)
-        this.overlay_data.push(customOverlay)
       }
     },
     // 체크포인트 표시
@@ -268,7 +232,7 @@ export default {
               }
             } else { // 생성 check() 실행 
               click_check.splice(click_check.length, 1)
-              this.checkpoint_sequence.push({ check_id : this.checkpoint_all[i].checkpoint_id, sequence : this.checkpoint_update_num + 1}) 
+              this.checkpoint_sequence.push({ check_id : this.checkpoint_all[i].checkpoint_id, sequence : this.checkpoint_update_num + 1 }) 
               this.checkpoint_custom_overlay(this.checkpoint_update_num) 
               this.checkpoint_num = this.checkpoint_update_num
               for(let i = 0; i < this.polylines.length; i++) {
