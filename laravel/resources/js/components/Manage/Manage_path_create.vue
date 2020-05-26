@@ -154,7 +154,7 @@ export default {
         // 커스텀 오버레이(위 출발표시)
         const content =
           "<div style='margin-bottom:36px;'>" +
-          "  <span style='font-size:20px; font-weight:bold; color:red'>출발</span>" +
+          "  <span style='font-size:20px; font-weight:bold; color:red'>건물1</span>" +
           "</div>";
 
         let customOverlay = new kakao.maps.CustomOverlay({
@@ -170,7 +170,7 @@ export default {
         // 커스텀 오버레이(위 도착표시)
         const content =
           "<div style='margin-bottom:36px;'>" +
-          "  <span style='font-size:20px; font-weight:bold; color:red'>도착</span>" +
+          "  <span style='font-size:20px; font-weight:bold; color:red'>건물2</span>" +
           "</div>";
 
         let customOverlay = new kakao.maps.CustomOverlay({

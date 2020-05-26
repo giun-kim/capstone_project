@@ -528,4 +528,55 @@ import VueMonthlyPicker from 'vue-monthly-picker'
     margin-top : 5%;
 }
 
+.categori{
+    width : 20%;
+    height : 60%;
+    margin-left : 5%;
+    margin-top : 5%;
+    float : left;
+}
+
+.content{
+    float : right;
+    width : 70%;
+    height : 100%;
+}
+
+.chart{
+    float : right;
+    width : 80%;
+    height : 50%;
+    margin-top : 5%;
+    margin-right : 10%;
+}
+
+.button{
+    color : black;
+    background-color : white;
+    border : none;
+    margin-top : 5%
+}
+
+.title{
+    float : right;
+    margin-right : 45%;
+    margin-top : 2%
+}
+
+.mode_button{
+    margin-top : 10%;
+    margin-left : 10%;
+    display : inline-block;
+}
+
+.term_button{
+    float : right;
+    margin-left : 10%;
+    margin-right : 10%;
+}
+.datepicker{
+    float : right;
+    margin-right : 3%;
+}
+
 </style>

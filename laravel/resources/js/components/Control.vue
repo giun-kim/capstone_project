@@ -1,5 +1,4 @@
 <template>
-
   <div class="container">
     <div class="left_container">
         <div class=rc_status>

@@ -5,7 +5,7 @@
       <b-col>
       <b-card
         header="카테고리"
-        style="width:215px; height:600px; position: absolute; top:0; left: 20; z-index:10; "
+        style="width:215px; height:600px; position: absolute; top:0; left: 20; z-index:10;"
         class="mb-2"
         border-variant="info"
         align="center"
@@ -68,7 +68,6 @@
                 <br />
               </b-row>
 
-              
               <b-row>
                 <b-card-text style="cursor:pointer" variant="link" @click="rc()">
                   <h5>RC카</h5>
@@ -78,10 +77,18 @@
           </b-container>
         </b-form-group>
       </b-card>
+      <!-- 지도 관리 페이지 -->
       <router-view v-if="id == 1"></router-view>
       </b-col>
+
+      <!-- 카테고리 선택 안 할 시 정중앙 배치 -->
+      <b-col v-if="id == 0" style="line-height:600px; vertical-align:middle; left: 40%; position: absolute;">
+        <font size="6em">원하는 카테고리를 선택해 주세요</font>
+      </b-col>
+
+      <!-- RC카 페이지 -->
       <b-col v-if="id == 2" sm="10">
-      <router-view></router-view>
+        <router-view></router-view>
       </b-col>
       </b-row>
     </b-container>
@@ -94,7 +101,7 @@ export default {
   mounted() {},
   data() {
     return {
-      id : ''
+      id : 0
     };
   },
   methods: {
