@@ -416,7 +416,8 @@ export default {
     // 리스트 클릭 함수
     path_click(path_one) {
       // 체크포인트 생성 방지
-      this.checkpoint_stop += 1
+      if(this.checkpoint_stop == 0)
+        this.checkpoint_stop += 1
       if(this.checkpoint_stop >= 2)
         this.initialize()
 
