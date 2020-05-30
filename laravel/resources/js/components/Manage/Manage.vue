@@ -70,37 +70,50 @@ export default {
   mounted() {},
   data() {
     return {
-      id : 0
+      id : 0 
     };
   },
   methods: {
+    // 정류장 등록 함수
     station_create() {
       this.id = 1
-      this.$router.push({ name: "Manage_station_create" }).catch(err => {});
+      this.$router.push({ name: "Manage_station_create" }).catch(err => {})
     },
+
+    // 정류장 수정 함수
     station_update() {
       this.id = 1
-      this.$router.push({ name: "Manage_station_update" }).catch(err => {});
+      this.$router.push({ name: "Manage_station_update" }).catch(err => {})
     },
+
+    // 경로 등록 함수
     path_create() {
       this.id = 1
-      this.$router.push({ name: "Manage_path_create" }).catch(err => {});
+      this.$router.push({ name: "Manage_path_create" }).catch(err => {})
     },
+
+    // 경로 수정 함수
     path_update() {
       this.id = 1
-      this.$router.push({ name: "Manage_path_update" }).catch(err => {});
+      this.$router.push({ name: "Manage_path_update" }).catch(err => {})
     },
+
+    // RC카 관리 함수
     rc() {
       this.id = 2
-      this.$router.push({ name: "Manage_rc" }).catch(err => {});
+      this.$router.push({ name: "Manage_rc" }).catch(err => {})
     },
+
+    // 체크포인트 등록 함수
     checkpoint_create() {
       this.id = 1
-      this.$router.push({ name: "Manage_checkpoint_create" }).catch(err => {});
+      this.$router.push({ name: "Manage_checkpoint_create" }).catch(err => {})
     },
+
+    // 체크포인트 수정 함수
     checkpoint_update() {
       this.id = 1
-      this.$router.push({ name: "Manage_checkpoint_update" }).catch(err => {});
+      this.$router.push({ name: "Manage_checkpoint_update" }).catch(err => {})
     }
   }
 };
