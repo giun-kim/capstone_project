@@ -50,17 +50,18 @@ class WebStatisticsController extends Controller
        
         if($mode == "acc"){     # 누적 클릭 시
             if($term == 'day'){         # 하루별 총 배달 건 수
-                for($i=0; $i<9; $i++){ 
+                for($i=0; $i<9; $i++)
+                { 
                     $day = date('Y-m-d', strtotime("$dt -$i day"));
 
                     $statis_data = DB::table('dlvy')
                                     ->where('dlvy_date', $day)
                                     ->count('dlvy_num');
                     $date_info[$i] = $day;
-                    $statis_info[$i] = $statis_data;        
+                    $statis_info[$i] = $statis_data;       
                 }
             }elseif($term == 'week'){   # 주차별 총 배달 건 수
-                for($i =0; $i <9; $i++)
+                for($i=0; $i<9; $i++)
                 {
                     $last_week_start = date('Y-m-d', $week_first - (86400 * (7*$i)));
                     $last_week_end = date('Y-m-d', $week_end - (86400 * (7*$i)));
@@ -72,7 +73,7 @@ class WebStatisticsController extends Controller
                     $statis_info[$i] = $statis_data;
                 }
             }elseif($term=='month'){    # 달별 총 배달 건 수
-                for($i =0; $i <9; $i++)
+                for($i=0; $i<9; $i++)
                 {
                     $d = mktime(0,0,0, date("m"), 1, date("Y")); //해당 달 1일
                     $prev_month = strtotime("$mt -$i month",$d); //해당 달
@@ -88,7 +89,7 @@ class WebStatisticsController extends Controller
             }
         }elseif($mode == "avg"){    # 평균 클릭 시
             if($term == 'week'){        # 주차별 평균 배달 건 수
-                for($i =0; $i <9; $i++)
+                for($i=0; $i<9; $i++)
                 {
                     $last_week_start = date('Y-m-d', $week_first - (86400 * (7*$i)));
                     $last_week_end = date('Y-m-d', $week_end - (86400 * (7*$i)));
@@ -100,7 +101,7 @@ class WebStatisticsController extends Controller
                     $statis_info[$i] = round($statis_data / 7, 2);
                 }
             }elseif($term=='month'){    # 달별 평균 배달 건 수
-                for($i =0; $i <9; $i++)
+                for($i=0; $i<9; $i++)
                 {
                     $d = mktime(0,0,0, date("m"), 1, date("Y")); //해당 달 1일
                     $prev_month = strtotime("$mt -$i month",$d); //해당 달
@@ -119,7 +120,8 @@ class WebStatisticsController extends Controller
         }else{  // 잘못된 요청
             return response(['msg'=>'잘못된 요청']);
         }
-
+        $statis_info = array_reverse($statis_info);
+        $date_info = array_reverse($date_info);
         debug($statis_info, $date_info);
         
         return response([
@@ -150,13 +152,12 @@ class WebStatisticsController extends Controller
             $week_first = strtotime($dt) - (date('w',strtotime($dt)) * 86400);  // $dt에 해당하는 주의 일요일
             $week_end = $week_first + (6*86400);    // $dt에 해당하는 주의 토요일
         }
-
-
+        debug($dt);
         if($mode == "acc"){     # 누적 클릭 시
             if($term == 'day'){         # 하루별 대기/취소 건 수
-                for($i=0; $i<9; $i++){ 
+                for($i=0; $i<9; $i++)
+                { 
                     $day = date('Y-m-d', strtotime("$dt -$i day"));
-
                     $statis_data_count = DB::table('dlvy')
                                     ->where('dlvy_date', $day)
                                     ->count('dlvy_wait_time');
@@ -169,7 +170,7 @@ class WebStatisticsController extends Controller
                     $wait_cancel[$i] = $statis_data_cancel;
                 }
             }elseif($term == 'week'){   # 주차별 대기/취소 건 수
-                for($i =0; $i <9; $i++)
+                for($i=0; $i<9; $i++)
                 {
                     $last_week_start = date('Y-m-d', $week_first - (86400 * (7*$i)));
                     $last_week_end = date('Y-m-d', $week_end - (86400 * (7*$i)));
@@ -186,7 +187,7 @@ class WebStatisticsController extends Controller
                     $wait_cancel[$i] = $statis_data_cancel;
                 }
             }elseif($term=='month'){    # 달별 대기/취소 건 수
-                for($i =0; $i <9; $i++)
+                for($i=0; $i<9; $i++)
                 {
                     $d = mktime(0,0,0, date("m"), 1, date("Y")); //해당 달 1일
                     $prev_month = strtotime("$mt -$i month",$d); //해당 달
@@ -207,7 +208,7 @@ class WebStatisticsController extends Controller
             }
         }elseif($mode == "avg"){    # 평균 클릭 시
             if($term == 'week'){        # 주차별 평균 대기/취소 건 수
-                for($i =0; $i <9; $i++)
+                for($i=0; $i<9; $i++)
                 {
                     $last_week_start = date('Y-m-d', $week_first - (86400 * (7*$i)));
                     $last_week_end = date('Y-m-d', $week_end - (86400 * (7*$i)));
@@ -224,7 +225,7 @@ class WebStatisticsController extends Controller
                     $wait_cancel[$i] = round($statis_data_cancel / 7, 2);
                 }
             }elseif($term=='month'){    # 달별 평균 대기/취소 건 수
-                for($i =0; $i <9; $i++)
+                for($i=0; $i<9; $i++)
                 {
                     $d = mktime(0,0,0, date("m"), 1, date("Y")); //해당 달 1일
                     $prev_month = strtotime("$mt -$i month",$d); //해당 달
@@ -247,7 +248,9 @@ class WebStatisticsController extends Controller
         }else{  // 잘못된 요청
             return response(['msg'=>'잘못된 요청']);
         }
-        
+        $date_info = array_reverse($date_info);
+        $wait_count = array_reverse($wait_count);
+        $wait_cancel = array_reverse($wait_cancel);
         debug($date_info, $wait_count, $wait_cancel);
 
         return response([
@@ -278,7 +281,9 @@ class WebStatisticsController extends Controller
 
         #  평균 대기 시간
         if($term == 'day'){         # 하루별 평균 대기 시간
-            for($i=0; $i<9; $i++){ 
+            for($i=0; $i<9; $i++)
+            { 
+
                 $day = date('Y-m-d', strtotime("$dt -$i day"));
 
                 $statis_data = DB::table('dlvy')
@@ -289,7 +294,7 @@ class WebStatisticsController extends Controller
                 $statis_info[$i] = $statis_data->count ? $statis_data->sum / $statis_data->count : 0;          
             }
         }elseif($term == 'week'){   # 주차별 평균 대기 시간
-            for($i =0; $i <9; $i++)
+            for($i=0; $i<9; $i++)
             {
                 $last_week_start = date('Y-m-d', $week_first - (86400 * (7*$i)));
                 $last_week_end = date('Y-m-d', $week_end - (86400 * (7*$i)));
@@ -302,7 +307,7 @@ class WebStatisticsController extends Controller
                 $statis_info[$i] = $statis_data->count >0 ? $statis_data->sum / $statis_data->count : 0;   
             }
         }elseif($term=='month'){    # 달별 평균 대기 시간
-            for($i =0; $i <9; $i++)
+            for($i=0; $i<9; $i++)
             {
                 $d = mktime(0,0,0, date("m"), 1, date("Y")); //해당 달 1일
                 $prev_month = strtotime("$mt -$i month",$d); //해당 달
@@ -317,7 +322,8 @@ class WebStatisticsController extends Controller
                 $statis_info[$i] = $statis_data->count >0 ? $statis_data->sum / $statis_data->count : 0;   
             }
         }
-
+        $statis_info = array_reverse($statis_info);
+        $date_info = array_reverse($date_info);
         debug($statis_info, $date_info);
         
         return response([

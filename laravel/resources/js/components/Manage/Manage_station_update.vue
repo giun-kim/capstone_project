@@ -12,10 +12,10 @@
           ></b-form-input>
           <div style="margin: 5px;">
             <div>
-              <span style="font-size: 10px">위도 : {{ lat }}</span>
+              <span style="font-size: 13px">위도 : {{ lat }}</span>
             </div>
             <div>
-              <span style="font-size: 10px">경도 : {{ lon }}</span>
+              <span style="font-size: 13px">경도 : {{ lon }}</span>
             </div>
           </div>
           <b-button-group>

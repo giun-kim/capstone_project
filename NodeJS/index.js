@@ -19,9 +19,9 @@ connection.connect();
 var serviceAccount = require('./capstone-car-firebase-adminsdk-zqm0k-2248c7ebc5.json');
  
 // 해당 토큰으로 휴대폰에 설치된 앱을 특정함
-var sender_token = "ePL9slU6Q1uEEu7o7PBjNj:APA91bEMpZfPkU76NfISp2Bf_7F0BvSp4Ve387NfAefA9bR4cPzylTdGHP4nSLUfOA3yN-AmYvwY8Sky9WkZ8un1mVG3F2Il5ErhUbRydIIoWtBjcxnztDANlqsb9M4dHhJWIl1NbFb_";
+var sender_token = "frds82R9RguVKXCuTHQIkK:APA91bHFHq4olZB6TJdOdvGJL7te798PyXyfM6pR3GP3_chQ1XZDZRZ69QZJ29T9-LoXgXm2h6RqI3Fx3vaYHhpM27e-G6MKSbHRnN5UKg9-9aOWOPsdBT5lGBaTrxAFIUG1LynUyE16";
 // var receiver_token = "eot9UMWkRuWHP0oxph6qfk:APA91bFNN2JLoWXn9WKCHI09OsyvFpj8a2K_5cXlCPcTpqofxX3onqUbNgXk4FM2gsdfk34vD-P1bnKmt-KPqdXO_g9NLF6grICP4HfkYJHPi9v0d4Zw9_5s1039Y6876k9ytE4WZfVi";
-var receiver_token = "fOQ-jf71RIaCYZM2en0eXQ:APA91bH4Umm2wnWS-ofVLtd7kcXIshGRorlerq5e__dS7F940T0Sx4gFsRjJQM68k4B-0QFczZE-fzNgu_76A6YgpS-v6txFp2VA9a6oOOo7HlsqSFixhsYbw2u6nA4s_2NVCvKYCi_F";
+var receiver_token = "frds82R9RguVKXCuTHQIkK:APA91bHFHq4olZB6TJdOdvGJL7te798PyXyfM6pR3GP3_chQ1XZDZRZ69QZJ29T9-LoXgXm2h6RqI3Fx3vaYHhpM27e-G6MKSbHRnN5UKg9-9aOWOPsdBT5lGBaTrxAFIUG1LynUyE16";
 //receiver_token 지금은 sender_token이랑 똑같은거 써서 테스트 하는데 나중에 바꿔야됨
 
 admin.initializeApp({
