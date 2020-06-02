@@ -48,14 +48,17 @@
         <div class="right_container">
           <div class="right_container_item1">
             <!-- 지도 관리 페이지 -->
+            <!-- id => 1 : 정류장, 경로 선택시 -->
             <router-view v-if="id == 1"></router-view>
 
             <!-- 카테고리 선택 안 할 시 정중앙 배치 -->
+            <!-- id => 0 : 카테고리 선택 안할 시 -->
             <b-col v-if="id == 0" style="line-height:400px; vertical-align:middle; left: 40%; position: absolute;">
              <font size="6em">원하는 카테고리를 선택해 주세요</font>
             </b-col>
 
             <!-- RC카 페이지 -->
+            <!-- id => 2 : RC카 선택시 -->
             <b-col v-if="id == 2" sm="10">
               <router-view></router-view>
             </b-col>

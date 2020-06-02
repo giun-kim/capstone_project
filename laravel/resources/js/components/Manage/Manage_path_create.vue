@@ -2,14 +2,20 @@
   <div class="page-container">
     <div id="map"></div>
     <div id="manager">
+      <!-- stage = 1 : 두 정류장 클릭 -->
       <div v-if="stage == 1">경로를 등록할 두 정류장을 클릭해 주세요.</div>
+      <!-- stage = 2 : 경로 체크포인트 클릭 -->
       <div v-if="stage == 2">체크포인트 클릭 후 확인 버튼 클릭해 주세요. <br> 
+      <!-- check() : 두 정류장 간 체크포인트를 이은 경로 생성 -->
       <b-button type="button" variant="primary" @click="check()">확인</b-button> </div>
+      <!-- stage = 3 : 경로 등록 정보 -->
       <div v-if="stage == 3">
         <b-form>
+          <!-- 두 정류장 이름 -->
           {{station_all[station_start].station_name}} ↔ {{station_all[station_end].station_name}}
           <div>체크포인트 수 : {{ checkpoint_num }}</div>
           <div>총 거리 : {{ distance }} m</div>
+          <!-- path_create() : 경로 등록 함수, initialize() : 선택 경로 취소 -->
           <b-button-group>
             <b-button type="button" variant="primary" @click="path_create()">등록하기</b-button>
             <b-button type="button" @click="initialize()">취소하기</b-button>

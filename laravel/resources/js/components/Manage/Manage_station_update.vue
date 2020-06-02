@@ -2,14 +2,18 @@
   <div class="page-container">
     <div id="map"></div>
     <div id="manager">
+      <!-- stage = 1 : 정류장 클릭 --> 
       <div v-if="stage == 1">지도에서 수정/삭제할 정류장을 클릭해 주세요.</div>
+      <!-- stage = 2 : 수정 데이터 입력 -->
       <div v-if="stage == 2">
         <b-form>
           <p>정류장 이름 : {{ station_name }}</p>
-          <b-form-input
+          <!-- 정류장 이름 입력창 -->
+          <b-form-input 
             v-model="station_name"
             :placeholder="station_name"
           ></b-form-input>
+          <!-- 정류장 좌표 -->
           <div style="margin: 5px;">
             <div>
               <span style="font-size: 13px">위도 : {{ lat }}</span>
@@ -18,6 +22,8 @@
               <span style="font-size: 13px">경도 : {{ lon }}</span>
             </div>
           </div>
+          <!-- old_station_name : 수정하기 전 정류장 이름 -->
+          <!-- stn_update() : 정류장 수정 함수, stn_delete() : 정류장 삭제 함수, initialize() : 선택 정류장 취소 -->
           <b-button-group>
             <b-button type="button" variant="info" @click="stn_update(old_station_name)">수정하기</b-button>
             <b-button variant="danger" type="button" @click="stn_delete(old_station_name)">삭제하기</b-button>
