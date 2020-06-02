@@ -2,15 +2,19 @@
   <div class="page-container">
     <div id="map"></div>
     <div id="manager">
+      <!-- stage = 1 : 정류장 클릭 --> 
       <div v-if="stage == 1">지도에서 원하는 위치를 클릭해 주세요.</div>
+      <!-- stage = 2 : 등록 데이터 입력 -->
       <div v-if="stage == 2">
         <b-form>
+          <!-- 정류장 이름 입력창 -->
           <b-form-input
             size="sm"
             v-model="station_name"
             placeholder="정류장명을 입력해 주세요."
             required
           ></b-form-input>
+          <!-- 정류장 좌표 -->
           <div style="margin: 5px;">
             <div>
               <span style="font-size: 13px">위도 : {{ lat }}</span>
@@ -19,6 +23,7 @@
               <span style="font-size: 13px">경도 : {{ lon }}</span>
             </div>
           </div>
+          <!-- stn_create() : 정류장 등록 함수, initialize() : 선택 정류장 취소 -->
           <b-button-group>
             <b-button type="button" variant="primary" @click="stn_create()">등록하기</b-button>
             <b-button type="button" @click="initialize()">취소하기</b-button>

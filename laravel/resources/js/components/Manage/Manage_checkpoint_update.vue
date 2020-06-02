@@ -2,9 +2,12 @@
   <div class="page-container">
     <div id="map"></div>
     <div id="manager">
+      <!-- stage = 1 : 체크포인트 클릭 -->
       <div v-if="stage == 1">지도에서 수정/삭제할 체크포인트를 클릭해 주세요.</div>
+      <!-- stage = 2 : 수정 데이터 입력 -->
       <div v-if="stage == 2">
         <b-form>
+          <!-- 체크포인트 좌표 -->
           <div style="margin: 5px;">
             <div>
               <span style="font-size: 13px">위도 : {{ lat }}</span>
@@ -13,6 +16,7 @@
               <span style="font-size: 13px">경도 : {{ lon }}</span>
             </div>
           </div>
+          <!-- chk_update() : 체크포인트 수정 함수, chk_delete() : 체크포인트 삭제 함수, initialize() : 선택 체크포인트 취소 -->
           <b-button-group>
             <b-button type="button" variant="info" @click="chk_update()">수정하기</b-button>
             <b-button variant="danger" type="button" @click="chk_delete()">삭제하기</b-button>

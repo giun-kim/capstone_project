@@ -2,9 +2,12 @@
   <div class="page-container">
     <div id="map"></div>
     <div id="manager">
+      <!-- stage = 1 : 체크포인트 클릭 --> 
       <div v-if="stage == 1">지도에서 등록할 체크포인트를 클릭해주세요.</div>
+      <!-- stage = 2 : 체크포인트 데이터 입력 -->
       <div v-if="stage == 2">
         <b-form>
+          <!-- 체크포인트 좌표 -->
           <div style="margin: 5px;">
             <div>
               <span style="font-size: 13px">위도 : {{ lat }}</span>
@@ -13,6 +16,7 @@
               <span style="font-size: 13px">경도 : {{ lon }}</span>
             </div>
           </div>
+          <!-- chk_create() : 체크포인트 등록 함수, initialize() : 선택 체크포인트 취소 -->
           <b-button-group>
             <b-button type="button" variant="primary" @click="chk_create()">등록하기</b-button>
             <b-button type="button" @click="initialize()">취소하기</b-button>

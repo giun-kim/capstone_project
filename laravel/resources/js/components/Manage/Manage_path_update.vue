@@ -2,30 +2,41 @@
   <div class="page-container">
     <div id="map"></div>
     <div id="manager">
+      <!-- stage = 1 : 경로를 수정할 정류장 클릭 -->
       <div v-if="stage == 1">경로를 수정/삭제할 정류장을 클릭해 주세요.</div>
+      <!-- stage = 1 : 수정할 정류장에 관한 경로 클릭 -->
       <div v-if="stage == 2">수정/삭제를 원하는 경로를 클릭해 주세요.</div>
       <div
         v-show="stage == 2"
         style="border-top: 1px solid #18a2b8; margin-top: 10px"
       >
         <div style="margin-top:10px; margin-bottom: 10px">현재 등록된 경로</div>
+        <!-- path_one_all : 클릭한 정류장에 관한 모든 경로, path_one : 클릭한 경로 데이터 -->
         <b-list-group v-for="path_one in path_one_all" :key="path_one.id">
           <b-list-group-item>
+            <!-- path_click() : 경로 클릭시 경로 데이터 불러오는 함수 -->
             <h5 style="cursor:pointer" @click="path_click(path_one)">
                 {{ path_one.path_start_point }} ↔ {{ path_one.path_end_point }}
             </h5>
-            <div v-if="path_one.path_id == path_check"> <!-- 클릭한 리스트 -->
+            <!-- 경로 클릭시 그 경로에 관한 정보 -->
+            <div v-if="path_one.path_id == path_check"> 
             <h6>체크포인트 수 : {{ checkpoint_num }}</h6>
             <h6>총 거리 : {{ distance }} m</h6>
               <div style="margin-top:10px; margin-bottom: 0">
+                <!-- path_update() : 경로 업데이트 함수 -->
                 <b-button
                   variant="info"
                   type="button"
-                  @click="path_update(path_one)"
-                >
-                  수정하기</b-button>
-                <b-button type="button" variant="danger" @click="path_delete(path_one.path_id)">삭제하기</b-button>
-                <b-button type="button" @click="initialize(1)">취소하기</b-button>
+                  @click="path_update(path_one)">수정하기</b-button>
+                <!-- path_delete() : 경로 삭제 함수, path_one.path_id : 경로 기본키 -->
+                <b-button 
+                  type="button" 
+                  variant="danger" 
+                  @click="path_delete(path_one.path_id)">삭제하기</b-button>
+                <!-- initialize() : 데이터 초기화 -->
+                <b-button 
+                  type="button" 
+                  @click="initialize(1)">취소하기</b-button>
               </div>
             </div>
           </b-list-group-item>
