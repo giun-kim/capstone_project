@@ -22,6 +22,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 // 관제
 Route::get('/dlvy/control', 'WebControlController@index');
 Route::get('/dlvy/control/show/{id}', 'WebControlController@run_status');
+Route::get('/dlvy/control/car', 'WebControlController@inquireRc');
 
 // 배달 완료
 Route::get('dlvy/statistics/complete/{mode}/{term}/{date}', 'WebStatisticsController@divy_complete');
