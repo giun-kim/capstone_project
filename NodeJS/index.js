@@ -59,7 +59,7 @@ io.on('connection', (socket) => {
                 dlvy_call_db_insert(car_num, wait, waiting_num, sender_id, receiver_id, start_point, end_point, sender_name);
                 connection.query(`select count(*) as count from dlvy where dlvy_date = curdate()`, (err, rows, fields) => {
                     console.log(rows);
-                    io.emit("call_count", rows);    //웹이랑 합치기 완료 근데 이 값 활요하지는 않음;비동기여서 그런가 값이 변경된게 안감.
+                    io.emit("call_count", rows);
                 });
             }
             else if(rows.length == 0) { // 사용가능 x 일 때 대기 순위 리시버 전달
@@ -73,7 +73,7 @@ io.on('connection', (socket) => {
                     dlvy_call_db_insert(car_num, wait, waiting_num, sender_id, receiver_id, start_point, end_point, sender_name);
                     connection.query(`select count(*) as count from dlvy where dlvy_date = curdate()`, (err, rows, fields) => {
                         console.log(rows);
-                        io.emit("call_count", rows);    //웹이랑 합치기 완료 근데 이 값 활요하지는 않음;비동기여서 그런가 값이 변경된게 안감.
+                        io.emit("call_count", rows);
                     });
                 });
             }

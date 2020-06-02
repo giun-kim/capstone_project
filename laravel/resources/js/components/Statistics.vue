@@ -44,7 +44,7 @@
                     @dayfocusin="selected"
                     :max-date='for_week_disable'
                     :masks="{ input: `${input_text}`}"
-                    :input-props='{ //너무 길다..정리할 필요 있음..
+                    :input-props='{
                         placeholder: `${attributes[0].dates.start.getFullYear()}.${attributes[0].dates.start.getMonth()+1}.${attributes[0].dates.start.getDate()} ~ ${attributes[0].dates.end.getFullYear()}.${attributes[0].dates.end.getMonth()+1}.${attributes[0].dates.end.getDate()}`,
                     }'
                     />
@@ -86,8 +86,8 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                 for_week_disable : '', //주간에서 안보이게할 범위
                 selected_month : new Date().getFullYear()+'/'+new Date().getMonth(),    //월별에서 처음에 넣을 데이터
                 yesterday : '', //일간에서 어제부터 시작하기 위해
-                mode : 'acc',
-                term : 'day',
+                mode : 'acc',       //누적, 평균
+                term : 'day',       //일간, 주간, 월간
                 input_text : '',    //주별에서 기간 표시하기 위해
                 attributes: [       //주별에서 일주일 간격으로 색칠하기 위해
                     {
@@ -115,7 +115,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
             BarChart
         },
         mounted(){
-            this.yesterday = this.date.getTime() - (1 * 24 * 60 * 60 * 1000);
+            this.yesterday = this.date.getTime() - (1 * 24 * 60 * 60 * 1000);   //어제 날짜
             this.date.setTime(this.yesterday)        //일간일 때 당일과, 이후는 클릭 못하게
 
             this.loaded();
@@ -456,7 +456,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                 }
             }
         },
-        watch : {
+        watch : {      //사용자가 날짜를 클릭하여 attributes의 date를 바꿀 때, input_text에 해당 값을 표시해주기 위해
             attributes : {
                 deep: true,
                 handler(){

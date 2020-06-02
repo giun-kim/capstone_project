@@ -251,7 +251,7 @@ export default {
         start_time : '',                //출발 시간
         end_time : ''                   //예상완료시간
       },
-      socket : io.connect('https://0b7300009333.ngrok.io', {    //소켓 클라이언트
+      socket : io.connect('https://e66886de3156.ngrok.io', {    //소켓 클라이언트
         port : 3000
       }),
       marker : [],
@@ -378,7 +378,8 @@ export default {
             this.point.end_point = '';
             this.dlvy_time.start_time = '';
             this.dlvy_time.end_time = '';
-            if(response.data.car_status == "배달대기"){
+
+            if(response.data.car_status == "배달대기"){   //각 RC카의 상태에 따라 넣어줄 값들 넣어주기
               this.rc_info.rc_name = response.data.car_name;
               this.rc_info.rc_status = response.data.car_status;
             }else if(response.data.car_status == "오류"){

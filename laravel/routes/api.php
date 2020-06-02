@@ -22,7 +22,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 // 관제
 Route::get('/dlvy/control', 'WebControlController@index');
 Route::get('/dlvy/control/show/{id}', 'WebControlController@run_status');
-Route::get('/dlvy/control/car', 'WebControlController@inquireRc');
 
 // 배달 완료
 Route::get('dlvy/statistics/complete/{mode}/{term}/{date}', 'WebStatisticsController@divy_complete');
@@ -44,6 +43,7 @@ Route::resource('dlvy/management/car', 'WebCarManagementController');
 Route::resource('dlvy/management/path', 'WebPathManagementController');
 Route::get('dlvy/management/pathcheck/{id}', 'WebPathManagementController@show_path_check');
 
+
 ///////////// APP /////////////
 // 로그인
 Route::post('app/login', 'AppLoginController@login_check' );
@@ -52,8 +52,8 @@ Route::post('app/login', 'AppLoginController@login_check' );
 Route::get('dlvy/call', 'AppCallController@call');
 // 동명이인 체크
 Route::post('dlvy/check_user/{id}', 'AppCallController@check_user');
-// qr코드
-Route::get('dlvy/qrcode/{id}', 'AppCallController@qr_user_check');
+// 체크포인트
+Route::get('dlvy/checkpoint/{start_point}/{end_point}', 'AppCallController@dlvy_checkpoint');
 
 
 // 보낸 배달
@@ -61,10 +61,4 @@ Route::get('dlvy/senddlvy/{id}', 'AppDlvyInfoController@send_dlvy');
 // 받는 배달
 Route::get('dlvy/receivdlvy/{id}', 'AppDlvyInfoController@receiv_dlvy');
 // 완료된 배달
-Route::get('dlvy/completedlvy/{user_name}/{term}/{date_start}/{date_end}', 'AppDlvyCompleteController@completed_dlvy');
-
-Route::resource('/dlvy/management/station', 'WebStationManagementController'); // 정류장 페이지
-Route::resource('/dlvy/management/checkpoint', 'WebCheckPointManagementController'); // 체크포인트 페이지
-Route::resource('/dlvy/management/car', 'WebCarManagementController'); // RC카 페이지
-Route::resource('/dlvy/management/path', 'WebPathManagementController'); // 경로 페이지
 Route::get('dlvy/completedlvy/{id}/{term}/{date_start}/{date_end}', 'AppDlvyCompleteController@completed_dlvy');
