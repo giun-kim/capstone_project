@@ -251,7 +251,7 @@ export default {
         start_time : '',                //출발 시간
         end_time : ''                   //예상완료시간
       },
-      socket : io.connect('https://6bf1896cdcd3.ngrok.io', {    //소켓 클라이언트
+      socket : io.connect('https://d141df9db1cc.ngrok.io', {    //소켓 클라이언트
         port : 3000
       }),
       marker : [],

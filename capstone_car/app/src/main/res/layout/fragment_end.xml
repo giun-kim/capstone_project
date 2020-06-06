@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".EndFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <LinearLayout
+        android:id="@+id/select_term"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tablayout"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/button_weak"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1주일"/>
+
+        <Button
+            android:id="@+id/button_month"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1개월" />
+
+        <Button
+            android:id="@+id/button_sixmonth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="6개월"/>
+
+        <Button
+            android:id="@+id/button_check"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="상세조회" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/select_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/select_term"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/textView_startDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="날짜 선택하기"
+            android:textSize="15dp"
+            android:textColor="@color/colorPrimaryDark"
+            style="?android:attr/borderlessButtonStyle"/>
+
+        <Button
+            android:id="@+id/button_refresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:text="리셋" />
+    </LinearLayout>
+
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="140dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button_dateCheck"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"/>
+
+    <!--        android:entries="@array/조회범위선택"-->
+
+
+    <!--<ListView
+        android:id="@+id/endList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:transcriptMode="alwaysScroll"
+        android:scrollbars="none"/>-->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/endList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="horizontal"/>
+
+</LinearLayout>
