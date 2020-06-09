@@ -9,8 +9,8 @@
  
 ## Part
 My part is back end and i used Laravel  
-● Web  
- ○ Control page  
+* Web  
+ ** Control page  
   - Displays all of the contents of the control page when it is first loaded  
   - Information sent on first load  
   - Present to state of operation, Present to delivery status, Standby Cancellation Status, Last week's Calling Building Rank, Current Average Latency, Map - station location and name, RC car location and name,   
@@ -22,7 +22,7 @@ My part is back end and i used Laravel
   - You can register, modify and delete for RC cars, check points, station on this page  
   - When registering a path, a total of two paths are registered up to the path that reversed the path.  
 
-● App   
+* App   
  ○ Main page  
   - Send delivery information of the log-in user when load the main activity  
  ○ Call to delivery  
