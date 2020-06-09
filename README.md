@@ -10,7 +10,7 @@
 ## Part
 My part is back end and i used Laravel  
 * Web  
- ** Control page  
+ * Control page  
   - Displays all of the contents of the control page when it is first loaded  
   - Information sent on first load  
   - Present to state of operation, Present to delivery status, Standby Cancellation Status, Last week's Calling Building Rank, Current Average Latency, Map - station location and name, RC car location and name,   
