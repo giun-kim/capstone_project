@@ -4,32 +4,31 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use DB;
-class WebCheckPointManagementController extends Controller
-{   # 채크포인트 관리 컨트롤러
 
-    // 페이지 로드
+// check point manage controller
+class WebCheckPointManagementController extends Controller
+{   
+
+    // page load
     public function index()
     {
         return response(['checkpoint_all' => DB::table('checkpoint')->get()]);
     }
 
-    // 등록하기
+    // register to check point
     public function store(Request $request)
     {
-        debug("$request->checkpoint_lat, $request->checkpoint_lon");
         DB::table('checkpoint')
                         ->insert(
                             ['checkpoint_lat'=>$request->checkpoint_lat, 'checkpoint_lon'=>$request->checkpoint_lon ]
                         );
-        debug('등록 완료');
 
         return response(['checkpoint_all' => DB::table('checkpoint')->get()]);
     }
 
-    // 수정하기
+    // modify to check point
     public function update(Request $request, $id)
     {
-        debug("$id, $request->checkpoint_lat, $request->checkpoint_lon");
         DB::table('checkpoint')
                         ->where('checkpoint_id', $id)
                         ->update(['checkpoint_lat' => $request->checkpoint_lat, 'checkpoint_lon' => $request->checkpoint_lon]);
@@ -37,7 +36,7 @@ class WebCheckPointManagementController extends Controller
         return response(['checkpoint_all' => DB::table('checkpoint')->get()]);
     }
 
-    // 삭제하기
+    // delete to check point
     public function destroy($id)
     {
         $update_path_check = DB::table('path_check')
