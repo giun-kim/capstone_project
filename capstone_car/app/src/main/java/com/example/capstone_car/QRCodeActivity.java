@@ -24,10 +24,10 @@ import io.socket.client.Socket;
 
 public class QRCodeActivity extends AppCompatActivity {
 
-    private ImageView qrcode;       //QR코드 이미지
-    private String delivery_num;    //인텐트로 받을 배달 번호
-    private String car_num;         //인텐트로 받을 차 번호
-    private Button control_button;  //물품 보내기, 수령 완료 버튼
+    private ImageView qrcode;       //QR code's image
+    private String delivery_num;    //delivery number
+    private String car_num;         //car number
+    private Button control_button;  //button
 
     Context mContext;
 
@@ -56,7 +56,7 @@ public class QRCodeActivity extends AppCompatActivity {
         qrcode = findViewById(R.id.qrcode);
 
         MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
-        try{    //QR코드 생성하는 부분
+        try{    //create QR code
             BitMatrix bitMatrix = multiFormatWriter.encode(delivery_num, BarcodeFormat.QR_CODE,1000,1000);
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
             Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
@@ -65,9 +65,9 @@ public class QRCodeActivity extends AppCompatActivity {
     }
 
     public void onClick(View view){
-        if(view.getId() == R.id.control_button){    //물품 보내기 혹은 수령 완료 눌렀을 떄.
+        if(view.getId() == R.id.control_button){    //when user click control button
             try{
-                socket = IO.socket("https://d141df9db1cc.ngrok.io");
+                socket = IO.socket("https://5ceae07f7177.ngrok.io");
             }catch(URISyntaxException e){
                 throw new RuntimeException(e);
             }

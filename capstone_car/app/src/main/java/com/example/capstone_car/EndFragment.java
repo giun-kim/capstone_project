@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,22 +42,16 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 public class EndFragment extends Fragment {
-    private static final String[] spinner_list = {"전체", "보낸 배달", "받은 배달"};
-    ArrayList<List> list = new ArrayList<>();
+    private static final String[] spinner_list = {"전체", "보낸 배달", "받은 배달"};  // spinner array
+    ArrayList<List> list = new ArrayList<>();                                         // data array list
     private RecyclerView endList;
     private EndListAdapter mAdapter;
 
-    Button button_weak, button_month, button_sixmonth, button_check, textView_startDate, button_refresh;
+    Button button_week, button_month, button_sixmonth, button_check, textView_startDate, button_refresh;
     LinearLayout select_date;
     Spinner spinner;
 
-    String first_date, second_date;
-
-    // 서버에 연결 기본 값
-    String user_id;
-    String term;
-    String date_start;
-    String date_end;
+    String first_date, second_date, user_id, term, date_start, date_end;
 
     Context mContext;
 
@@ -67,14 +60,14 @@ public class EndFragment extends Fragment {
 
         View v = inflater.inflate(R.layout.fragment_end, container, false);
 
-        mContext = container.getContext();      // 프래그먼트는 일반 액티비티와 다르게 context 구할 때 this 사용 불가.
+        mContext = container.getContext();      // Fragment can't use 'this' to get context differently from activities
 
-        user_id = SharedPreferenceUtil.getString(mContext, "user_id");
-        term = "all";
-        date_start = "0";
-        date_end = "0";
+        user_id = SharedPreferenceUtil.getString(mContext, "user_id");      // User ID logged in
+        term = "all";       // Value to send to server, Basic date
+        date_start = "0";   // Value to send to server, Basic date
+        date_end = "0";     // Value to send to server, Basic date
 
-        //RecyclerView
+        // RecyclerView
         endList = (RecyclerView) v.findViewById(R.id.endList);
         endList.setHasFixedSize(true);
         mAdapter = new EndListAdapter(list);
@@ -84,57 +77,39 @@ public class EndFragment extends Fragment {
         endList.setItemAnimator(new DefaultItemAnimator());;
         endList.setAdapter(mAdapter);
 
-        button_weak = (Button)v.findViewById(R.id.button_weak);
+        button_week = (Button)v.findViewById(R.id.button_week);
         button_month = (Button)v.findViewById(R.id.button_month);
         button_sixmonth = (Button)v.findViewById(R.id.button_sixmonth);
         button_check = (Button)v.findViewById(R.id.button_check);
-        select_date = v.findViewById(R.id.select_date);              // gone
+        select_date = v.findViewById(R.id.select_date);
         textView_startDate = (Button)v.findViewById(R.id.textView_startDate);
         button_refresh = (Button)v.findViewById( R.id.button_refresh );
 
-        button_refresh.setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                term = "all";
-                date_start = "0";
-                date_end = "0";
-
-                termCheck(user_id, term, date_end, date_start);
-
-                textView_startDate.setText( "날짜 선택하기" );
-            }
-        } );
-
-        ///////////////// Spinner (스피너) /////////////////
+        // Spinner
         spinner = (Spinner)v.findViewById(R.id.spinner);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, spinner_list);
         adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         spinner.setAdapter(adapter);
-        //spinner.getSelectedItem().toString();
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position >= 0 && position < spinner_list.length) {
-                    getSelectedCategory(position);
-                }
+                if (position >= 0 && position < spinner_list.length) { getSelectedCategory(position); }
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
+            public void onNothingSelected(AdapterView<?> parent) { }
         });
 
         /*
-        내일 날짜 구하는 이유
-        >> 캘린더에서 미래 날짜 선택 막을 때 max date를 오늘로 설정해버리면 오늘 전 날인 어제까지만 선택이 가능해짐.
-        >> 오늘까지 선택이 가능하기 위해 max date를 내일 날짜로 설정
+        Reasons to get a date tomorrow
+        >> if you set the maximum date to today when you stop selecting future dates in the calendar, you can select only the day before today.
+        >> Set the maximum date to tomorrow to be selectable until today
          */
         Calendar tomorrow = Calendar.getInstance();
         tomorrow.add(Calendar.DATE, 1);
 
-        //////////// 캘린더 (상세 조회 날짜 선택하기) ////////////
+        // Calendar (Custom date lookup)
         textView_startDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -158,12 +133,12 @@ public class EndFragment extends Fragment {
                     public void onPositiveButtonClick(Pair<Long, Long> selection) {
 
                         @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                        first_date = dateFormat.format( selection.first );       // 첫번째로 선택한 날짜
-                        second_date = dateFormat.format( selection.second );     // 두번째로 선택한 날짜
+                        first_date = dateFormat.format( selection.first );       // start date
+                        second_date = dateFormat.format( selection.second );     // End date
 
                         textView_startDate.setText( first_date + " - " + second_date );
 
-                        term = "check";
+                        term = "check";     // Value to send to server, Detailed inquiry
 
                         termCheck(user_id, term, second_date, first_date);
                     }
@@ -171,13 +146,27 @@ public class EndFragment extends Fragment {
             }
         });
 
-        // 1주일 조회 버튼
-        button_weak.setOnClickListener( new View.OnClickListener() {
+        // All lookup button
+        button_refresh.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                term = "all";       // Value to send to server, All date
                 date_start = "0";
                 date_end = "0";
-                term = "week";
+
+                termCheck(user_id, term, date_end, date_start);
+
+                select_date.setVisibility(View.GONE);
+            }
+        } );
+
+        // 1 week lookup button
+        button_week.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                term = "week";      // Value to send to server, 1 week
+                date_start = "0";
+                date_end = "0";
 
                 termCheck(user_id, term, date_end, date_start);
 
@@ -186,13 +175,13 @@ public class EndFragment extends Fragment {
             }
         } );
 
-        // 1개월 조회 버튼
+        // 1 month lookup button
         button_month.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                term = "month";     // Value to send to server, 1 month
                 date_start = "0";
                 date_end = "0";
-                term = "month";
 
                 termCheck(user_id, term, date_end, date_start);
 
@@ -201,13 +190,13 @@ public class EndFragment extends Fragment {
             }
         } );
 
-        // 6개월 조회 버튼
+        // 6 month lookup button
         button_sixmonth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                term = "6month";    // Value to send to server, 6 month
                 date_start = "0";
                 date_end = "0";
-                term = "6month";
 
                 termCheck(user_id, term, date_end, date_start);
 
@@ -216,14 +205,14 @@ public class EndFragment extends Fragment {
             }
         });
 
-        // 상세조회 버튼
+        // Custom date lookup button
         button_check.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (select_date.getVisibility() == View.GONE) {
-                    select_date.setVisibility(View.VISIBLE);
+                    select_date.setVisibility(View.VISIBLE);    // Show calendar
                 } else {
-                    select_date.setVisibility(View.GONE);
+                    select_date.setVisibility(View.GONE);       // Hide calendar
                 }
             }
         });
@@ -233,14 +222,15 @@ public class EndFragment extends Fragment {
 
     @Override
     public void onResume() {
+        // Minimize duplication and make loading faster by executing code only once
         termCheck(user_id, term, date_end, date_start);
 
         super.onResume();
     }
 
-    // 데이터 준비
-    private void termCheck(String user_id, String term, String date_end, String date_start) {              // 1주일, 1개월, 6개월, 상세조회
-        new JSONTask1().execute("https://b157d2719683.ngrok.io/api/dlvy/completedlvy/"+user_id+"/"+term+"/"+date_end+"/"+date_start);
+    // Data preparation
+    private void termCheck(String user_id, String term, String date_end, String date_start) {   // Send user_id, term, date_start, date_end to the server
+        new JSONTask1().execute("https://18f81b740298.ngrok.io/api/dlvy/completedlvy/"+user_id+"/"+term+"/"+date_end+"/"+date_start);
     }
 
     public class JSONTask1 extends AsyncTask<String, String, String> {
@@ -297,41 +287,36 @@ public class EndFragment extends Fragment {
 
         @SuppressLint("LongLogTag")
         @Override
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(String result) {   // Add number after list.add (1 - Sent delivery, 2 - Received Delivery)
             super.onPostExecute(result);
 
-            jsonObject2(result);
-        }
-    }
+            try {
+                JSONObject obj = new JSONObject(result);
 
-    public void jsonObject2(String data) {      // list.add 할 때 뒤에 번호 추가 (1 - 보낸 배달, 2 - 받은 배달)
-        try {
-            JSONObject obj = new JSONObject(data);
+                JSONArray completed_dlvy= obj.getJSONArray("completed_dlvy");
 
-            JSONArray completed_dlvy= obj.getJSONArray("completed_dlvy");
+                list.clear();
 
-            Log.d("end result ::::::::: ", "result@@ : " + obj.toString());
+                for (int i = 0; i < completed_dlvy.length(); i++) {
+                    JSONObject complete = completed_dlvy.getJSONObject( i );
 
-            list.clear();
-
-            for (int i = 0; i < completed_dlvy.length(); i++) {
-                JSONObject complete = completed_dlvy.getJSONObject( i );
-
-                if (complete.has("receiver_name")) {
-                    list.add(new List(complete.getString( "receiver_name")+ "(받은 사람)", complete.getString( "dlvy_start_point" ), complete.getString("dlvy_end_point"), complete.getString("dlvy_status"), complete.getString("dlvy_date"), 1));
-                } else if (complete.has("sender_name")) {
-                    list.add(new List(complete.getString( "sender_name")+ "(보낸 사람)", complete.getString( "dlvy_start_point" ), complete.getString("dlvy_end_point"), complete.getString("dlvy_status"), complete.getString("dlvy_date"), 2));
+                    if (complete.has("receiver_name")) {
+                        list.add(new List(complete.getString( "receiver_name")+ "(받은 사람)", complete.getString( "dlvy_start_point" ), complete.getString("dlvy_end_point"), complete.getString("dlvy_status"), complete.getString("dlvy_date"), 1));
+                    } else if (complete.has("sender_name")) {
+                        list.add(new List(complete.getString( "sender_name")+ "(보낸 사람)", complete.getString( "dlvy_start_point" ), complete.getString("dlvy_end_point"), complete.getString("dlvy_status"), complete.getString("dlvy_date"), 2));
+                    }
                 }
-            }
 
-            mAdapter.notifyDataSetChanged();
-        } catch (JSONException e) {
-            e.printStackTrace();
+                mAdapter.notifyDataSetChanged();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    // 스피너 기능 (전체, 보낸 배달, 받은 배달 구분)
+    // Spinner function (All, Sent Delivery, Received Delivery)
     private void getSelectedCategory(int categoryID) {
+        // Create another temporary list to show the data contained in the temporary list when there is a spinner classification
         ArrayList<List> lists = new ArrayList<>();
 
         if (categoryID == 0) {

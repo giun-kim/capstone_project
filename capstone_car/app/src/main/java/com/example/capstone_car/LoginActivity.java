@@ -41,15 +41,12 @@ import io.reactivex.disposables.CompositeDisposable;
 public class LoginActivity extends AppCompatActivity {
     Context mContext;
 
-    CompositeDisposable compositeDisposable = new CompositeDisposable();
-
     EditText editText_id, editText_password;
     Button button_login, button_signup;
 
     String user_id, user_password;
-    String eq_user_id, eq_user_password;
 
-    long backKeyPressedTime;
+    long backKeyPressedTime;    // Variable to implement the app exit function when pressing back 2 times
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,20 +57,18 @@ public class LoginActivity extends AppCompatActivity {
 
         editText_id = findViewById(R.id.editText_id);
         editText_password = findViewById(R.id.editText_password);
-
         button_signup = findViewById(R.id.button_signup);
 
         user_id = SharedPreferenceUtil.getString(mContext, "user_id");
         user_password = SharedPreferenceUtil.getString(mContext, "user_password");
 
-        Log.d("id pw //////// ", "user_id = " + user_id + ", user_pw = " + user_password);
-
-        if (!user_id.equals("") && !user_password.equals("")) {
+        // Implement login retention
+        if (!user_id.equals("") && !user_password.equals("")) {             // If the current user_id and user_password are not empty
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
-
             finish();
-        } else if (user_id.equals("") && user_password.equals("")) {
+        } else if (user_id.equals("") && user_password.equals("")) {        // If there is no value in the current user_id and user_password
             button_signup.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -87,13 +82,13 @@ public class LoginActivity extends AppCompatActivity {
             button_login.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    new JSONTask().execute("https://b157d2719683.ngrok.io/api/app/login");
+                    new JSONTask().execute("https://18f81b740298.ngrok.io/api/app/login");
                 }
             });
         }
     }
 
-    public class JSONTask extends AsyncTask<String, String, String> {       // POST 방식
+    public class JSONTask extends AsyncTask<String, String, String> {       // POST method
         String user_id = editText_id.getText().toString().trim();
         String user_password = editText_password.getText().toString().trim();
         String user_name, user_phone;
@@ -166,9 +161,6 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 JSONObject obj = new JSONObject( result );
 
-                Log.d("result ::::////   ", result);
-                Log.d("result obj::::////   ", obj.toString());
-
                 if (obj.getString( "success" ).equals( "FALSE" )) {
                     Toast.makeText( getApplicationContext(), "아이디나 비밀번호를 다시 확인해주세요!", Toast.LENGTH_SHORT ).show();
                     editText_id.setText( "" );
@@ -177,8 +169,7 @@ public class LoginActivity extends AppCompatActivity {
                     Intent intent = new Intent( LoginActivity.this, MainActivity.class );
                     user_name = obj.getString( "user_info" );
 
-                    Log.d( "soyoung_testeee", user_id + ", " + user_name + ", " + user_phone + " , " );
-
+                    // Store in user information app
                     SharedPreferenceUtil.setString( mContext, "user_id", user_id );
                     SharedPreferenceUtil.setString(mContext, "user_password", user_password);
                     SharedPreferenceUtil.setString( mContext, "user_name", user_name );
@@ -193,19 +184,18 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    // 뒤로가기 2번 누르면 앱 종료
+    // Press the back button twice to exit the app
     @Override
     public void onBackPressed() {
-        // 1번째 백 버튼 클릭
-        if (System.currentTimeMillis()>backKeyPressedTime+2000) {
+        if (System.currentTimeMillis()>backKeyPressedTime+2000) {   // Press the back button once
             backKeyPressedTime = System.currentTimeMillis();
             Toast.makeText(this, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
-        } else { // 2번째 백 버튼 클릭 (종료)
+        } else {    // Press the back button twice (exit)
             AppFinish();
         }
     }
 
-    // 앱 종료
+    // App exit
     public void AppFinish() {
         finish();
         System.exit(0);

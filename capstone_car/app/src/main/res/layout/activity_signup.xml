@@ -32,7 +32,7 @@
                 android:id="@+id/editText_id"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:background="@drawable/edit_round"
+                android:background="@drawable/login_round"
                 android:padding="10dp"
                 android:hint="ID"
                 android:inputType="text" />
@@ -42,7 +42,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/edit_round"
+                android:background="@drawable/login_round"
                 android:padding="10dp"
                 android:hint="PASSWORD"
                 android:inputType="textPassword" />
@@ -52,7 +52,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/edit_round"
+                android:background="@drawable/login_round"
                 android:padding="10dp"
                 android:hint="NAME"
                 android:inputType="text" />
@@ -62,7 +62,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/edit_round"
+                android:background="@drawable/login_round"
                 android:hint="PHONE NUMBER"
                 android:inputType="phone"
                 android:padding="10dp" />
@@ -72,7 +72,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/edit_round"
+                android:background="@drawable/login_round"
                 android:padding="10dp"
                 android:hint="UNIVERSITY"
                 android:completionThreshold="1"

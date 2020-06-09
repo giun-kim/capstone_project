@@ -6,7 +6,8 @@ public class List {
 
     public List() {}
 
-    public List(int dlvy_num, int car_num, String user_name, String start_point, String end_point, int dlvy_time, String status, int viewType) {   // 호출중, 배달중
+    // On call, on delivery
+    public List(int dlvy_num, int car_num, String user_name, String start_point, String end_point, int dlvy_time, String status, int viewType) {
         this.dlvy_num = dlvy_num;
         this.car_num = car_num;
         this.user_name = user_name;
@@ -17,16 +18,18 @@ public class List {
         this.viewType = viewType;
     }
 
-    public List(String user_name, String start_point, String end_point, String status, String end_date, int category) {       // 완료된 배달
+    // Completed delivery
+    public List(String user_name, String start_point, String end_point, String status, String end_date, int category) {
         this.user_name = user_name;
         this.start_point = start_point;
         this.end_point = end_point;
         this.status = status;
         this.end_date = end_date;
-        this.category = category;       // 스피너 기능 구현
+        this.category = category;       // Spinner
     }
 
-    public List(int dlvy_num, int dlvy_wait_num, String user_name, String start_point, String end_point, String status, int viewType) {   // 대기중
+    // Waiting
+    public List(int dlvy_num, int dlvy_wait_num, String user_name, String start_point, String end_point, String status, int viewType) {
         this.dlvy_num = dlvy_num;
         this.dlvy_wait_num = dlvy_wait_num;
         this.user_name = user_name;
@@ -56,25 +59,19 @@ public class List {
         return user_name;
     }
 
-    public void setUserName(String user_name) {
-        this.user_name = user_name;
-    }
+    public void setUserName(String user_name) { this.user_name = user_name; }
 
     public String getStartPoint() {
         return start_point;
     }
 
-    public void setStartPoint(String start_point) {
-        this.start_point = start_point;
-    }
+    public void setStartPoint(String start_point) { this.start_point = start_point; }
 
     public String getEndPoint() {
         return end_point;
     }
 
-    public void setEndPoint(String end_point) {
-        this.end_point = end_point;
-    }
+    public void setEndPoint(String end_point) { this.end_point = end_point; }
 
     public String getStatus() {
         return status;
@@ -96,7 +93,7 @@ public class List {
 
     public void setViewType(int viewType) { this.viewType = viewType; }
 
-    public int getCategory() { return category; }                           // 스피너 기능 구현
+    public int getCategory() { return category; }                           // Spinner
 
-    public void setCategory(int category) { this.category = category; }     // 스피너 기능 구현
+    public void setCategory(int category) { this.category = category; }
 }

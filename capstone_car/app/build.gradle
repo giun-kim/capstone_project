@@ -5,11 +5,12 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.example.capstone_car"
-        minSdkVersion 21
+        minSdkVersion 17
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -64,6 +65,9 @@ dependencies {
 
     implementation 'com.google.android.gms:play-services-vision:20.0.0'
 
+    // 페이징
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+
     /*//Material Edit Text
     implementation 'com.rengwuxian.materialedittext:library:2.1.4'
 
@@ -76,9 +80,10 @@ dependencies {
     // QR 코드
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 
+    // 달력
+    implementation 'com.google.android.material:material:1.2.0-alpha06'
+
     implementation('io.socket:socket.io-client:1.0.0') {
         exclude group: 'org.json', module: 'json'
     }
-
-    implementation 'com.google.android.material:material:1.2.0-alpha06'
 }

@@ -13,11 +13,10 @@ import androidx.recyclerview.widget.RecyclerView;
 public class EndListAdapter extends RecyclerView.Adapter<EndListAdapter.MyViewHolder> {
     private ArrayList<List> mDataset;
 
-
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView textView_userId, textView_startPoint, textView_endPoint, textView_endDate, textView_status;
 
-        //ViewHolder
+        // ViewHolder
         public MyViewHolder(View view) {
             super(view);
             textView_userId = (TextView) view.findViewById(R.id.textView_userId);

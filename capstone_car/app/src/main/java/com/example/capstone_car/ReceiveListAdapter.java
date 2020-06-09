@@ -35,19 +35,17 @@ public class ReceiveListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        /*View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.listview_receive, parent, false);
-        return new MyViewHolder(view);*/
         View view;
         Context context = parent.getContext();
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        if (viewType == ReceiveCode.ViewType.WAIT) {
+        if (viewType == ReceiveCode.ViewType.WAIT) {    // List when delivery status in on standby
             view = inflater.inflate(R.layout.listview_receive_wait, parent, false);
             return new WaitViewHolder(view);
-        } else if (viewType == ReceiveCode.ViewType.DLVYWAIT) {
+        } else if (viewType == ReceiveCode.ViewType.DLVYWAIT) {     // List when delivery status in on delivery standby
             view = inflater.inflate(R.layout.listview_receive_dlvywait, parent, false);
             return new DlvyWaitViewHolder(view);
-        } else {
+        } else {        // List when delivery status is being delivered
             view = inflater.inflate(R.layout.listview_receive, parent, false);
             return new DlvyViewHolder(view);
         }
@@ -57,7 +55,7 @@ public class ReceiveListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof WaitViewHolder) {
-            ((WaitViewHolder)holder).dlvy_num = mDataset.get(position).getDlvyNum();  //
+            ((WaitViewHolder)holder).dlvy_num = mDataset.get(position).getDlvyNum();
 
             ((WaitViewHolder)holder).textView_wait_num.setText("대기 순위 " + (mDataset.get(position).getDlvyWaitNum() + "번째"));
 
@@ -69,7 +67,6 @@ public class ReceiveListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             ((WaitViewHolder)holder).button_cancel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //Toast.makeText(v.getContext(), "대기 취소", Toast.LENGTH_SHORT).show();
                     AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
                     builder.setTitle( "대기 취소" );
                     builder.setMessage( "정말 대기를 취소하시겠습니까?" );
@@ -85,7 +82,7 @@ public class ReceiveListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             }
 
                             try {
-                                mSocket = IO.socket( "https://d141df9db1cc.ngrok.io" );
+                                mSocket = IO.socket( "https://5ceae07f7177.ngrok.io" );
                             } catch(URISyntaxException e) {
                                 throw new RuntimeException(e);
                             }
@@ -106,7 +103,7 @@ public class ReceiveListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             });
 
         } else if (holder instanceof DlvyWaitViewHolder) {
-            ((DlvyWaitViewHolder)holder).dlvy_num = mDataset.get(position).getDlvyNum();  //
+            ((DlvyWaitViewHolder)holder).dlvy_num = mDataset.get(position).getDlvyNum();
             ((DlvyWaitViewHolder)holder).car_num = mDataset.get(position).getCarNum();
 
             ((DlvyWaitViewHolder)holder).textView_time.setText("차가 오기까지 약 " + (mDataset.get(position).getDlvyTime() + "분"));

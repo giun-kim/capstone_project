@@ -23,8 +23,7 @@ public class MyFMService extends FirebaseMessagingService {
 
     private static final String TAG="FMService";
 
-
-    // 새 토큰 만드는 메서드
+    // New Token creation method
     @Override
     public void onNewToken(@NonNull String s) {
         super.onNewToken(s);
@@ -32,8 +31,7 @@ public class MyFMService extends FirebaseMessagingService {
         Log.d(TAG, "Refreshed token: ㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣ " + s);
     }
 
-
-    // fcm 메시지 받으면 작동
+    // fcm message works
     @SuppressLint("LongLogTag")
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
@@ -70,13 +68,13 @@ public class MyFMService extends FirebaseMessagingService {
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)
                         .setContentIntent(pendingIntent)
-                        .setPriority(Notification.PRIORITY_HIGH)        // 헤드업 알림
-                        .setDefaults(Notification.DEFAULT_VIBRATE);     // 진동 알림
+                        .setPriority(Notification.PRIORITY_HIGH)        // Head-up notification
+                        .setDefaults(Notification.DEFAULT_VIBRATE);     // Vibration alert
 
         NotificationManager notificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE);
 
-        // O는 oreo 버전의 O
-        // 이 코드를 넣어야 알람이 온다 ^^
+        // 0 is the oreo version's 0
+        // You have to put the code below to get the notification
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(channelId, "Default Channel", NotificationManager.IMPORTANCE_DEFAULT);
             notificationManager.createNotificationChannel(channel);

@@ -52,23 +52,18 @@ public class MainActivity extends AppCompatActivity {
 
     String user_id, user_name, user_phone;
 
-    long backKeyPressedTime;
+    long backKeyPressedTime;        // Variable to implement the app exit function when pressing back 2 times
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
 
         mContext = this;
-
-        getAppKeyHash();
 
         user_id = SharedPreferenceUtil.getString(mContext, "user_id");
         user_name = SharedPreferenceUtil.getString(mContext, "user_name");
         user_phone = SharedPreferenceUtil.getString(mContext, "user_phone");
-
-        Log.d("main id  //////// ", "user_id = " + user_id);
 
         textView_userName = findViewById(R.id.textView_userName);
         textView_userName.setText(user_name + "님, 반갑습니다!");
@@ -76,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
         textView_userName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // To go to a page where you can logout
                 Intent intent = new Intent(MainActivity.this, UserInfoActivity.class);
                 startActivity(intent);
             }
@@ -89,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         tablayout = findViewById(R.id.tablayout);
         tablayout.setupWithViewPager(viewpager);
 
-        //
+        // Outgoing Delivery, Incoming Delivery, Completed Delivery tabs
         tablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -106,8 +102,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //
-
         button_call = findViewById(R.id.button_call);
         button_call.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,8 +112,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // 현재 토큰 가져오기 && 출력
-        // 토큰이 있어야 휴대폰 주인을 특정할 수 있고 서버에서 주는 push 메시지 받을 수 있음
+        // Get and print the current token
+        // A token is required to identify the owner of the phone and to receive push messages from the server
         FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
             @SuppressLint("LongLogTag")
             @Override
@@ -134,53 +128,32 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void getAppKeyHash() {
-        try {
-            PackageInfo info = getPackageManager().getPackageInfo( getPackageName(), PackageManager.GET_SIGNATURES );
-            for (Signature signature : info.signatures) {
-                MessageDigest md;
-                md = MessageDigest.getInstance( "SHA" );
-                md.update(signature.toByteArray());
-                String something = new String( Base64.encode( md.digest(), 0 ) );
-                Log.d("yyg", "key : " + something);
-            }
-        } catch (Exception e) {
-            Log.e("name not found", e.toString());
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        Intent intent = getIntent();
+        String loginId = intent.getStringExtra("loginId");
+
+        if (loginId != null && loginId.equals("300")) {
+            notiAlertDialog(intent);
         }
     }
 
-   @Override
-    public void onResume() {
-       super.onResume();
-
-       Intent intent = getIntent();
-       String loginId = intent.getStringExtra("loginId");
-
-       Log.d("onResume  ///   ", "intent : " + intent);
-
-       Log.d("onResume  ///   ", "loginId : " + loginId);
-
-       if (loginId != null && loginId.equals("300")) {
-           notiAlertDialog(intent);
-       }
-    }
-
-    // onNewIntent 호출 시점 : A라는 Activity가 현재 떠 있는 상태에서 A라는 Activity를 다시 호출 했을 때
-    // onNewIntent에 넣어야 하는 이유 -> https://knoow.tistory.com/182
+    // When to call onNewIntent : When Activity A is called while Activity A is currently floating
+    // Why you should use onNewIntent -> https://knoow.tistory.com/182
     @Override
     protected void onNewIntent(Intent intent) {
-        Log.d("onNewIntent  ///   ", "onNewIntent!!!!!!");
-
         notiAlertDialog(intent);
 
         super.onNewIntent(intent);
     }
 
-    private void notiAlertDialog(Intent intent) {
+    private void notiAlertDialog(Intent intent) {   // Firebase push message related functions
         if (intent != null) {
             setIntent(intent);
 
-            // 화면 켜기
+            // Turn on the screen
             getWindow().addFlags( WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON );
 
             String title = intent.getStringExtra( "title" );
@@ -198,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     builder.setMessage( "대기 순위는 " +  waiting_num + "번 입니다. 대기 하시겠습니까?");
                 }
-                builder.setPositiveButton( "예", new DialogInterface.OnClickListener() {
+                builder.setPositiveButton( "예", new DialogInterface.OnClickListener() {     // Handle when positive button is pressed
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         JSONObject data = new JSONObject();
@@ -217,7 +190,8 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         try {
-                            mSocket = IO.socket( "https://d141df9db1cc.ngrok.io" );
+                            mSocket = IO.socket( "https://5ceae07f7177.ngrok.io" +
+                                    "" );
                         } catch(URISyntaxException e) {
                             throw new RuntimeException(e);
                         }
@@ -226,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
                         mSocket.emit("accept", data);
                     }
                 } );
-                builder.setNegativeButton( "아니오", new DialogInterface.OnClickListener() {
+                builder.setNegativeButton( "아니오", new DialogInterface.OnClickListener() {   // Handle when negative button is pressed
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         JSONObject data = new JSONObject();
@@ -245,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         try {
-                            mSocket = IO.socket( "https://d141df9db1cc.ngrok.io" );
+                            mSocket = IO.socket( "https://5ceae07f7177.ngrok.io" );
                         } catch(URISyntaxException e) {
                             throw new RuntimeException(e);
                         }
@@ -260,19 +234,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // 뒤로가기 2번 누르면 앱 종료
+    // Press the back button twice to exit the app
     @Override
     public void onBackPressed() {
-        // 1번째 백 버튼 클릭
-        if (System.currentTimeMillis()>backKeyPressedTime+2000) {
+        if (System.currentTimeMillis()>backKeyPressedTime+2000) {       // Press the back button once
             backKeyPressedTime = System.currentTimeMillis();
             Toast.makeText(this, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
-        } else { // 2번째 백 버튼 클릭 (종료)
+        } else {    // Press the back button twice (exit)
             AppFinish();
         }
     }
 
-    // 앱 종료
+    // App exit
     public void AppFinish() {
         finish();
         System.exit(0);

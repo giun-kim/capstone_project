@@ -7,12 +7,12 @@
     tools:context=".SendFragment">
 
     <!-- TODO: Update blank fragment layout -->
-<!--    <ListView-->
-<!--        android:id="@+id/sendList"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:transcriptMode="alwaysScroll"-->
-<!--        android:scrollbars="none"/>-->
+    <!--    <ListView-->
+    <!--        android:id="@+id/sendList"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        android:transcriptMode="alwaysScroll"-->
+    <!--        android:scrollbars="none"/>-->
 
     <RelativeLayout
         android:id="@+id/layout_nothing"

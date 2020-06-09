@@ -81,33 +81,33 @@ import VueMonthlyPicker from 'vue-monthly-picker'
         data(){
             return {
                 categori : '배달 완료',
-                date : new Date(),  //일간에서 계속 바뀔 date
-                today : new Date(), //오늘 date
-                for_week_disable : '', //주간에서 안보이게할 범위
-                selected_month : new Date().getFullYear()+'/'+new Date().getMonth(),    //월별에서 처음에 넣을 데이터
-                yesterday : '', //일간에서 어제부터 시작하기 위해
-                mode : 'acc',       //누적, 평균
-                term : 'day',       //일간, 주간, 월간
-                input_text : '',    //주별에서 기간 표시하기 위해
-                attributes: [       //주별에서 일주일 간격으로 색칠하기 위해
+                date : new Date(),  //graph's date
+                today : new Date(), //today's date
+                for_week_disable : '', //disabled week
+                selected_month : new Date().getFullYear()+'/'+new Date().getMonth(),    //selected month
+                yesterday : '', //yesterday's date
+                mode : 'acc',       //mode(accumulation, average)
+                term : 'day',       //term(day, week, month)
+                input_text : '',    //week picker's input value
+                attributes: [       //week picker's style
                     {
                     highlight: {
                         color: 'purple'
                     },
                     dates : {
-                        start: '',     //여기 숫자들을 변수로 지정해서 바뀌게 하면됨.
+                        start: '',
                         end: '',
                     },
                     }
                 ],
-                complete_date : [],         //배달 완료 날짜
-                complete_number : [],       //배달 완료 건 수
-                waiting_status_date : [],   //대기 완료/취소 날짜
-                waiting_complete : [],      //대기 완료 수
-                waiting_cancel : [],        //대기 취소 수
-                wait_time_avg_date : [],    //평균 대기 시간 날짜
-                wait_time_avg : [],         //평균 대기 시간
-                datacollection: null,       //그래프 설정
+                complete_date : [],         //completed delivery graph's date
+                complete_number : [],       //completed delivery graph's value
+                waiting_status_date : [],   //waiting info graph's date
+                waiting_complete : [],      //completed waiting graph's value
+                waiting_cancel : [],        //canceled waiting graph's value
+                wait_time_avg_date : [],    //average waiting time graph's date
+                wait_time_avg : [],         //average waiting time graph's value
+                datacollection: null,       //graph's option
             }
         },
         components: {
@@ -115,11 +115,11 @@ import VueMonthlyPicker from 'vue-monthly-picker'
             BarChart
         },
         mounted(){
-            this.yesterday = this.date.getTime() - (1 * 24 * 60 * 60 * 1000);   //어제 날짜
-            this.date.setTime(this.yesterday)        //일간일 때 당일과, 이후는 클릭 못하게
+            this.yesterday = this.date.getTime() - (1 * 24 * 60 * 60 * 1000);   //date of yesterday
+            this.date.setTime(this.yesterday)        //for disabled picker
 
             this.loaded();
-            var week_start =  this.today.getDate() - (this.today.getDay()+7);   //주간 처음에 전 주가 초기 값이 되기 위해
+            var week_start =  this.today.getDate() - (this.today.getDay()+7);   //set the date for default week
             var week_end = this.today.getDate() - (this.today.getDay()+1);
             this.attributes[0].dates = {
                 start : new Date(this.today.getFullYear(), this.today.getMonth(), week_start),
@@ -128,7 +128,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
             this.for_week_disable = new Date(this.today.getFullYear(), this.today.getMonth(), week_end);
         },
         methods : {
-            categori_change(val){                       //카테고리 변경
+            categori_change(val){                       //change categori
                 if(val == 'complete'){
                     this.categori = "배달 완료";
                 }else if(val == 'waiting_status'){
@@ -140,20 +140,19 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                 this.term = "day"
                 this.loaded();
             },
-            clicked(mode, term){    //기간, 모드 변경
+            clicked(mode, term){    //change mode or term
                 this.mode = mode;
                 this.term = term;
-                this.loaded();      //기간, 모드 변경 시 그래프도 같이 바껴야됨.
+                this.loaded(); 
             },
-            selected(day){
-                if(this.categori == "배달 완료"){   //날짜를 사용자가 바꿧을 때 해당 값으로 요청하기 위해
-                    if(this.term == 'day'){     //this.date로 써서 한 번에 적을라고 했는데 캘린더에서 날짜 바꾸면 이벤트 파라미터 day와 this.date가 변하는 속도가 다름;;
-                    //this.date = day.date 하고 this.loaded 하면 input칸에 날짜가 안 들어감. this.date가 null이 되버림
+            selected(day){  //user selected date
+                if(this.categori == "배달 완료"){   //when categori is completed delivery
+                    if(this.term == 'day'){     //when term is day
                         Axios.get('/api/dlvy/statistics/complete/'+this.mode+'/'+this.term+'/'+this.getFormDate(day.date))   
                         .then((response) => {
                             this.complete_date = response.data.date_info;
                             this.complete_number = response.data.statis_info;
-                            this.datacollection = { //그래프 설정
+                            this.datacollection = { //set graph's option
                                     labels : this.complete_date,
                                     datasets: [
                                         {
@@ -167,9 +166,9 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                         .catch(error => {
                             console.log(error)
                         })
-                    }else if(this.term == 'week'){
+                    }else if(this.term == 'week'){ //when term is week
                         if(day.date <= this.for_week_disable){
-                            var week_start = day.day - (day.weekday-1); //선택한 날의 주 계산
+                            var week_start = day.day - (day.weekday-1); //calculate week
                             var week_end = day.day + (7-day.weekday);
                             this.attributes[0].dates = {
                                 start : new Date(day.year, day.month-1, week_start),
@@ -178,14 +177,14 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                         }
                         this.loaded();
                     }
-                }else if(this.categori == "대기 완료/취소"){
-                    if(this.term == 'day'){
+                }else if(this.categori == "대기 완료/취소"){    //when categori is waiting info
+                    if(this.term == 'day'){ //when term is day
                         Axios.get('/api/dlvy/statistics/waitcancel/'+this.mode+'/'+this.term+'/'+this.getFormDate(day.date))
                         .then((response) => {
                             this.waiting_status_date = response.data.date_info;
                             this.waiting_complete = response.data.wait_count;
                             this.waiting_cancel = response.data.wait_cancel;
-                            this.datacollection = { //그래프 설정
+                            this.datacollection = { 
                                 labels : this.waiting_status_date,
                                 datasets: [
                                     {
@@ -201,9 +200,9 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                                 ]
                             }
                         })
-                    }else if(this.term == 'week'){
+                    }else if(this.term == 'week'){  //when term is week
                         if(day.date <= this.for_week_disable){
-                            var week_start = day.day - (day.weekday-1); //선택한 날의 주 계산
+                            var week_start = day.day - (day.weekday-1);
                             var week_end = day.day + (7-day.weekday);
                             this.attributes[0].dates = {
                                 start : new Date(day.year, day.month-1, week_start),
@@ -212,7 +211,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                         }
                         this.loaded();
                     }
-                }else if(this.categori == "평균 대기 시간"){
+                }else if(this.categori == "평균 대기 시간"){    //when categori is average waiting time
                     if(this.term == 'day'){
                         Axios.get('/api/dlvy/statistics/waittimeavg/'+this.term+'/'+this.getFormDate(day.date))
                         .then((response) => {
@@ -231,7 +230,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                         })
                     }else if(this.term == 'week'){
                         if(day.date <= this.for_week_disable){
-                            var week_start = day.day - (day.weekday-1); //선택한 날의 주 계산
+                            var week_start = day.day - (day.weekday-1); 
                             var week_end = day.day + (7-day.weekday);
                             this.attributes[0].dates = {
                                 start : new Date(day.year, day.month-1, week_start),
@@ -242,22 +241,22 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                     }
                 }
             },
-            showDate(date){                     //월 간 날짜 바꿧을 때 요청하기 위해
+            showDate(date){                     //user selected date when term is month
                 this.selected_month = date._i
                 this.loaded();
             },
-            getFormDate(date){
+            getFormDate(date){  //set the format of date
                 var year = date.getFullYear();              //yyyy
                 var month = (1 + date.getMonth());          //M
-                month = month >= 10 ? month : '0' + month;  //month 두자리로 저장
+                month = month >= 10 ? month : '0' + month;  //month
                 var day = date.getDate();                   //d
-                day = day >= 10 ? day : '0' + day;          //day 두자리로 저장
+                day = day >= 10 ? day : '0' + day;          //day
                 return  year + '-' + month + '-' + day;
             },
-            loaded(){       //맨 첨에 로딩 될 때, 각종 카테고리, 모드, 기간 클릭했을 때 나오도록.
-                if(this.categori == "배달 완료"){   //배달 완료 : 일간, 주간, 월간 버튼 눌렀을 시 로딩 되는 것.
+            loaded(){       //graph load method
+                if(this.categori == "배달 완료"){
                     if(this.term=='day'){
-                        Axios.get('/api/dlvy/statistics/complete/'+this.mode+'/'+this.term+'/'+this.getFormDate(this.date)) //배달 완료 건 수 첫 로딩
+                        Axios.get('/api/dlvy/statistics/complete/'+this.mode+'/'+this.term+'/'+this.getFormDate(this.date))
                         .then((response) => {
                             this.complete_date = response.data.date_info;
                             this.complete_number = response.data.statis_info;
@@ -276,7 +275,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                             console.log(error);
                         });                        
                     }else if(this.term == 'week'){
-                        Axios.get('/api/dlvy/statistics/complete/'+this.mode+'/'+this.term+'/'+this.getFormDate(this.attributes[0].dates.start)) //배달 완료 건 수 첫 로딩
+                        Axios.get('/api/dlvy/statistics/complete/'+this.mode+'/'+this.term+'/'+this.getFormDate(this.attributes[0].dates.start))
                         .then((response) => {
                             this.complete_date = response.data.date_info;
                             this.complete_number = response.data.statis_info;
@@ -295,8 +294,8 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                             console.log(error);
                         });
                     }else if(this.term == 'month'){
-                        var parse_month = this.selected_month.split('/');   //월 form 설정하기 위해
-                        Axios.get('/api/dlvy/statistics/complete/'+this.mode+'/'+this.term+'/'+this.getFormDate(new Date(parse_month[0], parse_month[1]-1, 1))) //배달 완료 건 수 첫 로딩
+                        var parse_month = this.selected_month.split('/');
+                        Axios.get('/api/dlvy/statistics/complete/'+this.mode+'/'+this.term+'/'+this.getFormDate(new Date(parse_month[0], parse_month[1]-1, 1)))
                         .then((response) => {
                             this.complete_date = response.data.date_info;
                             this.complete_number = response.data.statis_info;
@@ -317,7 +316,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                     }
                 }else if(this.categori == "대기 완료/취소"){
                     if(this.term=='day'){
-                        Axios.get('/api/dlvy/statistics/waitcancel/'+this.mode+'/'+this.term+'/'+this.getFormDate(this.date)) //배달 완료 건 수 첫 로딩
+                        Axios.get('/api/dlvy/statistics/waitcancel/'+this.mode+'/'+this.term+'/'+this.getFormDate(this.date)) 
                         .then((response) => {
                             this.waiting_status_date = response.data.date_info;
                             this.waiting_complete = response.data.wait_count;
@@ -342,7 +341,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                             console.log(error);
                         });                        
                     }else if(this.term == 'week'){
-                        Axios.get('/api/dlvy/statistics/waitcancel/'+this.mode+'/'+this.term+'/'+this.getFormDate(this.attributes[0].dates.start)) //배달 완료 건 수 첫 로딩
+                        Axios.get('/api/dlvy/statistics/waitcancel/'+this.mode+'/'+this.term+'/'+this.getFormDate(this.attributes[0].dates.start))
                         .then((response) => {
                             this.waiting_status_date = response.data.date_info;
                             this.waiting_complete = response.data.wait_count;
@@ -367,8 +366,8 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                             console.log(error);
                         });
                     }else if(this.term == 'month'){
-                        var parse_month = this.selected_month.split('/');   //월 form 설정하기 위해
-                        Axios.get('/api/dlvy/statistics/waitcancel/'+this.mode+'/'+this.term+'/'+this.getFormDate(new Date(parse_month[0], parse_month[1]-1, 1))) //배달 완료 건 수 첫 로딩
+                        var parse_month = this.selected_month.split('/'); 
+                        Axios.get('/api/dlvy/statistics/waitcancel/'+this.mode+'/'+this.term+'/'+this.getFormDate(new Date(parse_month[0], parse_month[1]-1, 1)))
                         .then((response) => {
                             this.waiting_status_date = response.data.date_info;
                             this.waiting_complete = response.data.wait_count;
@@ -395,7 +394,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                     }
                 }else if(this.categori == "평균 대기 시간"){
                     if(this.term=='day'){
-                        Axios.get('/api/dlvy/statistics/waittimeavg/'+this.term+'/'+this.getFormDate(this.date)) //배달 완료 건 수 첫 로딩
+                        Axios.get('/api/dlvy/statistics/waittimeavg/'+this.term+'/'+this.getFormDate(this.date))
                         .then((response) => {
                             this.wait_time_avg_date = response.data.date_info;
                             this.wait_time_avg = response.data.statis_info;
@@ -414,7 +413,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                             console.log(error);
                         });                        
                     }else if(this.term == 'week'){
-                        Axios.get('/api/dlvy/statistics/waittimeavg/'+this.term+'/'+this.getFormDate(this.attributes[0].dates.start)) //배달 완료 건 수 첫 로딩
+                        Axios.get('/api/dlvy/statistics/waittimeavg/'+this.term+'/'+this.getFormDate(this.attributes[0].dates.start))
                         .then((response) => {
                             this.wait_time_avg_date = response.data.date_info;
                             this.wait_time_avg = response.data.statis_info;
@@ -433,8 +432,8 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                             console.log(error);
                         });
                     }else if(this.term == 'month'){
-                        var parse_month = this.selected_month.split('/'); //월 form 설정하기 위해
-                        Axios.get('/api/dlvy/statistics/waittimeavg/'+this.term+'/'+this.getFormDate(new Date(parse_month[0], parse_month[1]-1, 1))) //배달 완료 건 수 첫 로딩
+                        var parse_month = this.selected_month.split('/');
+                        Axios.get('/api/dlvy/statistics/waittimeavg/'+this.term+'/'+this.getFormDate(new Date(parse_month[0], parse_month[1]-1, 1))) 
                         .then((response) => {
                             this.wait_time_avg_date = response.data.date_info;
                             this.wait_time_avg = response.data.statis_info;
@@ -456,7 +455,7 @@ import VueMonthlyPicker from 'vue-monthly-picker'
                 }
             }
         },
-        watch : {      //사용자가 날짜를 클릭하여 attributes의 date를 바꿀 때, input_text에 해당 값을 표시해주기 위해
+        watch : {      //change input value when user select date
             attributes : {
                 deep: true,
                 handler(){

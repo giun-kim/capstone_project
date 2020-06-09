@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient_bg">
+    android:background="#04befe">
     <!--    <com.jgabrielfreitas.core.BlurImageView-->
     <!--    android:id="@+id/myBlurImage"-->
     <!--    android:src="@drawable/mainimage"-->
@@ -23,7 +23,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="바리바리"
-        android:textSize="44dp"
+        android:textSize="40dp"
+        android:textStyle="bold"
         android:textColor="#ffff"
         android:gravity="center"
         android:layout_marginTop="120dp"/>
@@ -46,7 +47,7 @@
                 android:id="@+id/editText_id"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:background="@drawable/edit_round"
+                android:background="@drawable/login_round"
                 android:padding="10dp"
                 android:hint="ID"
                 android:inputType="text"/>
@@ -56,18 +57,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/edit_round"
+                android:background="@drawable/login_round"
                 android:padding="10dp"
                 android:hint="PASSWORD"
                 android:inputType="textPassword"/>
 
-            <Button
+            <android.widget.Button
                 android:id="@+id/button_login"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/button_round"
+                android:background="@drawable/call_buttonshape"
                 android:layout_marginTop="18dp"
-                android:text="LOGIN"/>
+                android:text="LOGIN"
+                android:textColor="#fff"/>
 
             <Button
                 android:id="@+id/button_signup"

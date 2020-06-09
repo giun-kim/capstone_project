@@ -29,19 +29,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import io.reactivex.disposables.CompositeDisposable;
 
 public class SignUpActivity extends AppCompatActivity {
-
-    private Socket mSocket;
     CompositeDisposable compositeDisposable = new CompositeDisposable();
-
-    private TextView tvData;
 
     EditText editText_id, editText_password, editText_name, editText_tel;
     AutoCompleteTextView editText_univ;
     Button button_login, button_signup;
 
-    String user_id, user_password, user_name, user_phone_number, user_univ;
-
-    // 자동 완성을 위한 스트링 리스트
+    // List for autocomplete
     String[] arWords = new String[] {
             "경북대학교", "경운대학교", "경일대학교", "계명대학교 대명캠퍼스", "대구교육대학교", "대구대학교",
             "대구가톨릭대학교 효성캠퍼스", "영남대학교 경산캠퍼스", "영진전문대학교 복현캠퍼스", "한동대학교"
@@ -52,18 +46,17 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
-        // 어댑터를 만들고 자동완성 스트링 리스트와 연결해줌
+        // Create an adapter and associate it with an autocomplete string list
         ArrayAdapter<String> adWord = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, arWords);
         editText_univ = (AutoCompleteTextView)findViewById(R.id.editText_univ);
 
-        // 어댑터 세팅
+        // Adapter settings
         editText_univ.setAdapter(adWord);
 
         editText_id = findViewById(R.id.editText_id);
         editText_password = findViewById(R.id.editText_password);
         editText_name = findViewById(R.id.editText_name);
         editText_tel = findViewById(R.id.editText_tel);
-        // editText_univ = findViewById(R.id.editText_univ);
 
         button_login = findViewById(R.id.button_login);
         button_login.setOnClickListener(new View.OnClickListener() {
@@ -79,7 +72,7 @@ public class SignUpActivity extends AppCompatActivity {
         button_signup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new JSONTask().execute("https://b157d2719683.ngrok.io"); //AsyncTask 시작 시킴
+                new JSONTask().execute("https://18f81b740298.ngrok.io"); // Start AsyncTask
             }
         });
     }
@@ -107,7 +100,6 @@ public class SignUpActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... urls) {
             try {
-                //JSONObject를 만들고 key value 형식으로 값을 저장해준다
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.accumulate("user_id", user_id);
                 jsonObject.accumulate("password", user_password);
@@ -118,35 +110,33 @@ public class SignUpActivity extends AppCompatActivity {
                 BufferedReader reader = null;
 
                 try {
-                    //URL url = new URL("http://192.168.35.39:8005/auth/join");
                     URL url = new URL(urls[0]);
-                    //연결을 함
                     con = (HttpURLConnection)url.openConnection();
-                    con.setRequestMethod("POST"); //POST 방식으로 보냄
-                    con.setRequestProperty("Cache-Control", "no-cache"); //캐시 설정
-                    con.setRequestProperty("Content-Type", "application/json"); //application JSON 형식으로 전송
-                    con.setRequestProperty("Accept", "text/html"); //서버에 response 데이터를 html로 받음
-                    con.setDoOutput(true); //Outstream으로 post 데이터를 넘겨주겠다는 의미
-                    con.setDoInput(true); //Inputstream으로 서버로부터 응답을 받겠다는 의미
+                    con.setRequestMethod("POST"); // Send by poast method
+                    con.setRequestProperty("Cache-Control", "no-cache"); // Cache settings
+                    con.setRequestProperty("Content-Type", "application/json"); // Send in application JSON format
+                    con.setRequestProperty("Accept", "text/html"); // Server receives response data in HTML
+                    con.setDoOutput(true); // Means to pass post data to outstream
+                    con.setDoInput(true); // Means to receive a response from the server as an input stream
                     con.connect();
-                    OutputStream outStream = con.getOutputStream(); //서버로 보내기 위해 스트림 만듦
+                    OutputStream outStream = con.getOutputStream(); // Create stream to send to server
 
-                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outStream)); //버퍼를 생성하고 넣음
+                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outStream)); // Create and put buffer
 
                     writer.write(jsonObject.toString());
                     writer.flush();
-                    writer.close(); //버퍼를 받아줌
+                    writer.close(); // Receive buffer
 
-                    //서버로부터 데이터를 받음
+                    // Receive data from server
                     InputStream stream = con.getInputStream();
-                    reader = new BufferedReader(new InputStreamReader(stream)); //속도 향상시키고 부하 줄이기 위한 버퍼 선언
+                    reader = new BufferedReader(new InputStreamReader(stream)); // Declare buffers to speed up and reduce load
                     StringBuffer buffer = new StringBuffer();
-                    String line = ""; //line별 String을 받기 위한 temp 변수
-                    while ((line = reader.readLine()) != null) { //실제 reader에서 데이터를 가져오는 부분. 즉, node.js 서버로부터 데이터 가져옴
+                    String line = ""; // Temp variable for receiving a string per line
+                    while ((line = reader.readLine()) != null) { // The part that gets data from the actual reader. That is, fetching data from the server
                         buffer.append(line);
                     }
 
-                    return buffer.toString(); //서버로부터 받은 값을 리턴해줌 아마 OK!!가 들어올 것임
+                    return buffer.toString(); // Returns the value received from the server
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -157,7 +147,7 @@ public class SignUpActivity extends AppCompatActivity {
                     }
                     try {
                         if (reader != null) {
-                            reader.close(); //버퍼를 닫아줌
+                            reader.close(); // Close buffer
                         }
                     } catch (IOException e) {
                         e.printStackTrace();

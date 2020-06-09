@@ -19,9 +19,9 @@ connection.connect();
 var serviceAccount = require('./capstone-car-firebase-adminsdk-zqm0k-2248c7ebc5.json');
  
 // 해당 토큰으로 휴대폰에 설치된 앱을 특정함
-var sender_token = "frds82R9RguVKXCuTHQIkK:APA91bHFHq4olZB6TJdOdvGJL7te798PyXyfM6pR3GP3_chQ1XZDZRZ69QZJ29T9-LoXgXm2h6RqI3Fx3vaYHhpM27e-G6MKSbHRnN5UKg9-9aOWOPsdBT5lGBaTrxAFIUG1LynUyE16";
+var sender_token = "f0Ane5gaRo2KTtUjjo6ugl:APA91bGZwT-Mi5TexV1C3DeHVI4DFa9IECxrOm_wg8axxZcFEXWex5yIjOxTcEGXjeE7uht2djnnqs9qL_cbEYuKrE_griGa-Jlj-Yzvimm3XrtApWQclEzt8WqxIOIDjVRVsVHdNXj-";
 // var receiver_token = "eot9UMWkRuWHP0oxph6qfk:APA91bFNN2JLoWXn9WKCHI09OsyvFpj8a2K_5cXlCPcTpqofxX3onqUbNgXk4FM2gsdfk34vD-P1bnKmt-KPqdXO_g9NLF6grICP4HfkYJHPi9v0d4Zw9_5s1039Y6876k9ytE4WZfVi";
-var receiver_token = "fOQ-jf71RIaCYZM2en0eXQ:APA91bGztZWmN-LutegBOVqPf9hOBssRIEkl1CloptCHhlnTAioXcSc5c4t6HtOaeQ3aNwhaGKD15_veNLuuprKYMMQDlJrL5HI6LaSo9c72_Bb1C66RY2AOQpWeTOzRhCY198pNshvL";
+var receiver_token = "f0Ane5gaRo2KTtUjjo6ugl:APA91bGZwT-Mi5TexV1C3DeHVI4DFa9IECxrOm_wg8axxZcFEXWex5yIjOxTcEGXjeE7uht2djnnqs9qL_cbEYuKrE_griGa-Jlj-Yzvimm3XrtApWQclEzt8WqxIOIDjVRVsVHdNXj-";
 //receiver_token 지금은 sender_token이랑 똑같은거 써서 테스트 하는데 나중에 바꿔야됨
 
 admin.initializeApp({
@@ -512,4 +512,3 @@ function notification_message(user, title_msg, body_msg) {
 http.listen(3000, () => {
     console.log('server listening on port 3000');
 });
-

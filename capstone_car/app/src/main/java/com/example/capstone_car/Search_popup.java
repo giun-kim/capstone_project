@@ -52,9 +52,9 @@ public class Search_popup extends Activity implements ReceiverClickListener{
         Intent intent = getIntent();
         String data = intent.getStringExtra("receiver_name");
 
-        receiver = new ArrayList<>();    //나중에 디비에서 가져와야됨
+        receiver = new ArrayList<>();
 
-        new JSONTask().execute("https://b157d2719683.ngrok.io/api/dlvy/check_user/"+data); //비동기라서 receiver에 바로 적용이 안됨
+        new JSONTask().execute("https://18f81b740298.ngrok.io/api/dlvy/check_user/"+data); //execute http connection to get data about receiver's info
 
         popup_notice.setText(data+"님을 검색한 결과입니다.");
     }
@@ -69,7 +69,7 @@ public class Search_popup extends Activity implements ReceiverClickListener{
         }
     }
     @Override
-    public void onReceiverClick(View v, Receiver data){
+    public void onReceiverClick(View v, Receiver data){ //when user clicked receiver
         Intent intent = new Intent();
         intent.putExtra("name", data.getName());
         intent.putExtra("number", data.getNumber());
@@ -80,11 +80,11 @@ public class Search_popup extends Activity implements ReceiverClickListener{
 
     public class JSONTask extends AsyncTask<String, String, String> {
         @Override
-        protected String doInBackground(String... params) {   //서버랑 접속
+        protected String doInBackground(String... params) {
             String result;
 
             try {
-                JSONObject jsonObject = new JSONObject();           //JSON 데이터를 보내기 위해 JSONObject 객체 생성
+                JSONObject jsonObject = new JSONObject();
                 HttpURLConnection con = null;
                 BufferedReader reader = null;
 
@@ -129,7 +129,7 @@ public class Search_popup extends Activity implements ReceiverClickListener{
 
             return null;
         }
-        protected void onPostExecute(String result) {       //서버에서 값 받는거    비동기인 AsyncTask를 동기화 형식으로 값을 리턴 받기 위해
+        protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
             JSONArray json = null;
@@ -138,7 +138,6 @@ public class Search_popup extends Activity implements ReceiverClickListener{
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-//                    JSONObject stations = json.getJSONObject(0); //response.data.station_all과 같음 그래서 JSONArray
 
             jsonArray = json;
 
@@ -146,9 +145,9 @@ public class Search_popup extends Activity implements ReceiverClickListener{
         }
     }
 
-    public void jsonArrayParse(){
+    public void jsonArrayParse(){   //parsing receiver's info
         if(jsonArray.length() != 0){
-            for(int i = 0 ; i < jsonArray.length(); i++){ //이게 비동기라서 receiver가 제대로 안됨
+            for(int i = 0 ; i < jsonArray.length(); i++){
                 try {
                     JSONObject jObject = jsonArray.getJSONObject(i);
                     receiver.add(new Receiver(jObject.getString("user_name"), jObject.getString("user_phone"), jObject.getString("user_id")));
@@ -156,7 +155,7 @@ public class Search_popup extends Activity implements ReceiverClickListener{
                     e.printStackTrace();
                 }
             }
-            //받는 사람 리스트를 동기화 형식으로 받아서 recyclerView를 갱신해주기 위해 여기다가 recyclerView 설정 적어줌. UI 갱신은 다른 스레드에서는 되지 않는다
+
             recyclerView = findViewById(R.id.receiver_list);
             recyclerView.setVisibility(View.VISIBLE);
             loading_user.setVisibility(View.GONE);

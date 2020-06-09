@@ -1,9 +1,9 @@
 package com.example.capstone_car;
 
-        import android.view.View;
-        import android.widget.TextView;
+import android.view.View;
+import android.widget.TextView;
 
-        import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 
 class ReceiverViewHolder extends RecyclerView.ViewHolder{
     TextView name;

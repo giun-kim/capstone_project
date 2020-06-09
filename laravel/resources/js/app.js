@@ -31,7 +31,7 @@ Vue.use(VCalendar,{
 
 Vue.use(BootstrapVue);
 
-const router = new VueRouter({
+const router = new VueRouter({ //vue router
     mode : 'history',
     routes : [
         {
@@ -91,4 +91,4 @@ const app = new Vue({
     render : (h) => h(Parent)
 });
 
-Vue.prototype.$EventBus = new Vue();    //컴포넌트간 통신을 하기 위해서
+Vue.prototype.$EventBus = new Vue();    //for communication with Vue pages

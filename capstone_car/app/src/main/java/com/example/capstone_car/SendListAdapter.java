@@ -37,13 +37,13 @@ public class SendListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         View view;
         Context context = parent.getContext();
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if (viewType == SendCode.ViewType.WAIT) {
+        if (viewType == SendCode.ViewType.WAIT) {       // List when delivery status in on standby
             view = inflater.inflate(R.layout.listview_send_wait, parent, false);
             return new WaitViewHolder(view);
-        } else if (viewType == SendCode.ViewType.CALL) {
+        } else if (viewType == SendCode.ViewType.CALL) {        // List when delivery status is being called
             view = inflater.inflate(R.layout.listview_send, parent, false);
             return new CallViewHolder(view);
-        } else {
+        } else {        // List when delivery status is being delivered
             view = inflater.inflate(R.layout.listview_send_dlvy, parent, false);
             return new DlvyViewHolder(view);
         }
@@ -81,7 +81,7 @@ public class SendListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             }
 
                             try {
-                                mSocket = IO.socket( "https://d141df9db1cc.ngrok.io" );
+                                mSocket = IO.socket( "https://5ceae07f7177.ngrok.io" );
                             } catch(URISyntaxException e) {
                                 throw new RuntimeException(e);
                             }

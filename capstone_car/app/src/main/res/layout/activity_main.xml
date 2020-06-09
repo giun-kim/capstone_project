@@ -5,6 +5,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#04befe"
     tools:context=".MainActivity">
 
     <TextView
@@ -14,26 +15,45 @@
         android:text="바리바리"
         android:gravity="center_horizontal"
         android:textSize="25dp"
+        android:textStyle="bold"
         android:layout_marginTop="20dp"
-        android:textColor="#000000"/>
+        android:textColor="#ffffff"/>
 
-    <TextView
-        android:id="@+id/textView_userName"
+    <LinearLayout
+        android:id="@+id/main_linearlayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="admin"
-        android:textSize="16dp"
-        android:layout_below="@+id/textView_logo"
+        android:layout_marginTop="15dp"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="10dp"
-        android:textColor="#000000"/>
+        android:layout_marginBottom="15dp"
+        android:layout_below="@+id/textView_logo">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/user"/>
+
+        <TextView
+            android:id="@+id/textView_userName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="admin"
+            android:textSize="13dp"
+            android:layout_below="@+id/textView_logo"
+            android:layout_marginLeft="5dp"
+            android:textColor="#ffffff"/>
+    </LinearLayout>
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tablayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/textView_userName"
-        app:tabIndicatorColor="#099085">
+        android:layout_height="45dp"
+        android:layout_below="@+id/main_linearlayout"
+        android:background="#00ffffff"
+        app:tabBackground="@drawable/tab_selected"
+        app:tabSelectedTextColor="#000000"
+        app:tabIndicatorHeight="0dp"
+        app:tabIndicatorFullWidth="true">
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/tab_send"
@@ -59,14 +79,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/tablayout"
-        android:layout_alignBottom="@+id/button_call"/>
+        android:layout_alignEnd="@+id/button_call"
+        android:background="#ffffff"/>
 
-    <Button
+    <android.widget.Button
         android:id="@+id/button_call"
         android:layout_width="match_parent"
         android:layout_height="90dp"
-        android:text="호출하기"
         android:layout_alignParentBottom="true"
-        android:background="#0DD1C0"/>
+        android:textSize="20dp"
+        android:text="호출하기"
+        android:textColor="#ffffff"
+        android:textStyle="bold"
+        android:background="#FFB319"/>
 
 </RelativeLayout>

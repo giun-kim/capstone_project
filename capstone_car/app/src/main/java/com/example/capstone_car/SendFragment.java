@@ -40,8 +40,6 @@ public class SendFragment extends Fragment {
     private RelativeLayout layout_nothing;
     private Button button_refresh;
 
-    ArrayList<String> keys = new ArrayList<>();
-
     String user_id;
 
     Context mContext;
@@ -53,7 +51,7 @@ public class SendFragment extends Fragment {
 
         Log.d("onCreateView :::: ", "onCreateView(Send)");
 
-        mContext = container.getContext();      // 프래그먼트는 일반 액티비티와 다르게 context 구할 때 this 사용 불가.
+        mContext = container.getContext();      // Fragment can't use 'this' to get context differently from activities
 
         user_id = SharedPreferenceUtil.getString(mContext, "user_id");
 
@@ -70,7 +68,7 @@ public class SendFragment extends Fragment {
         sendList.setItemAnimator(new DefaultItemAnimator());
         sendList.setAdapter(mAdapter);
 
-        button_refresh.setOnClickListener( new View.OnClickListener() {
+        button_refresh.setOnClickListener( new View.OnClickListener() {     // Manually refresh data
             @Override
             public void onClick(View v) {
                 prepareData();
@@ -87,16 +85,15 @@ public class SendFragment extends Fragment {
         super.onResume();
     }
 
-    // 데이터 준비
     private void prepareData() {
-        new JSONTask().execute("https://b157d2719683.ngrok.io/api/dlvy/senddlvy/"+user_id);
+        new JSONTask().execute("https://18f81b740298.ngrok.io/api/dlvy/senddlvy/"+user_id);
     }
 
     public class JSONTask extends AsyncTask<String, String, String> {
         String user_id = SharedPreferenceUtil.getString(mContext, "user_id");
 
         @Override
-        protected String doInBackground(String... urls) {   // GET 방식
+        protected String doInBackground(String... urls) {   // GET method
             try {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.accumulate( "user_id", user_id );
@@ -146,76 +143,68 @@ public class SendFragment extends Fragment {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
-            Log.d("send result ::::::::: ", "result@@ : " + result);
+            try {
+                JSONObject obj = new JSONObject(result);
 
-            jsonObject(result);
-        }
-    }
+                Log.d("keys result ::::: ", "result @@ " + obj.has("value"));
 
-    public void jsonObject(String data) {
+                if (obj.has("value")) {
+                    list.clear();
+                    layout_nothing.setVisibility( View.VISIBLE );
+                    mAdapter.notifyDataSetChanged();
+                } else {
+                    layout_nothing.setVisibility( View.GONE );
+                    JSONArray diarray = obj.getJSONArray("dlvy_info");
+                    JSONArray dwnarray = obj.getJSONArray("dlvy_wait_num");
+                    JSONArray usarray = obj.getJSONArray("user_name");
+                    JSONArray rgarray = obj.getJSONArray("rc_gps");
+                    JSONArray ssarray = obj.getJSONArray("station_start");
+                    JSONArray searray = obj.getJSONArray("station_end");
 
-        try {
-            JSONObject obj = new JSONObject(data);
+                    int[] dlvy_wait_num = new int[dwnarray.length()];
 
-            Log.d("keys result ::::: ", "result @@ " + obj.has("value"));
+                    Log.d("diarray     ;;;;;;; ", "어레이확인 : " + diarray.toString());
 
-            if (obj.has("value")) {
-                list.clear();   //
-                layout_nothing.setVisibility( View.VISIBLE );
-                mAdapter.notifyDataSetChanged();    //
-            } else {
-                layout_nothing.setVisibility( View.GONE );
-                JSONArray diarray = obj.getJSONArray("dlvy_info");
-                JSONArray dwnarray = obj.getJSONArray("dlvy_wait_num");
-                JSONArray usarray = obj.getJSONArray("user_name");
-                JSONArray rgarray = obj.getJSONArray("rc_gps");
-                JSONArray ssarray = obj.getJSONArray("station_start");
-                JSONArray searray = obj.getJSONArray("station_end");
+                    list.clear();       // Deleting a delivered list
 
-                int[] dlvy_wait_num = new int[dwnarray.length()];
+                    for (int i = 0; i < diarray.length(); i++) {
+                        dlvy_wait_num[i] = dwnarray.getInt(i);
 
-                Log.d("diarray     ;;;;;;; ", "어레이확인 : " + diarray.toString());
+                        Log.d("rc_gps    ;;;;;;; ", "오브젝트확인 : " + dlvy_wait_num[i]);
+                        JSONObject dlvy_info = diarray.getJSONObject(i);
+                        JSONObject station_start = ssarray.getJSONObject(i);
+                        JSONObject station_end = searray.getJSONObject(i);
+                        JSONObject rc_gps = rgarray.getJSONObject(i);
 
-                list.clear();
-
-                for (int i = 0; i < diarray.length(); i++) {
-                    //
-                    dlvy_wait_num[i] = dwnarray.getInt(i);              //
-
-                    Log.d("rc_gps    ;;;;;;; ", "오브젝트확인 : " + dlvy_wait_num[i]);
-                    JSONObject dlvy_info = diarray.getJSONObject(i);
-                    JSONObject station_start = ssarray.getJSONObject(i);
-                    JSONObject station_end = searray.getJSONObject(i);
-                    JSONObject rc_gps = rgarray.getJSONObject(i);
-
-                    switch (dlvy_info.getString( "dlvy_status" )) {
-                        case "대기중":
-                            list.add( new List( dlvy_info.getInt( "dlvy_num" ), dlvy_wait_num[i], usarray.get( i ).toString(), station_start.getString( "station_name" ), station_end.getString( "station_name" ), dlvy_info.getString( "dlvy_status" ), SendCode.ViewType.WAIT ) );
-                            break;
-                        case "호출중": {
-                            double distance = predictTime( rc_gps.getDouble( "car_lat" ), rc_gps.getDouble( "car_lon" ), station_start.getDouble( "station_lat" ), station_start.getDouble( "station_lon" ) );
-                            int time = (int) Math.ceil( distance / (1.0 / 12) );
-                            list.add( new List( dlvy_info.getInt( "dlvy_num" ), rc_gps.getInt("car_num"), usarray.get( i ).toString(), station_start.getString( "station_name" ), station_end.getString( "station_name" ), time, dlvy_info.getString( "dlvy_status" ), SendCode.ViewType.CALL ) );
-                            break;
-                        }
-                        case "배달중": {
-                            double distance = predictTime( station_start.getDouble( "station_lat" ), station_start.getDouble( "station_lon" ), station_end.getDouble( "station_lat" ), station_end.getDouble( "station_lon" ) );
-                            int time = (int) Math.ceil( distance / (1.0 / 12) );
-                            list.add( new List( dlvy_info.getInt( "dlvy_num" ), rc_gps.getInt("car_num"), usarray.get( i ).toString(), station_start.getString( "station_name" ), station_end.getString( "station_name" ), time, dlvy_info.getString( "dlvy_status" ), SendCode.ViewType.DLVY ) );
-                            break;
+                        switch (dlvy_info.getString( "dlvy_status" )) {
+                            case "대기중":
+                                list.add( new List( dlvy_info.getInt( "dlvy_num" ), dlvy_wait_num[i], usarray.get( i ).toString(), station_start.getString( "station_name" ), station_end.getString( "station_name" ), dlvy_info.getString( "dlvy_status" ), SendCode.ViewType.WAIT ) );
+                                break;
+                            case "호출중": {
+                                double distance = predictTime( rc_gps.getDouble( "car_lat" ), rc_gps.getDouble( "car_lon" ), station_start.getDouble( "station_lat" ), station_start.getDouble( "station_lon" ) );
+                                int time = (int) Math.ceil( distance / (1.0 / 12) );
+                                list.add( new List( dlvy_info.getInt( "dlvy_num" ), rc_gps.getInt("car_num"), usarray.get( i ).toString(), station_start.getString( "station_name" ), station_end.getString( "station_name" ), time, dlvy_info.getString( "dlvy_status" ), SendCode.ViewType.CALL ) );
+                                break;
+                            }
+                            case "배달중": {
+                                double distance = predictTime( station_start.getDouble( "station_lat" ), station_start.getDouble( "station_lon" ), station_end.getDouble( "station_lat" ), station_end.getDouble( "station_lon" ) );
+                                int time = (int) Math.ceil( distance / (1.0 / 12) );
+                                list.add( new List( dlvy_info.getInt( "dlvy_num" ), rc_gps.getInt("car_num"), usarray.get( i ).toString(), station_start.getString( "station_name" ), station_end.getString( "station_name" ), time, dlvy_info.getString( "dlvy_status" ), SendCode.ViewType.DLVY ) );
+                                break;
+                            }
                         }
                     }
+
+                    mAdapter.notifyDataSetChanged();
                 }
 
-                mAdapter.notifyDataSetChanged();
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
     }
 
-    /////////////// 예상 소요 시간 구하기 ///////////////
+    // Finding the Estimated Time
     private double predictTime(double car_lat, double car_lon, double station_lat, double station_lon) {
         double startLat = degreesToRadians(car_lat);
         double startLon = degreesToRadians(car_lon);
@@ -226,10 +215,8 @@ public class SendFragment extends Fragment {
         return Math.acos(Math.sin(startLat) * Math.sin(endLat) + Math.cos(startLat) * Math.cos(endLat) * Math.cos(startLon - endLon)) * radius;
     }
 
+    // Finding the Estimated Time
     private double degreesToRadians(double data) {
         return (data * Math.PI)/180;
     }
-    /////////////////////////////////////////////////////
-
-
 }

@@ -195,71 +195,71 @@ export default {
   data(){
     return{
       map_info : {
-        container : '',                 //map 담기 위한 div
-        mapOptions : '',                //map 옵션 객체
-        map : '',                       //map 객체
-        map_x : 35.8962,                //지도의 중심점 위도
-        map_y : 128.6220                //지도의 중심점 경도
+        container : '',                 //div for map
+        mapOptions : '',                //map option
+        map : '',                       //map
+        map_x : 35.8962,                //map's latitude
+        map_y : 128.6220                //map's longitude
       },
       rc : {
-        entire_rc : 0,                  //전체 RC카
-        proceeding_rc : 0,              //운행 중 RC카
-        waiting_rc : 0,                 //운행 대기 RC카
-        error_rc : 0,                   //오류 RC카
-        operation_rate : 0,             //RC카 가동률
+        entire_rc : 0,                  //entire rc car's number
+        proceeding_rc : 0,              //proceeding rc car's number
+        waiting_rc : 0,                 //waiting rc car's number
+        error_rc : 0,                   //error rc car's number
+        operation_rate : 0,             //rc car's operating rate
       },
       call_info : {
-        entire_call : 0,                //당일 총 콜 수
-        call_avg_month_ago : 0,         //저번 달 하루 평균 콜수
-        complete_call : 0,              //당일 완료 건 수
-        complete_rate : 0,              //원그래프에 나올 퍼센트(완료율 / 전체 콜 수)
+        entire_call : 0,                //entire call's number
+        call_avg_month_ago : 0,         //call's number a month ago
+        complete_call : 0,              //completed call's number
+        complete_rate : 0,              //completed percentage
       },
       wait_info : {
-        entire_waiting : 0,             //전체 대기 수
-        complete_waiting : 0,           //대기 완료 건 수
-        now_waiting : 0,                //현재 대기 중 건수
-        canceled_waiting : 0,           //대기 취소 건 수
-        canceled_waiting_rate : 0,      //대기 취소율
+        entire_waiting : 0,             //entire waiting's number
+        complete_waiting : 0,           //completed waiting's number 
+        now_waiting : 0,                //waiting's number now
+        canceled_waiting : 0,           //canceled waiting's number
+        canceled_waiting_rate : 0,      //waiting's canceled rate
       },
-      rank_bldg : [],                   //지난 주 호출 건물 순위 배열
+      rank_bldg : [],                   //building's rank about call's number
       wait_time : {
-        avg_waiting_time : 0,           //실시간 평균 대기 시간
-        avg_waiting_time_month_ago : 0, //저번달 하루 평균 대기 시간
+        avg_waiting_time : 0,           //average waiting time
+        avg_waiting_time_month_ago : 0, //average waiting time a month ago
       },
-      rc_list : [],                     //지도에 나올 RC카 리스트
-      station_list : [],                //지도에 나올 정류장 리스트
+      rc_list : [],                     //rc car's info list
+      station_list : [],                //station's info list
       rc_info : {
-        rc_name : '',                   //운행 정보에 나올 RC 이름
-        rc_status : '',                 //운행 정보에 나올 RC 상태
-        rc_error_info : ''              //운행 정보에 나올 오류 내역
+        rc_name : '',                   //rc car's name
+        rc_status : '',                 //rc car's status
+        rc_error_info : ''              //rc car's error
       },
       point : {
-        start_point : '',               //출발지 이름
-        end_point : '',                 //목적지 이름
-        start_point_lat : '',           //출발지 위도
-        start_point_lon : '',           //출발지 경도
-        end_point_lat : '',             //목적지 위도
-        end_point_lon : ''              //목적지 경도
+        start_point : '',               //start point's name
+        end_point : '',                 //end point's name
+        start_point_lat : '',           //start point's latitude
+        start_point_lon : '',           //start point's longitude
+        end_point_lat : '',             //end point's latitude
+        end_point_lon : ''              //end point's longitude
       },
       user_info : {
-        sender_name : '',               //sender 이름
-        sender_phone : '',              //sender 전화번호
-        receiver_name : '',             //receiver 이름
-        receiver_phone : ''             //receiver 전화번호
+        sender_name : '',               //sender's name
+        sender_phone : '',              //sender' phone number
+        receiver_name : '',             //receiver's name
+        receiver_phone : ''             //receiver's phone number
       },
       dlvy_time : {
-        start_time : '',                //출발 시간
-        end_time : ''                   //예상완료시간
+        start_time : '',                //start time 
+        end_time : ''                   //predicted end time
       },
-      socket : io.connect('https://d141df9db1cc.ngrok.io', {    //소켓 클라이언트
+      socket : io.connect('https://5ceae07f7177.ngrok.io', {    //socket io client
         port : 3000
       }),
       marker : [],
-      error_info : {                    //에러 정보
+      error_info : {                    //error info
         err_rc_num : '',
         err_content : ''
       },
-      markerImg : {                     //마커 이미지들
+      markerImg : { //marker's images
         stationMarker : new kakao.maps.MarkerImage('/image/station.png', new kakao.maps.Size(30,30)),
         proceedingMarker : new kakao.maps.MarkerImage('/image/proceeding_rc.png', new kakao.maps.Size(30,30)),
         freeMarker : new kakao.maps.MarkerImage('/image/free_rc.png', new kakao.maps.Size(30,30)),
@@ -268,16 +268,16 @@ export default {
     }
   },
   mounted(){
-    this.socket.on("call_count", (data) => {  //사용자가 호출하기 눌렀을 때 실행
+    this.socket.on("call_count", (data) => {  //when user's call rc car
       this.call_info.entire_call = data[0].count;
       this.cal_Rate("call", this.call_info.complete_call, this.call_info.entire_call);
     });
-    this.socket.on("complete_dlvy_count", (data) => { //배달이 완료 되었을 때(사용자가 수령 완료 눌렀을 때) 실행
+    this.socket.on("complete_dlvy_count", (data) => { //when the delivery is finished
       this.call_info.complete_call = data[0].count;
       this.cal_Rate("call", this.call_info.complete_call, this.call_info.entire_call);
       this.changeMarkerImage();
     });
-    this.socket.on("rc_status", (data) => { //RC카의 상태가 바뀔 때 실행
+    this.socket.on("rc_status", (data) => { //when change the rc car's status
       this.rc.proceeding_rc = data.call + data.dlvy;
       this.rc.waiting_rc = data.wait;
       this.rc.error_rc = data.err;
@@ -285,14 +285,14 @@ export default {
       this.cal_Rate("operation", this.rc.proceeding_rc, this.rc.entire_rc);
       this.changeMarkerImage();
     });
-    this.socket.on("wait_data", (data) => { //배달 수락 할 때 대기 순열에 포함될 시 / 대기 완료 시, 대기 취소 시 실행
+    this.socket.on("wait_data", (data) => { //when change waiting info
       this.wait_info.now_waiting = data.wait_now;
       this.wait_info.complete_waiting = data.wait_complete;
       this.wait_info.canceled_waiting = data.wait_cancel;
       this.wait_info.entire_waiting = this.wait_info.now_waiting + this.wait_info.complete_waiting + this.wait_info.canceled_waiting;
       this.cal_Rate("cancel", this.wait_info.canceled_waiting, this.wait_info.entire_waiting);
     });
-    this.socket.on("car_data", (data) => {  //RC카 위치가 변할 때마다 실행  
+    this.socket.on("car_data", (data) => {  //when change rc car's location
       for(var i = 0, len = this.marker.length ; i < len; i++){
         if(this.marker[i].getTitle() == data.car_num){  //특정 RC카 찾아 위치 바꿔줌
           this.marker[i].setPosition(new kakao.maps.LatLng(data.car_lat, data.car_lon));
@@ -300,7 +300,7 @@ export default {
       }
     });
 
-    this.socket.on("car_err", (data) => { //차에 에러가 발생 했을 경우 실행
+    this.socket.on("car_err", (data) => { //when occur the error to rc car
       this.rc.proceeding_rc = data.call + data.dlvy;
       this.rc.waiting_rc = data.wait;
       this.rc.error_rc = data.err;
@@ -308,66 +308,66 @@ export default {
 
       this.error_info.err_rc_num = data.car_num;
       this.error_info.err_content = data.err_msg;
-      this.$bvModal.show("modal-center");  //모달 키는 법
+      this.$bvModal.show("modal-center");  //modal show
 
       this.cal_Rate("operation", this.rc.proceeding_rc, this.rc.entire_rc);
       this.changeMarkerImage();
     })
 
     this.map_info.container = document.getElementById("map");
-    this.map_info.mapOptions = { //맵 생성
+    this.map_info.mapOptions = { //create map
       center: new kakao.maps.LatLng(this.map_info.map_x, this.map_info.map_y),
-      level: 3, //지도의 레벨(확대, 축소 정도)
-      mapTypeId : kakao.maps.MapTypeId.ROADMAP // 지도종류
+      level: 3, //map's level
+      mapTypeId : kakao.maps.MapTypeId.ROADMAP
     };
 
-    this.map_info.map = new kakao.maps.Map(this.map_info.container, this.map_info.mapOptions); //맵 붙히기
+    this.map_info.map = new kakao.maps.Map(this.map_info.container, this.map_info.mapOptions);
 
-    Axios.get('/api/dlvy/control')    //첫 페이지 로딩
+    Axios.get('/api/dlvy/control')    //when enter control page
     .then((response) => {
-      this.rc.proceeding_rc = response.data.proceeding_rc; //실시간 운행 상태 항목들
+      this.rc.proceeding_rc = response.data.proceeding_rc; //rc car's status info
       this.rc.waiting_rc = response.data.waiting_rc;
       this.rc.error_rc = response.data.error_rc;
       this.rc.entire_rc = this.rc.proceeding_rc + this.rc.waiting_rc + this.rc.error_rc;
       this.cal_Rate("operation", this.rc.proceeding_rc, this.rc.entire_rc);
 
-      this.call_info.entire_call = response.data.entire_call; //실시간 배달 현황 항목들
+      this.call_info.entire_call = response.data.entire_call; //delivery's status info
       this.call_info.complete_call = response.data.complete_call;
       this.call_info.call_avg_month_ago = Math.floor(response.data.call_avg_month_ago);
       this.cal_Rate("call", this.call_info.complete_call, this.call_info.entire_call);
 
-      this.rank_bldg = response.data.build_rank;  //지난 주 호출 건물 순위 항목들
+      this.rank_bldg = response.data.build_rank;  //buliding's rank 
 
-      this.wait_info.complete_waiting = response.data.complete_waiting; //실시간 대기 취소 현황 항목들
+      this.wait_info.complete_waiting = response.data.complete_waiting; //waiting's info
       this.wait_info.now_waiting = response.data.now_waiting;
       this.wait_info.canceled_waiting = response.data.canceled_waiting;
       this.wait_info.entire_waiting = this.wait_info.complete_waiting + this.wait_info.now_waiting + this.wait_info.canceled_waiting;
       this.cal_Rate("cancel", this.wait_info.canceled_waiting, this.wait_info.entire_waiting);
 
-      this.wait_time.avg_waiting_time = Math.floor(response.data.avg_waiting_time); //실시간 평균 대기 시간 항목들
+      this.wait_time.avg_waiting_time = Math.floor(response.data.avg_waiting_time); //average waiting time
       this.wait_time.avg_waiting_time_month_ago = Math.floor(response.data.avg_waiting_time_month_ago)
 
-      this.rc_list = response.data.map_car_status;  //지도에 RC카를 띄우기 위해 RC카 정보를 배열로 담음
-      this.station_list = response.data.station_info; //지도에 정류장을 띄우기 위해 정류장 정보를 배열로 담음
+      this.rc_list = response.data.map_car_status;  //rc info's list
+      this.station_list = response.data.station_info; //station info's list
 
-      for(var i = 0, len = this.rc_list.length ; i < len; i++){ //지도에 RC카 띄우기
-        const marker = new kakao.maps.Marker({  //마커 생성
-          map: this.map_info.map, // 마커를 표시할 지도
-          position: new kakao.maps.LatLng(this.rc_list[i].car_lat, this.rc_list[i].car_lon), // 마커의 위치
-          title : this.rc_list[i].car_num //마커에 hover 했을 때 표시됨
+      for(var i = 0, len = this.rc_list.length ; i < len; i++){ //create markers for rc cars
+        const marker = new kakao.maps.Marker({  //create marker
+          map: this.map_info.map, // set map
+          position: new kakao.maps.LatLng(this.rc_list[i].car_lat, this.rc_list[i].car_lon), // marker's location
+          title : this.rc_list[i].car_num //marker's title
         });
-        if(this.rc_list[i].car_status == "배달중" || this.rc_list[i].car_status == "호출중"){ //상태에 따라 다른 이미지를 넣기 위해
+        if(this.rc_list[i].car_status == "배달중" || this.rc_list[i].car_status == "호출중"){ //setting image
           marker.setImage(this.markerImg.proceedingMarker);
         }else if(this.rc_list[i].car_status == "배달대기"){
           marker.setImage(this.markerImg.freeMarker);
         }else if(this.rc_list[i].car_status == "오류"){
           marker.setImage(this.markerImg.errMarker);
         }
-        this.marker[i] = marker;  //socket io 통신을 통해 받은 값에 따라 마커 이미지를 바꿔주기 위해 마커를 배열에 넣음
-        kakao.maps.event.addListener(marker, 'click', () => { //마커의 클릭 이벤트
-          Axios.get('/api/dlvy/control/show/' + marker.getTitle())  //해당 마커의 정보를 가져오는 axios
+        this.marker[i] = marker;
+        kakao.maps.event.addListener(marker, 'click', () => { //marker's click event
+          Axios.get('/api/dlvy/control/show/' + marker.getTitle())  //get marker's info
           .then((response) => {
-            this.rc_info.rc_name = '';    //한 마커를 누르고 다른 마커를 누를 시, 원래 적혀있던 내용들을 지워주기 위해서.
+            this.rc_info.rc_name = '';    //delete content before
             this.rc_info.rc_status = '';
             this.rc_info.rc_error_info = '';
             this.user_info.sender_name = '';
@@ -379,14 +379,14 @@ export default {
             this.dlvy_time.start_time = '';
             this.dlvy_time.end_time = '';
 
-            if(response.data.car_status == "배달대기"){   //각 RC카의 상태에 따라 넣어줄 값들 넣어주기
+            if(response.data.car_status == "배달대기"){   //put the value according to car_status
               this.rc_info.rc_name = response.data.car_name;
               this.rc_info.rc_status = response.data.car_status;
             }else if(response.data.car_status == "오류"){
               this.rc_info.rc_name = response.data.car_name;
               this.rc_info.rc_status = response.data.car_status;
               this.rc_info.rc_error_info = response.data.car_error;
-            }else{  //호출 중, 배달 중일 때
+            }else{
               this.rc_info.rc_name = response.data.car.car_name;
               this.rc_info.rc_status = response.data.car.car_status;
               this.user_info.sender_name = response.data.sender_info.user_name;
@@ -394,7 +394,7 @@ export default {
               this.user_info.receiver_name = response.data.receiver_info.user_name;
               this.user_info.receiver_phone = response.data.receiver_info.user_phone;
               this.point.start_point = response.data.dlvy_start_point.station_name;
-              this.point.start_point_lat = response.data.dlvy_start_point.station_lat;  //예상 소요 시간 구하기 위해 좌표도 들고 온다
+              this.point.start_point_lat = response.data.dlvy_start_point.station_lat;
               this.point.start_point_lon = response.data.dlvy_start_point.station_lon;
               this.point.end_point = response.data.dlvy_end_point.station_name;
               this.point.end_point_lat = response.data.dlvy_end_point.station_lat;
@@ -402,28 +402,28 @@ export default {
               if(this.rc_info.rc_status == "호출중"){
                 this.dlvy_time.start_time = '호출중'
                 this.dlvy_time.end_time = '호출중'
-              }else if(this.rc_info.rc_status == "배달중"){ //출발시간, 도착 시간.
-                var split_time = response.data.dlvy_status.dlvy_start.split(":"); //초 단위는 배제하기 위해 split으로 나누어 시와 분만 합침
+              }else if(this.rc_info.rc_status == "배달중"){ 
+                var split_time = response.data.dlvy_status.dlvy_start.split(":"); //for excepting second
                 var split_time = [split_time[0], split_time[1]];
-                this.dlvy_time.start_time = split_time.join(':'); //출발 시간
+                this.dlvy_time.start_time = split_time.join(':'); //start time
 
                 var rc_lat = response.data.car.car_lat;
                 var rc_lon = response.data.car.car_lon;
                 var distance = this.predict_time(rc_lat, rc_lon, this.point.end_point_lat, this.point.end_point_lon);
-                var time = Math.ceil(distance / (1/12)) //RC카 속도를 5km/h로 임의로 정했을 때 1분에 1/12km 갈 수 있음.
-                if(Number(split_time[1]) + time >= 60){ //현재 시간과, 예상 소요 시간을 더했을 때 시간 단위가 바껴야할 때.
+                var time = Math.ceil(distance / (1/12)) //on the assumption rc car's speed is 5km/h
+                if(Number(split_time[1]) + time >= 60){ 
                   split_time[0] = Number(split_time[0]) + 1
                   split_time[1] = Number(split_time[1]) - 60
-                  if(Number(split_time[1] < 10)){ //분이 10분보다 적을 때 앞에 0을 붙여주기 위해
+                  if(Number(split_time[1] < 10)){ 
                     split_time[1] = '0' + Number(split_time[1])
                   }
-                  this.dlvy_time.end_time = split_time.join(':'); //예상 도착 시간
+                  this.dlvy_time.end_time = split_time.join(':'); //predicted end time
                 }else{
                   split_time[1] = Number(split_time[1]) + time;
-                  if(Number(split_time[1] < 10)){ //분이 10분보다 적을 때 앞에 0을 붙여주기 위해
+                  if(Number(split_time[1] < 10)){ 
                     split_time[1] = '0' + Number(split_time[1])
                   }
-                  this.dlvy_time.end_time = split_time.join(':');
+                  this.dlvy_time.end_time = split_time.join(':'); //predicted end time
                 }
               }
             }
@@ -433,10 +433,10 @@ export default {
           })
         });
       }
-      for(var i = 0, len = this.station_list.length; i < len; i++){    //정류장 등록
+      for(var i = 0, len = this.station_list.length; i < len; i++){    //create marker for stations
         const marker = new kakao.maps.Marker({
-          map: this.map_info.map, // 마커를 표시할 지도
-          position: new kakao.maps.LatLng(this.station_list[i].station_lat, this.station_list[i].station_lon), // 마커의 위치
+          map: this.map_info.map,
+          position: new kakao.maps.LatLng(this.station_list[i].station_lat, this.station_list[i].station_lon),
           title : this.station_list[i].station_name,
           image : this.markerImg.stationMarker
         });
@@ -447,25 +447,25 @@ export default {
     })
   },
   methods : {
-    predict_time(rc_lat, rc_lon, start_lat, start_lon){ //예상 소요 시간 구하는 메서드
-      var startLat = this.degreesToRadians(rc_lat);   //계산을 위해 라디안 메서드 호출
+    predict_time(rc_lat, rc_lon, start_lat, start_lon){ //calculate distance.
+      var startLat = this.degreesToRadians(rc_lat);
       var startLon = this.degreesToRadians(rc_lon);
       var endLat = this.degreesToRadians(start_lat);
       var endLon = this.degreesToRadians(start_lon);
       var Radius = 6371; //지구의 반경(km
 
-      var distance = Math.acos(Math.sin(startLat) * Math.sin(endLat) +  //거리 구하는 식
+      var distance = Math.acos(Math.sin(startLat) * Math.sin(endLat) + 
                     Math.cos(startLat) * Math.cos(endLat) *
                     Math.cos(startLon - endLon)) * Radius;
 
       return distance;
     },
-    degreesToRadians(degrees){  //라디안 변환
+    degreesToRadians(degrees){  //change location to radian
       var radians = (degrees * Math.PI)/180
 
       return radians;
     },
-    changeMarkerImage(){  //마커의 이미지 변환 시키기 위해
+    changeMarkerImage(){  //change marker's image
       Axios.get('/api/dlvy/control/car')
       .then((response) => {
         this.rc_list = response.data;
@@ -483,9 +483,9 @@ export default {
         console.log(err);
       })
     },
-    cal_Rate(rate, numerator, denominator){ //완료율, 가동률, 대기 취소율 계산하는 메서드
+    cal_Rate(rate, numerator, denominator){ //calculate percentage
       if(rate == "call"){
-        if(denominator != 0){ //분모가 0이면 백분율을 0으로 하기 위해
+        if(denominator != 0){
           this.call_info.complete_rate = Math.floor((numerator / denominator) * 100);
         }else{
           this.call_info.complete_rate = 0;

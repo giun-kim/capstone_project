@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    android:background="@drawable/button_round"
+    android:elevation="3dp">
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -17,7 +20,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="admin"
-            android:textSize="16dp"
+            android:textSize="14dp"
+            android:textColor="#000000"
             android:paddingLeft="15dp"/>
 
         <LinearLayout
@@ -30,15 +34,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="출발지"
-                android:textSize="20dp"
+                android:textSize="18dp"
+                android:textStyle="bold"
+                android:textColor="#000000"
                 android:paddingLeft="15dp"/>
 
             <TextView
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="->"
-                android:textSize="20dp"
+                android:text="→"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:textSize="18dp"
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"/>
 
@@ -47,7 +55,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="목적지"
-                android:textSize="20dp"/>
+                android:textSize="18dp"
+                android:textColor="#000000"
+                android:textStyle="bold"/>
         </LinearLayout>
 
         <TextView
@@ -55,14 +65,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="예상소요시간"
-            android:textSize="16dp"
+            android:textSize="14dp"
+            android:textColor="#000000"
             android:paddingLeft="15dp"/>
     </LinearLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="30dp"
         android:layout_weight="1">
 
         <TextView
