@@ -6,9 +6,8 @@ use Illuminate\Http\Request;
 use DB;
 class AppLoginController extends Controller
 {
-    // 로그인
+    // login
     public function login_check(Request $req){   
-        debug($req->login_id, $req->login_password); 
         if($req->login_id === null) {
             return response()->json(['success'=>'FALSE']);
         }
@@ -16,8 +15,7 @@ class AppLoginController extends Controller
             return response()->json(['success'=>'FALSE']);
         }
         $user_password = DB::table('user')->where('user_id', $req->login_id)->value('user_password');
-        debug($user_password);
-        //id name phone uinv_id
+
         if($user_password === $req->login_password){
             $user_info = DB::table('user')->where('user_id', $req->login_id)->value('user_name');
 

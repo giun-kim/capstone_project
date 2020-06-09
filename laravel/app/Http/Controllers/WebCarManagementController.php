@@ -4,43 +4,30 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use DB;
+// RC car manage controller
 class WebCarManagementController extends Controller
-{   # RC카 관리 컨트롤러
+{   
 
-    // 페이지 로드
+    // page load
     public function index()
     {
         return response(['car_all'=> DB::table('car')->select('car_num','car_name')->get()]);
     }
 
-    // 등록하기
+    // register to rc car
     public function store(Request $request)
     {
-        debug("$request->car_num, $request->car_name");
         DB::table('car')
                         ->insert(
                             ['car_num' => $request->car_num, 'car_name'=>$request->car_name, 'car_status'=>'배달대기', 'car_lat'=>35.896157, 'car_lon'=>128.622522]
                         );
-        debug('등록 완료');
 
         return response(['car_all'=> DB::table('car')->select('car_num','car_name')->get()]);
     }
 
-    //
-    // public function show($id)
-    // {
-    //     debug($id);
-    //     $car_info = DB::table('car')
-    //                     ->where('car_num', $id)
-    //                     ->first();
-    //     debug($car_info);
-    //     return response(['car__info'=>$car_info]);
-    // }
-
-    // 수정하기
+    // modify to rc car
     public function update(Request $request, $id)
     {
-        debug("$id, $request->car_name");
         DB::table('car')
                         ->where('car_num', $id)
                         ->update(['car_name' => $request->car_name]);
@@ -49,10 +36,9 @@ class WebCarManagementController extends Controller
         return response(['car_all'=> DB::table('car')->select('car_num','car_name')->get()]);  
     }  
 
-    // 삭제하기
+    // delete to rc car
     public function destroy($id)
     {
-        debug($id);
         DB::table('car')
                         ->where('car_num',$id)
                         ->delete();

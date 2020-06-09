@@ -4,43 +4,29 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use DB;
+// station manage controller
 class WebStationManagementController extends Controller 
-{    # 정류장 관리 컨트롤러
+{    
     
-    // 페이지 로드
+    // page load
     public function index()
     {
-        debug(DB::table('station')->get());
         return response(['station_all'=> DB::table('station')->get()]);
     }
 
-    // 등록하기
+    // register to station
     public function store(Request $request)
     {
-        debug("$request->station_name, $request->station_lat, $request->station_lon");
         DB::table('station')
                         ->insert(
                             ['station_name' => $request->station_name, 'station_lat'=>$request->station_lat, 'station_lon'=>$request->station_lon ]
                         );
-        debug('등록 완료');
         return response(['station_all'=> DB::table('station')->get()]);
     }
 
-    // // 정류장 마커 클릭
-    // public function show($id)
-    // {
-    //     debug($id);
-    //     $station_info = DB::table('station')
-    //                     ->where('station_name', $id)
-    //                     ->first();
-    //     debug($station_info);
-    //     return response(['station_info'=>$station_info]);
-    // }
-
-    // 수정하기
+    // modify to station
     public function update(Request $request, $id)
     {
-        debug("$id, $request->station_name, $request->station_lat, $request->station_lon");
         DB::table('station')
                         ->where('station_name', $id)
                         ->update(['station_name'=>$request->station_name, 'station_lat' => $request->station_lat, 'station_lon' => $request->station_lon]);
@@ -48,10 +34,9 @@ class WebStationManagementController extends Controller
         return response(['station_all'=> DB::table('station')->get()]);  
     }
 
-    // 삭제하기
+    // delete to station
     public function destroy($id)
     {
-        debug($id);
         DB::table('station')
                         ->where('station_name',$id)
                         ->delete();
