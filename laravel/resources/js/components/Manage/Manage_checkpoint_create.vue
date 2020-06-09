@@ -2,12 +2,12 @@
   <div class="page-container">
     <div id="map"></div>
     <div id="manager">
-      <!-- stage = 1 : 체크포인트 클릭 --> 
+      <!-- stage = 1 : checkpoint click --> 
       <div v-if="stage == 1">지도에서 등록할 체크포인트를 클릭해주세요.</div>
-      <!-- stage = 2 : 체크포인트 데이터 입력 -->
+      <!-- stage = 2 : data input -->
       <div v-if="stage == 2">
         <b-form>
-          <!-- 체크포인트 좌표 -->
+          <!-- checkpoint latitude, longitude -->
           <div style="margin: 5px;">
             <div>
               <span style="font-size: 13px">위도 : {{ lat }}</span>
@@ -16,7 +16,7 @@
               <span style="font-size: 13px">경도 : {{ lon }}</span>
             </div>
           </div>
-          <!-- chk_create() : 체크포인트 등록 함수, initialize() : 선택 체크포인트 취소 -->
+          <!-- chk_create() : checkpoint create function, initialize() : cancel function -->
           <b-button-group>
             <b-button type="button" variant="primary" @click="chk_create()">등록하기</b-button>
             <b-button type="button" @click="initialize()">취소하기</b-button>
@@ -30,7 +30,7 @@
 <script>
 export default {
   mounted() {
-    // 체크포인트 데이터 불러오기
+    // checkpoint load data
     Axios.get('/api/dlvy/management/checkpoint')
     .then(res => {
       this.data = res.data.checkpoint_all
@@ -44,133 +44,116 @@ export default {
   },
   data() {
     return {
-      map_stage: 1, // 카카오맵 생성 제한 map_stage = 1 : 맵 생성, map_stage = 2 : 맵 생성 안함
-      stage: 1, // 단계별 보여지는 화면 stage = 1 : 체크포인트 클릭, stage = 2 : 등록 데이터 입력
-      checkpoint_id: "", // 체크포인트 아이디
-      lat: "", // 위도
-      lon: "", // 경도
-      data: "", // 체크포인트 데이터
-      map: "", // 맵
-      markers: [] // 마커 배열
+      map_stage: 1, // kakaomap create limit (map_stage = 1 : create map, map_stage = 2 : Do not create maps)
+      stage: 1, // step-by-step screen stage = 1 : station click, stage = 2 : create data input
+      checkpoint_id: "", // checkpoint id
+      lat: "", // latitude
+      lon: "", // longitude
+      data: "", // checkpoint data
+      map: "", // map
+      markers: [] // marker array
     }
   },
   methods: {
-    // 인포윈도우 여는 함수
+    // infowindow open function
     makeOverListener(map, marker, infowindow) {
       return function() {
         infowindow.open(map, marker)
       }
     },
-
-    // 인포윈도우 닫는 함수
+    // infowindow close function
     makeOutListener(infowindow) {
       return function() {
         infowindow.close()
       }
     },
-
-    // 맵 불러오기 및 카카오 이벤트
+    // load map and kakao api events
     initMap() {
-      // 카카오맵 불러오기
+      // load kakao map
       if(this.map_stage == 1) {
         var container = document.getElementById("map");
         var options = {
-          center: new kakao.maps.LatLng(35.896309, 128.621917), // 지도 중심 좌표
-          level: 2, // 지도 확대
-          draggable: false, // 지도 이동 막기
-        };
-        this.map = new kakao.maps.Map(container, options) // 맵 설정
+          center: new kakao.maps.LatLng(35.896309, 128.621917), // map center latitude, longitude
+          level: 2, // map zoom
+          draggable: false, // stop moving the map
+        }
+        this.map = new kakao.maps.Map(container, options) // map settings
         this.map_stage = 2
       }
-
-      // 마커 이미지
+      // marker image
       var imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"
-
-      // 모든 마커 생성
+      // create all markers
       for (let i = 0, len = this.data.length; i < len; i++) {
-        // 마커 이미지 사이즈 및 경로
+        // marker image size, path
         var imageSize = new kakao.maps.Size(24, 35);
         var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize)
-
-        // 마커 생성
+        // create marker
         const marker = new kakao.maps.Marker({
-          position: new kakao.maps.LatLng(this.data[i].checkpoint_lat, this.data[i].checkpoint_lon) ? new kakao.maps.LatLng(this.data[i].checkpoint_lat, this.data[i].checkpoint_lon) : "", // 마커를 표시할 위치
+          position: new kakao.maps.LatLng(this.data[i].checkpoint_lat, this.data[i].checkpoint_lon) ? new kakao.maps.LatLng(this.data[i].checkpoint_lat, this.data[i].checkpoint_lon) : "", // marker show coordinate
           image: markerImage,
         })
-
-        // 인포 윈도우 생성
+        // infowindow create
         var infowindow = new kakao.maps.InfoWindow({
           content:
             "<div style='text-align:center; margin-left:5px; color:#18a2b8'>" +
             "checkpoint id : " + (this.data[i].checkpoint_id ? this.data[i].checkpoint_id : "") +
             "</div>",
         })
-
-        // 인포윈도우 여는 이벤트
+        // infowindow open event
         kakao.maps.event.addListener(
           marker,
           "mouseover",
           this.makeOverListener(this.map, marker, infowindow)
         )
-
-        // 인포윈도우 닫는 이벤트
+        // infowindow close event
         kakao.maps.event.addListener(
           marker,
           "mouseout",
           this.makeOutListener(infowindow)
         )
-
-        // 마커 표시 및 마커 배열 푸시
+        // marker create, marker array push
         marker.setMap(this.map)
         this.markers.push(marker)
       }
-
-      // 맵 클릭 이벤트
+      // map click event
       kakao.maps.event.addListener(this.map, "click", (mouseEvent) => {
         let latlng = mouseEvent.latLng
-
         this.markers[this.markers.length-1].setPosition(latlng)
-
         this.lat = latlng.getLat()
         this.lon = latlng.getLng()
-
-        // 맵 클릭시 다음 화면
+        // next screen when clicking map
         if(this.stage == 1)
           this.stage += 1
       })
     },
-
-    // 체크포인트 등록 함수
+    // checkpoint create function
     chk_create() {
-      // 체크포인트 등록 데이터 서버로 보내기
+      // send to the checkpoint creation data server
       Axios.post('/api/dlvy/management/checkpoint', {
         checkpoint_id : this.checkpoint_id,
         checkpoint_lat : this.lat,
         checkpoint_lon : this.lon
       })
       .then(res => {
-        this.data = res.data.checkpoint_all // 체크포인트 데이터
+        this.data = res.data.checkpoint_all // checkpoint data
         this.initialize()
       })
       .catch(err => {
         console.log(err)
       })
     },
-
-    // 데이터 초기화
+    // data initialization
     initialize() {
-      // 마커 삭제하기
+      // marker delete
       for (let i = 0, len = this.data.length; i < len; i++) {
         this.markers[i].setMap(null)
       }
-
       this.stage = 1
       this.lat = ""
       this.lon = ""
       this.checkpoint_id = ""
       this.markers = []
-
-      // 체크포인트 배열 데이터 초기화
+      // checkpoint array data initialization
       if (this.data[this.data.length - 1].checkpoint_id == "") {
         this.data.splice(this.data.length - 1, 1)
         this.data.push({
@@ -197,7 +180,6 @@ export default {
 #map {
   height: 600px;
 }
-
 #manager {
   position: absolute;
   top: 0;
@@ -208,7 +190,6 @@ export default {
   padding: 10px;
   text-align: center;
 }
-
 .page-container {
   position: relative;
 }

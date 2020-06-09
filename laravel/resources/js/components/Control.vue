@@ -251,7 +251,7 @@ export default {
         start_time : '',                //start time 
         end_time : ''                   //predicted end time
       },
-      socket : io.connect('https://5ceae07f7177.ngrok.io', {    //socket io client
+      socket : io.connect('https://733fafcacb7f.ngrok.io', {    //socket io client
         port : 3000
       }),
       marker : [],

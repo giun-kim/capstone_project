@@ -1,6 +1,6 @@
 <template>
   <b-col align="right">
-    <!-- RC카 데이터 테이블 -->
+    <!-- RC car data table -->
     <b-table
       show-empty
       :fields="fields"
@@ -8,11 +8,11 @@
       :per-page="perPage"
       :current-page="currentPage"
     >
-      <!-- RC카 제품번호 -->
+      <!-- RC car product number -->
       <template v-slot:cell(car_num)="data">
-        <!-- 등록버튼 클릭유무 -->
+        <!-- creation button click status -->
         {{ data.item.car_num == '' ? '' :  data.value }} 
-        <!-- 등록할 시 인풋창 생성 -->
+        <!-- create an input window when registering -->
         <b-form-input 
           v-if="data.item.car_num == ''" 
           v-model="car_num" 
@@ -20,28 +20,27 @@
         </b-form-input>
       </template>
 
-      <!-- RC카 이름 -->
+      <!-- RC car name -->
       <template v-slot:cell(car_name)="data">
-        <!-- 등록버튼 클릭유무 및 수정버튼 클릭유무 => 활성화 및 비활성화 -->
+        <!-- enabling and disabling -->
         {{ data.item.car_name == update_car_name || data.item.car_name == '' ? '' : data.value }} 
-        <!-- 등록 및 수정시 인풋창 생성 -->
+        <!-- create an input window when registered or updated -->
         <b-form-input 
           v-if="data.item.car_name == update_car_name || data.item.car_name == ''" 
           v-model="car_name" 
           :placeholder="update_car_name ? update_car_name : 'RC카 이름'"></b-form-input>
       </template>
 
-      <!-- RC카 수정버튼 -->
+      <!-- RC car update button -->
       <template v-slot:cell(update)="data">
-        <!-- 수정버튼 누를 시 수정 입력창 생성 -->
-        <!-- create_id => 1 : 등록전 2 : 등록중 update_id => 1 : 업뎃전 2 : 업뎃중 -->
+        <!-- create update input window -->
+        <!-- create_id => 1 : create before 2 : creating update_id => 1 : update before 2 : updating -->
         <b-button  
           type="button" 
           @click="updateclick(data.item)" 
           variant="info" 
           v-if="create_id != 2 && update_id != 2">수정</b-button>
-        <!-- 수정 완료 버튼 누를 시 수정 -->
-        <!-- update_car_num 업데이트되는 제품번호 => 수정 -->
+        <!-- updation completed -->
         <b-button 
           type="button" 
           @click="updateclick(data.item)" 
@@ -49,29 +48,29 @@
           v-if="create_id != 2 && data.item.car_num == update_car_num">수정 완료</b-button>
       </template>
 
-      <!-- RC카 삭제 및 취소버튼 -->
+      <!-- delete RC car, cancel button -->
       <template v-slot:cell(delete)="data">
-          <!-- 삭제버튼 -->
+          <!-- delete button -->
           <b-button 
             type="button" 
             @click="deleteclick(data.item.car_num)" 
             variant="danger" v-if="create_id != 2 && update_id != 2">삭제</b-button>
-          <!-- 등록중이거나 수정중일 때 취소버튼 -->
+          <!-- cancel button while creating or updating -->
           <b-button 
             type="button" 
             @click="cancelclick()" 
             v-if="(create_id == 2 || update_id == 2) && (data.item.car_num == '' || data.item.car_num == update_car_num)">취소</b-button>
       </template>
     </b-table>
-    <!-- 페이지네이션 -->
+    <!-- pagenation -->
     <b-pagination
       v-model="currentPage"
       :total-rows="rows"
       :per-page="perPage"
       align="center"
     ></b-pagination>
-    <!-- 등록버튼 -->
-    <!-- create_id => 1 : 등록전, 2 : 등록중 -->
+    <!-- create button -->
+    <!-- create_id => 1 : create before, 2 : creating -->
     <b-button 
       type="button" 
       @click="createclick()" 
@@ -83,7 +82,7 @@
 <script>
   export default {
     mounted() {
-      // RC카 데이터 불러오기
+      // load RC car data
       Axios.get('/api/dlvy/management/car')
       .then(res => {
         this.items = res.data.car_all
@@ -91,7 +90,7 @@
     },
     data() {
       return {
-        perPage: 5, // 페이지당 행 수
+        perPage: 5, //rows per page
         currentPage: 1,
         fields: [{
           key : 'car_num',
@@ -106,19 +105,19 @@
           key : 'delete',
           label : ''
         }],
-        items: [], // RC카 데이터
-        create_id : 1, // 1: 등록전 2: 등록후 
-        update_id : 1, // 1: 업뎃전 2: 업뎃후
-        car_num : "", // RC카 제품번호
-        car_name : "", // RC카 이름
-        update_car_num : "", // 업데이트되는 RC카 제품번호
-        update_car_name : "" // 업데이트되는 RC카 이름
+        items: [], // RC car data
+        create_id : 1, // 1: create before 2: create after 
+        update_id : 1, // 1: update before 2: update after
+        car_num : "", // RC car product number
+        car_name : "", // RC car name
+        update_car_num : "", // updated RC car product number
+        update_car_name : "" // updated RC car name
       }
     },
     methods: {
-      // RC카 수정 함수
+      // RC car updation function
       updateclick(car) {
-        // RC카 처음 수정버튼 클릭시
+        // click the update RC car first button
         if(this.update_id == 1) {
           this.update_car_num = car.car_num
           this.update_car_name = car.car_name
@@ -126,9 +125,9 @@
           this.car_name = car.car_name
           this.update_id += 1
         } 
-        // RC카 데이터 수정후 수정버튼 클릭시
+        // click the update button after updating RC car data
         else if(this.update_id == 2) {
-          // RC카 수정 데이터 서버로 보내기
+          // send RC car update data server
           Axios.patch(`/api/dlvy/management/car/${car.car_num}`, {
             car_name : this.car_name
           })
@@ -142,19 +141,17 @@
           })
         }
       },
-
-      // RC카 삭제 함수
+      // RC car deletion function
       deleteclick(car_num) {
-        // RC카 삭제 번호 서버로 보내기
+        // send RC car delete number server
         Axios.delete(`/api/dlvy/management/car/${car_num}`)
         .then(res => {
-          this.items = res.data.car_all // rc카 데이터
+          this.items = res.data.car_all // RCcar data
         })
       },
-
-      // 취소 클릭 함수 
+      // cancel click function
       cancelclick(){
-        // 데이터 초기화
+        // initialize data
         if(this.items[this.items.length-1].car_num == "") {
           this.items.splice(this.items.length-1, 1)
         }
@@ -166,10 +163,9 @@
         this.car_num = ''
         this.car_name = ''
       },
-
-      // RC카 생성 함수
+      // RC car creation function
       createclick() {
-        // RC카 처음 등록버튼 클릭시
+        // click the RC car first creation button
         if(this.create_id == 1) {
           this.currentPage = Math.floor((this.items.length + 5) / 5) 
           this.items.push({
@@ -182,9 +178,9 @@
           })
           this.create_id += 1
         }
-        // RC카 데이터 입력후 생성버튼 클릭시
+        // click the RC car second creation button
         else if (this.create_id == 2){
-          // RC카 등록 데이터 보내기
+          // send RC car creation Data
           Axios.post('/api/dlvy/management/car', {
             car_num : this.car_num,
             car_name : this.car_name
@@ -199,8 +195,7 @@
         }
       }
     },
-
-    // RC카 데이터 변경시 데이터 길이 반환
+    // return data length when RC car data is changed
     computed: {
       rows() {
         return this.items.length

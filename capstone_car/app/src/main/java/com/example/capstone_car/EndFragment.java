@@ -230,7 +230,7 @@ public class EndFragment extends Fragment {
 
     // Data preparation
     private void termCheck(String user_id, String term, String date_end, String date_start) {   // Send user_id, term, date_start, date_end to the server
-        new JSONTask1().execute("https://18f81b740298.ngrok.io/api/dlvy/completedlvy/"+user_id+"/"+term+"/"+date_end+"/"+date_start);
+        new JSONTask1().execute("https://b8c98bce1df6.ngrok.io/api/dlvy/completedlvy/"+user_id+"/"+term+"/"+date_end+"/"+date_start);
     }
 
     public class JSONTask1 extends AsyncTask<String, String, String> {

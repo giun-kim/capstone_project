@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         try {
-                            mSocket = IO.socket( "https://5ceae07f7177.ngrok.io" +
+                            mSocket = IO.socket( "https://733fafcacb7f.ngrok.io" +
                                     "" );
                         } catch(URISyntaxException e) {
                             throw new RuntimeException(e);
@@ -219,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         try {
-                            mSocket = IO.socket( "https://5ceae07f7177.ngrok.io" );
+                            mSocket = IO.socket( "https://733fafcacb7f.ngrok.io" );
                         } catch(URISyntaxException e) {
                             throw new RuntimeException(e);
                         }

@@ -47,18 +47,18 @@
         </div>
         <div class="right_container">
           <div class="right_container_item1">
-            <!-- 지도 관리 페이지 -->
-            <!-- id => 1 : 정류장, 경로 선택시 -->
+            <!-- map manage page -->
+            <!-- id => 1 : station, path select -->
             <router-view v-if="id == 1"></router-view>
 
-            <!-- 카테고리 선택 안 할 시 정중앙 배치 -->
-            <!-- id => 0 : 카테고리 선택 안할 시 -->
+            <!-- manage first page -->
+            <!-- id => 0 : first page -->
             <b-col v-if="id == 0" style="line-height:400px; vertical-align:middle; left: 40%; position: absolute;">
              <font size="6em">원하는 카테고리를 선택해 주세요</font>
             </b-col>
 
-            <!-- RC카 페이지 -->
-            <!-- id => 2 : RC카 선택시 -->
+            <!-- rccar page -->
+            <!-- id => 2 : rccar select -->
             <b-col v-if="id == 2" sm="10">
               <router-view></router-view>
             </b-col>
@@ -70,50 +70,43 @@
 <script>
 export default {
   name: "Manage",
-  mounted() {},
   data() {
     return {
-      id : 0 
+      id : 0 // id => 0 : first page, 1 : station, path select, 2 : rccar select
     };
   },
   methods: {
-    // 정류장 등록 함수
+    // station create function
     station_create() {
       this.id = 1
       this.$router.push({ name: "Manage_station_create" }).catch(err => {})
     },
-
-    // 정류장 수정 함수
+    // station update function
     station_update() {
       this.id = 1
       this.$router.push({ name: "Manage_station_update" }).catch(err => {})
     },
-
-    // 경로 등록 함수
+    // path create function
     path_create() {
       this.id = 1
       this.$router.push({ name: "Manage_path_create" }).catch(err => {})
     },
-
-    // 경로 수정 함수
+    // path update function
     path_update() {
       this.id = 1
       this.$router.push({ name: "Manage_path_update" }).catch(err => {})
     },
-
-    // RC카 관리 함수
+    // rccar manage function
     rc() {
       this.id = 2
       this.$router.push({ name: "Manage_rc" }).catch(err => {})
     },
-
-    // 체크포인트 등록 함수
+    // checkpoint create function
     checkpoint_create() {
       this.id = 1
       this.$router.push({ name: "Manage_checkpoint_create" }).catch(err => {})
     },
-
-    // 체크포인트 수정 함수
+    // checkpoint update function
     checkpoint_update() {
       this.id = 1
       this.$router.push({ name: "Manage_checkpoint_update" }).catch(err => {})
@@ -139,7 +132,6 @@ export default {
   margin-left: 2%;
   
 }
-
 .category_item_2{
   border-bottom:2px solid #E6E9ED;
   padding: 10px;
@@ -160,7 +152,6 @@ export default {
     margin-top : 5%;
     font-size: 0.9em;
 }
-
 .right_container_item1{
   margin-top:20px;
   border:1px solid #E6E9ED;

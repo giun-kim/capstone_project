@@ -54,7 +54,7 @@ public class Search_popup extends Activity implements ReceiverClickListener{
 
         receiver = new ArrayList<>();
 
-        new JSONTask().execute("https://18f81b740298.ngrok.io/api/dlvy/check_user/"+data); //execute http connection to get data about receiver's info
+        new JSONTask().execute("https://b8c98bce1df6.ngrok.io/api/dlvy/check_user/"+data); //execute http connection to get data about receiver's info
 
         popup_notice.setText(data+"님을 검색한 결과입니다.");
     }
