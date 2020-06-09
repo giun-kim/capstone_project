@@ -29,6 +29,6 @@ My part is back end and i used Laravel
   * click to call button and all station information will be sent.
   * click to two station buttons to send the route between the stations.
   * When the receiver name is same, a list of the same person is sent to verify the same name.
- + Delivery history
+ * Delivery history
   * You can check the Completed delivery.
   * You can select the desired date to view information about the delivery you sent or received on that date.
