@@ -8,7 +8,7 @@
 ## Project Purpose
  
 ## Part
-My part is back end and i used Laravel
+My part is back end and i used Laravel  
 ● Web  
  ○ Control page  
   - Displays all of the contents of the control page when it is first loaded  
@@ -26,9 +26,9 @@ My part is back end and i used Laravel
  ○ Main page  
   - Send delivery information of the log-in user when load the main activity  
  ○ Call to delivery  
-  - click to call button and all station information will be sent.
-  - click to two station buttons to send the route between the stations.
-  - When the receiver name is same, a list of the same person is sent to verify the same name.
- ○ Delivery history
-  - You can check the Completed delivery
-  - You can select the desired date to view information about the delivery you sent or received on that date.
+  - click to call button and all station information will be sent.  
+  - click to two station buttons to send the route between the stations.  
+  - When the receiver name is same, a list of the same person is sent to verify the same name.  
+ ○ Delivery history  
+  - You can check the Completed delivery  
+  - You can select the desired date to view information about the delivery you sent or received on that date.  
