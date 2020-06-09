@@ -1,11 +1,11 @@
 <template>
     <div class="container">
         <div class="left_container">
-            <div class="left_container_item1">
+            <div class="left_container_item1">     <!--category -->
                 <b-card
                     header="카테고리"
                     header-tag="header"
-                    style="max-width: 20rem;text-align:center;"
+                    style="max-width: 14rem;text-align:center;"
                     class="mb-2">
                     <b-button class="button" @click="categori_change('complete')">
                         배달 완료 건 수
@@ -16,59 +16,65 @@
                     <b-button class="button" @click="categori_change('waiting_time_avg')">
                         평균 대기 시간
                     </b-button>
-                </b-card>
+                </b-card>                         <!-- category -->
             </div>
         </div>
         <div class="right_container">
-            <div class="right_container_item0">
-                <h2>{{categori}}</h2>
+            <div class="right_container_item1">   <!-- margin -->
             </div>
-            <div class="right_container_item1">
-                <b-button @click="clicked('acc', term)" v-if="term != 'day' & categori != '평균 대기 시간'">
-                        누적
-                </b-button>
-                <b-button @click="clicked('avg', term)" v-if="term != 'day' & categori != '평균 대기 시간'">
-                        평균
-                </b-button>
-                </div>
-            <div class="right_container_item2">
-                <vc-date-picker
-                    v-if="term=='day'"
-                    v-model="date"
-                    @dayfocusin="selected"
-                    :max-date='yesterday'
-                    />
-                <vc-date-picker
-                    v-if="term=='week'"
-                    :attributes='attributes'
-                    @dayfocusin="selected"
-                    :max-date='for_week_disable'
-                    :masks="{ input: `${input_text}`}"
-                    :input-props='{
-                        placeholder: `${attributes[0].dates.start.getFullYear()}.${attributes[0].dates.start.getMonth()+1}.${attributes[0].dates.start.getDate()} ~ ${attributes[0].dates.end.getFullYear()}.${attributes[0].dates.end.getMonth()+1}.${attributes[0].dates.end.getDate()}`,
-                    }'
-                    />
-                <vue-monthly-picker
-                    v-if="term=='month'"
-                    @selected="showDate"
-                    :max="new Date(today.getFullYear(), today.getMonth()-1,1)"
-                    v-model="selected_month"
-                    />
-            </div>
-            <div class="right_container_item3">
-                 <b-button @click="clicked(mode, 'day')">
-                    일간
-                </b-button>
-                <b-button @click="clicked(mode, 'week')">
-                    주간
-                </b-button>
-                <b-button @click="clicked(mode, 'month')">
-                    월간
-                </b-button>
-            </div>
-            <div class="right_container_item4">
-                 <bar-chart
-                    :chart-data="datacollection"/>
+            <div class="right_container_item2">    <!-- chart header, datepicker, button, body -->  
+                <div class="right_container_item2_left">
+                    <div class="right_container_item2_header">  <!-- chart header -->
+                        {{categori}}
+                    </div>
+                    <div class="right_container_item2_header2">
+                        <div class="right_container_item2_item1"> <!-- chart Accumulation, average button -->
+                            <b-button variant= "success" class ="chart_button" @click="clicked('acc', term)" v-if="term != 'day' & categori != '평균 대기 시간'">
+                                    누적
+                            </b-button>
+                            <b-button variant="info" class ="chart_button" @click="clicked('avg', term)" v-if="term != 'day' & categori != '평균 대기 시간'">
+                                    평균
+                            </b-button>
+                            </div>
+                        <div class="right_container_item2_item2">  <!-- chart datepicker -->
+                            <vc-date-picker
+                                v-if="term=='day'"
+                                v-model="date"
+                                @dayfocusin="selected"
+                                :max-date='yesterday'
+                                />
+                            <vc-date-picker
+                                v-if="term=='week'"
+                                :attributes='attributes'
+                                @dayfocusin="selected"
+                                :max-date='for_week_disable'
+                                :masks="{ input: `${input_text}`}"
+                                :input-props='{ 
+                                    placeholder: `${attributes[0].dates.start.getFullYear()}.${attributes[0].dates.start.getMonth()+1}.${attributes[0].dates.start.getDate()} ~ ${attributes[0].dates.end.getFullYear()}.${attributes[0].dates.end.getMonth()+1}.${attributes[0].dates.end.getDate()}`,
+                                }'
+                                />
+                            <vue-monthly-picker
+                                v-if="term=='month'"
+                                @selected="showDate"
+                                :max="new Date(today.getFullYear(), today.getMonth()-1,1)"
+                                v-model="selected_month"
+                                />
+                        </div>
+                        <div class="right_container_item2_item3"> <!-- chart day, week, month button -->
+                            <b-button variant="info" class ="chart_button" @click="clicked(mode, 'day')">
+                                일간
+                            </b-button>
+                            <b-button variant="info" class ="chart_button" @click="clicked(mode, 'week')">
+                                주간
+                            </b-button>
+                            <b-button variant="info" class ="chart_button" @click="clicked(mode, 'month')">
+                                월간
+                            </b-button>
+                        </div>
+                    </div>
+                                <bar-chart
+                                :chart-data="datacollection"/>
+                    </div>        
             </div>
         </div>
     </div>
@@ -471,111 +477,95 @@ import VueMonthlyPicker from 'vue-monthly-picker'
 
 <style scoped>
 
-.container{
+.container{          /* left, right container */
     display:grid;
     grid-template-columns: 22% 78%;
     width: 100%;
     max-width:1500px;
 }
 
-.left_container_item1{
+.left_container_item1{ /* category */
     width: 70%;
-    margin-top: 55%;
+    margin-top: 220px;
 }
 
-.right_container{
+.right_container{ 
     display:grid;
-    grid-template-columns: 30% 33% 37%;
-    grid-template-rows: 3% 14% 81%;
+    grid-template-columns: 10% 80%;
+    grid-template-rows: 5% 95%;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #E6E9ED;
+    padding: 10px;
+    margin-top: 20px;
+    height: 660px;
 }
-.right_container_item0{
+
+.right_container_item1{   /* margin */
     display:grid;
+    grid-template-columns: 13% 80%;
     grid-column-start: 1;
     grid-column-end: 4;
-    justify-content:center;
-    margin-top: 30px;
-    margin-right: 130px;
+   
 }
-.right_container_item1{
-    margin-top: 100px;
-    margin-left: 50%;
+
+.right_container_item1_left{
+    border-bottom:2px solid #E6E9ED;
+    margin-bottom: 50px;
 }
-.right_container_item2{
-    margin-top: 80px;
-    width: 50%;
-    margin-left: 20%;
-}
-.right_container_item3{
-    margin-top: 100px;
+
+.right_container_item2{   /*chart header, buttons, date picker ,body  */
+    display:grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 18% 15% 67%;
+    grid-column-start: 1;
+    grid-column-end: 4;
+    font-size: 2.2em;
+    margin-left: 20px;
+    margin-top: 40px;
 
 }
 
-.right_container_item4{
+.right_container_item2_header{  /*chart header */
     display: grid;
     grid-column-start: 1;
     grid-column-end: 4;
-    height: 50%;
-    margin-top: 5%;
-    width: 90%;
-  
+    text-align: center;
+    font-size: 1em;
+    color:#716A6A;
+    margin-right: 25px;
+    margin-bottom: 5px;
 }
 
-.button{
+.right_container_item2_header2{ /*chart buttons, date picker */
+    display: grid;
+    grid-column-start: 1;    
+    grid-column-end: 4;
+    grid-template-columns: 33% 33% 33%;
+
+}
+
+.right_container_item2_item1{ /* chart Accumulation, average button */
+    margin-left: 210px;
+}
+
+.right_container_item2_item2{ /* date picker */
+    margin-left: 5px;
+}
+.right_container_item2_item3{ /* chart day, week, month button */
+    margin-left: 50px;
+}
+
+.button{  /* category buttons */
     color : black;
     background-color : white;
     border : none;
     margin-top : 5%;
+    
 }
-
-.categori{
-    width : 20%;
-    height : 60%;
-    margin-left : 5%;
-    margin-top : 5%;
-    float : left;
+ 
+.chart_button{ 
+    font-size: 0.4em;
+    
 }
-
-.content{
-    float : right;
-    width : 70%;
-    height : 100%;
-}
-
-.chart{
-    float : right;
-    width : 80%;
-    height : 50%;
-    margin-top : 5%;
-    margin-right : 10%;
-}
-
-.button{
-    color : black;
-    background-color : white;
-    border : none;
-    margin-top : 5%
-}
-
-.title{
-    float : right;
-    margin-right : 45%;
-    margin-top : 2%
-}
-
-.mode_button{
-    margin-top : 10%;
-    margin-left : 10%;
-    display : inline-block;
-}
-
-.term_button{
-    float : right;
-    margin-left : 10%;
-    margin-right : 10%;
-}
-.datepicker{
-    float : right;
-    margin-right : 3%;
-}
-
 </style>

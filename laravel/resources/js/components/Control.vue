@@ -1,7 +1,7 @@
 <template>
   <div class="container">
-    <div class="left_container">
-        <div class=rc_status>
+    <div class="left_container">    <!-- left container start-->
+        <div class=rc_status>       <!--  rc car real-time status start -->
           <div id="rc_status_header">실시간 운행상태</div>
           <div class="status_list">
             <div class = "status_list_item1">
@@ -25,8 +25,8 @@
               <strong><div style="color:#1ABBA0;">{{rc.operation_rate}}%</div></strong>
             </div>
           </div>
-        </div>
-        <div class="dlvy_status">
+        </div>                                <!--  rc car real-time status end -->
+        <div class="dlvy_status">             <!--  delivery status start -->
           <div id="dlvy_status_header">실시간 배달 현황</div>
           <DoughnutChart id="doughnut_chart"
               :percent=call_info.complete_rate
@@ -53,8 +53,8 @@
               </tbody>
               </table>
             </div>
-        </div>
-        <div class="cancel_waiting">
+        </div>                              <!--  delivery status end -->
+        <div class="cancel_waiting">        <!--  cancelled waiting start -->
             <div id = "cancel_waiting_header">실시간 대기 취소 현황</div>
             <div id = "cancel_waiting_summary">
               <table class="info_item1_list">
@@ -78,29 +78,29 @@
               </tbody>
             </table>
           </div>
-        </div>
-        <div class="rank_bldg">
+        </div>                          <!--  cancelled waiting end -->
+        <div class="rank_bldg">         <!--  building ranking start -->
           <div id="rank_bldg_header">지난 주 호출 건물 순위</div>
           <div id="rank_bldg_summary">
                 <strong>1위 </strong><span>{{rank_bldg[0]}}</span><br>
                 <strong>2위 </strong><span>{{rank_bldg[1]}}</span><br>
                 <strong>3위 </strong><span>{{rank_bldg[2]}}</span>
           </div>
-        </div>
-        <div class="avg_waiting_time">
+        </div>                          <!--  building ranking end -->
+        <div class="avg_waiting_time">   <!--  average waiting time start -->
             <div id="avg_waiting_time_header">실시간 평균 대기 시간</div>
             <div id="avg_waiting_time_summary">
             <strong>{{wait_time.avg_waiting_time}}분/ {{wait_time.avg_waiting_time_month_ago}}분</strong><br>
             <small>(당일 / 지난 달 하루 평균)</small>
           </div>
-        </div>
-      </div>
-      <div class="right_container">
-        <div class="right_map">
+        </div>                            <!--  average waiting time end -->
+      </div>                              <!-- left container end -->
+      <div class="right_container">       <!-- right container start -->
+        <div class="right_map">           <!-- map start -->
           <div id="map" style="width:100%;height:100%;">
           </div>
-        </div>
-        <div class="map_info">
+        </div>                            <!-- map end -->
+        <div class="map_info">            <!-- map information start -->
           <div class="map_box1"></div>
           <span style="margin-right:10px;">사용 중</span>
           <div class="map_box2"></div>
@@ -109,8 +109,8 @@
           <span style="margin-right:10px;">오류</span>
           <div class="map_box4"></div>
           <span style="margin-right:10px;">정류장</span>
-        </div>
-        <div class="right_dlvy_info">
+        </div>                              <!-- map information end -->
+        <div class="right_dlvy_info">       <!-- delivery information start -->
           <div id="right_dlvy_info_header">운행 정보</div>
           <div id="info_item1">
             <table class="info_item1_list">
@@ -174,9 +174,9 @@
               </tbody>
             </table>
           </div>
-        </div>
-      </div>
-      <b-modal id="modal-center" centered title="오류 발생!!">
+        </div>                            <!-- delivery information end -->
+      </div>                              <!-- right container end -->
+      <b-modal id="modal-center" centered title="오류 발생!!">        <!--rc car error message -->
         <p class="my-4">{{error_info.err_rc_num}}번 RC카에서 오류발생!!</p>
         <p class="my-4">{{error_info.err_content}}</p>
       </b-modal>
@@ -518,22 +518,13 @@ export default {
   background-color: #F7F7F7;
   color:#73879C;
 }
-.left_container{
+.left_container{ /*rc_status, dlvy_status, cancel_waiting, rank_bldg, avg_waiting_time*/
   display: grid;
   grid-template-columns: 50% 50%;
   grid-template-rows: 20% 55% 25%;
   width: 40%;
   height: 100%;
   text-align: center;
-}
-
-.right_container{
-  display: grid;
-  grid-template-columns:100%;
-  grid-template-rows: 61% 6% 33%;
-  width: 60%;
-  height: 100%;
-  margin-left: 20px;
 }
 
 .rc_status{
@@ -546,8 +537,8 @@ export default {
   border-color: #E6E9ED;
   background-color: #F7F7F7;
   height: 100%;
-
 }
+
 #rc_status_header{
   border-bottom:3px solid #E6E9ED;
   padding: 5px;
@@ -555,9 +546,9 @@ export default {
   margin-left: 2%;
   text-align: start;
   font-size: 1em;
-
 }
-.status_list{
+
+.status_list{         /* rc car status list 1~5 start */
   display: flex;
   margin-top: 10px;
   margin-bottom: 20px;
@@ -605,10 +596,11 @@ font-size: 2em;
   text-align : center;
 
 }
-.status_list_item5 div{
+.status_list_item5 div{     /* rc car status list 1~5 end */
 font-size: 2em;
 }
-.dlvy_status{
+
+.dlvy_status{               /* delivery status start */
   border-style: solid;
   border-width: 2px;
   border-color: #E6E9ED;
@@ -618,64 +610,6 @@ font-size: 2em;
   background-color:white;
 }
 
-.cancel_waiting{
-  border-style: solid;
-  border-width: 2px;
-  border-color: #E6E9ED;
-  margin-top: 10px;
-  margin-bottom: 20px;
-  background-color: white;
-}
-.rank_bldg{
-  border-style: solid;
-  border-width: 2px;
-  border-color: #E6E9ED;
-  background-color: white;
-  margin-right: 20px;
-}
-
-.avg_waiting_time{
-  border-style: solid;
-  border-width: 2px;
-  border-color: #E6E9ED;
-  background-color: white;
-}
-
-.right_map{
-  border-style: solid;
-  border-width: 2px;
-  border-color: #E6E9ED;
-  margin-bottom:15px;
-}
-
-.right_dlvy_info{
-  display: grid;
-  grid-template-columns: 30% 35% 35%;
-  grid-template-rows: 20% 80%;
-  border-style: solid;
-  border-width: 2px;
-  border-color: #E6E9ED;
-  background-color: white;
-}
-
-#dlvy_info_table{
-  margin-top: 70px;
-  margin-left: 30px;
-}
-#info_item1{
-  margin-top: 15px;
-  margin-left: 15%;
-}
-
-#info_item2{
-  margin-top: 15px;
-
-}
-
-#info_item3{
-  margin-top: 15px;
-
-}
 #dlvy_status_header{
   border-bottom:3px solid #E6E9ED;
   padding: 10px;
@@ -684,11 +618,24 @@ font-size: 2em;
   text-align: start;
   font-size: 1em;
 }
-#dlvy_status_summary{
+#dlvy_status_summary{     /* delivery status end */  
   margin-top: 10px;
   width: 100%;
   text-align: start;
   margin-left: 10%;
+}
+
+#doughnut_chart{
+margin-top: 30px;
+}
+
+.cancel_waiting{           /* canclled waiting */
+  border-style: solid;
+  border-width: 2px;
+  border-color: #E6E9ED;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  background-color: white;
 }
 
 #cancel_waiting_header{
@@ -705,14 +652,22 @@ font-size: 2em;
    font-size: 1.2em;
    text-align: left;
 }
+
+.rank_bldg{               /* most called building ranking*/
+  border-style: solid;  
+  border-width: 2px;
+  border-color: #E6E9ED;
+  background-color: white;
+  margin-right: 20px;
+}
+
 #rank_bldg_summary{
   margin-top: 10px;
   margin-left: 20px;
   font-size: 1.2em;
   text-align: left;
-  
- 
 }
+
 #rank_bldg_header{
   border-bottom:3px solid #E6E9ED;
   padding: 10px;
@@ -721,6 +676,14 @@ font-size: 2em;
   text-align: start;
   font-size: 1em;
 }
+
+.avg_waiting_time{        /* average waiting time */
+  border-style: solid;
+  border-width: 2px;
+  border-color: #E6E9ED;
+  background-color: white;
+}
+
 #avg_waiting_time_summary{
   margin-top: 20px;
   font-size: 1.3em;
@@ -734,45 +697,22 @@ font-size: 2em;
   font-size: 1em;
 }
 
-#right_dlvy_info_header{
-  grid-column-start: 1;
-  grid-column-end: 4;
-  border-bottom:3px solid #E6E9ED;
-  padding: 10px;
-  margin-right: 2%;
-  margin-left: 2%;
-  text-align: start;
-  font-size: 1em;
+.right_container{       /* map, dlvy_info*/
+  display: grid;
+  grid-template-columns:100%;
+  grid-template-rows: 57% 6% 37%;
+  width: 60%;
+  height: 100%;
+  margin-left: 20px;
 }
 
-.info_item1_list td {
-  padding: 10px;
-  line-height: 20px;
-  border-top: 1px solid #eeeeee;
-  font-size: 0.9em;
-}
-.info_item2_list td {
-  padding: 10px;
-  line-height: 20px;
-  border-top: 1px solid #eeeeee;
-  font-size: 0.9em;
-}
-.info_item3_list td {
-  padding: 10px;
-  line-height: 20px;
-  border-top: 1px solid #eeeeee;
-  font-size: 0.9em;
+.right_map{       
+  border-style: solid;
+  border-width: 2px;
+  border-color: #E6E9ED;
+  margin-bottom:15px;
 }
 
-#doughnut_chart{
-margin-top: 30px;
-}
-.dlvy_status_list td {
-  padding: 10px;
-  line-height: 10px;
-  border-top: 1px solid #eeeeee;
-  font-size: 1em;
-}
 .map_info{
 display:flex;
 height:100%;
@@ -810,4 +750,71 @@ justify-content: center;
   margin-right:10px;
   margin-top:5px;
 }
+
+.right_dlvy_info{                           /* delivery information start */
+  display: grid;
+  grid-template-columns: 30% 35% 35%;
+  grid-template-rows: 20% 80%;
+  border-style: solid;
+  border-width: 2px;
+  border-color: #E6E9ED;
+  background-color: white;
+}
+
+#dlvy_info_table{                          
+  margin-top: 70px;
+  margin-left: 30px;
+}
+
+#info_item1{
+  margin-top: 15px;
+  margin-left: 15%;
+}
+
+#info_item2{
+  margin-top: 15px;
+
+}
+
+#info_item3{                            /* delivery information end */
+  margin-top: 15px;
+}
+
+#right_dlvy_info_header{
+  grid-column-start: 1;
+  grid-column-end: 4;
+  border-bottom:3px solid #E6E9ED;
+  padding: 10px;
+  margin-right: 2%;
+  margin-left: 2%;
+  text-align: start;
+  font-size: 1em;
+}
+
+.info_item1_list td {
+  padding: 10px;
+  line-height: 20px;
+  border-top: 1px solid #eeeeee;
+  font-size: 0.9em;
+}
+.info_item2_list td {
+  padding: 10px;
+  line-height: 20px;
+  border-top: 1px solid #eeeeee;
+  font-size: 0.9em;
+}
+.info_item3_list td {
+  padding: 10px;
+  line-height: 20px;
+  border-top: 1px solid #eeeeee;
+  font-size: 0.9em;
+}
+
+.dlvy_status_list td {
+  padding: 10px;
+  line-height: 10px;
+  border-top: 1px solid #eeeeee;
+  font-size: 1em;
+}
+
 </style>

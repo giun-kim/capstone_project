@@ -1,7 +1,7 @@
 <template>
    <div class="container">
         <div class="left_container">
-            <div class="left_container_item1">
+            <div class="category">   
                 <b-card
                     header="카테고리"
                     header-tag="header"
@@ -43,25 +43,23 @@
                       </b-button>
                     </div>
                 </b-card>
-            </div>
-        </div>
+            </div>                    
+        </div>  
         <div class="right_container">
           <div class="right_container_item1">
             <!-- map manage page -->
             <!-- id => 1 : station, path select -->
-            <router-view v-if="id == 1"></router-view>
+            <router-view v-if="id == 1"></router-view>  
 
             <!-- manage first page -->
             <!-- id => 0 : first page -->
-            <b-col v-if="id == 0" style="line-height:400px; vertical-align:middle; left: 40%; position: absolute;">
-             <font size="6em">원하는 카테고리를 선택해 주세요</font>
+            <b-col v-if="id == 0" style="line-height:550px; vertical-align:middle; left: 40%; position: absolute;">
+             <font size="6em">원하는 카테고리를 선택해 주세요.</font>
             </b-col>
 
             <!-- rccar page -->
             <!-- id => 2 : rccar select -->
-            <b-col v-if="id == 2" sm="10">
-              <router-view></router-view>
-            </b-col>
+              <router-view v-if="id == 2"></router-view>  <!-- rc car -->
           </div>
         </div>
     </div>
@@ -122,40 +120,43 @@ export default {
     width: 100%;
     max-width:1500px;
 }
-.left_container_item1{
+
+.category{            
   margin-top: 20px;
 }
-.category_item_1{
+
+.category_item_1{ 
   border-bottom:2px solid #E6E9ED;
   padding: 10px;
   margin-right: 2%;
   margin-left: 2%;
   
 }
-.category_item_2{
+
+.category_item_2{ 
   border-bottom:2px solid #E6E9ED;
   padding: 10px;
   margin-right: 2%;
   margin-left: 2%;
   
 }
-.button{
+.button{ /* category button */
     color : black;
     background-color : white;
     border : none;
     margin-top : 5%;
 }
-.button1{
+.button1{ /* category checkpoint_update button */
    color : black;
     background-color : white;
     border : none;
     margin-top : 5%;
     font-size: 0.9em;
 }
-.right_container_item1{
+
+.right_container{  /* manage map */
   margin-top:20px;
   border:1px solid #E6E9ED;
   margin-left: 40px;
- 
 }
 </style>
