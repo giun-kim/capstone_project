@@ -6,7 +6,11 @@
 ## Introduction to the Project
 
 ## Project Purpose
- 
+
+
+## How to use  
+- composer install
+
 ## Part
 My part is back end and i used Laravel  
 * Web
