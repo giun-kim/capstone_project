@@ -11,7 +11,7 @@ class AppDlvyCompleteController extends Controller
     public function completed_dlvy($id, $term='default', $date_start='0', $date_end='0'){
         if($date_start == '0'){
             $date_start= date('Y-m-d');
-            $date_end = date('Y-m-d');  // 필요 없음?
+            $date_end = date('Y-m-d');
             if($term == 'day'){
                 $date_end = date('Y-m-d');
             }elseif($term == 'week'){
