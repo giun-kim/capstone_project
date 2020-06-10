@@ -5,7 +5,7 @@
 * Major : Web database
 
 ## Introduction to the Project
-Currently, most of the deliveries are delivered directly to the campus and government offices by motorcycle or walking. This can cause motorcycle accidents and it takes time to deliver them directly. 
+Currently, most of the deliveries are delivered directly to the campus and government offices by motorcycle or walking. This can cause motorcycle accidents and it takes time to deliver them directly.  
 I wish I could use this system to reduce accidents and reduce the time it takes to deliver goods. So we planned this project.
 
 ## Project Purpose
@@ -19,7 +19,7 @@ This project purposes to develop an autonomous driving delivery system within a 
 * View current delivery status and rc car status at a glance
 
 ## How to use  
-- production environment: Laravel Framework 7.10.2 & PHP 7.4.6
+- production environment : Laravel Framework 7.10.2 & PHP 7.4.6
 - composer install
 - npm install
 ## skills of use
