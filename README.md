@@ -2,18 +2,34 @@
 * Team name : Infinite
 * Project name : baribari
 * Department : computer information
- 
+* Major : Web database
+
 ## Introduction to the Project
+Currently, most of the deliveries are delivered directly to the campus and government offices by motorcycle or walking. This can cause motorcycle accidents and it takes time to deliver them directly. 
+I wish I could use this system to reduce accidents and reduce the time it takes to deliver goods. So we planned this project.
 
 ## Project Purpose
+This project purposes to develop an autonomous driving delivery system within a limited area, such as campus, government offices, etc.
 
+## project characteristic
+* Deliver the goods you wish to deliver via rc car.
+* User focused, convenient app screen configuration.
+* The administrator directly manages stops and routes in a flexible manner.
+* Identifying traffic through statistical graphs of delivery information
+* View current delivery status and rc car status at a glance
 
 ## How to use  
+- production environment: Laravel Framework 7.10.2 & PHP 7.4.6
 - composer install
+- npm install
+## skills of use
+* Web : Vue.js
+* App : Native App
+* Server : Node.js, Laravel
 
 ## Part
-My part is back end and i used Laravel  
-* Web
+My part is back end and i used Laravel
+* Server -> Web
   * Control page
     * Displays all of the contents of the control page when it is first loaded.
     * Information sent on first load.
@@ -26,7 +42,7 @@ My part is back end and i used Laravel
     * You can register, modify and delete for RC cars, check points, station on this page.
     * When registering a path, a total of two paths are registered up to the path that reversed the path.
 
-* App
+* Server -> App
   * Main page
     * Send delivery information of the log-in user when load the main activity
   * Call to delivery
